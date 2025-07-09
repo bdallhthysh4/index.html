@@ -1,1 +1,781 @@
-# index.html
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حكايتنا - لوحة الإدارة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ff3b3b; /* أحمر ناري */
+            --secondary-color: #ff8c00; /* برتقالي حيوي */
+            --dark-bg-main: #0a0a0a; /* أسود عميق جداً */
+            --dark-bg-secondary: #1a1a1a;
+            --card-bg: #1f1f1f;
+            --section-bg: #2b2b2b;
+            --text-light: #f0f0f0;
+            --text-muted: #aaaaaa;
+            --border-color: #444444;
+            --shadow-dark: rgba(0,0,0,0.9);
+            --glow-primary: rgba(255, 59, 59, 0.7);
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(145deg, var(--dark-bg-main), #100000);
+            color: var(--text-light);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: var(--dark-bg-secondary);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px var(--shadow-dark);
+            flex-grow: 1;
+        }
+
+        h1, h2 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px var(--glow-primary);
+        }
+
+        /* Admin Panel Header */
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: linear-gradient(90deg, #8b0000, var(--primary-color));
+            border-bottom: 3px solid var(--secondary-color);
+            box-shadow: 0 4px 15px var(--shadow-dark);
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .admin-header button {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+        .admin-header button:hover {
+            background: #ff6a00;
+            transform: scale(1.05);
+        }
+
+        /* Forms */
+        .form-section {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            border: 1px solid var(--border-color);
+        }
+        .form-section h3 {
+            color: var(--secondary-color);
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 22px;
+            text-shadow: 0 0 8px rgba(255,140,0,0.5);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-light);
+            font-weight: bold;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="url"],
+        .form-group select {
+            width: calc(100% - 22px); /* Adjust for padding and border */
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: #222;
+            color: var(--text-light);
+            font-size: 16px;
+        }
+        .form-group button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        .form-group button:hover {
+            background: #cc2a2a;
+            transform: translateY(-1px);
+        }
+        .form-group button.delete-btn {
+            background: #dc3545;
+        }
+        .form-group button.delete-btn:hover {
+            background: #c82333;
+        }
+        .form-group button.edit-btn {
+            background: #007bff;
+        }
+        .form-group button.edit-btn:hover {
+            background: #0056b3;
+        }
+        .form-group button.add-episode-btn {
+            background: #28a745;
+        }
+        .form-group button.add-episode-btn:hover {
+            background: #218838;
+        }
+
+        /* Series List */
+        #series-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .series-item {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            /* cursor: pointer; */ /* Removed as buttons handle interaction */
+        }
+        .series-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px var(--glow-primary);
+        }
+        .series-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .series-item-info {
+            padding: 15px;
+            text-align: center;
+        }
+        .series-item-info h4 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: var(--text-light);
+            font-size: 18px;
+        }
+        .series-item-info p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        .series-item-actions {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            border-top: 1px solid var(--border-color);
+        }
+        .series-item-actions button {
+            flex: 1;
+            margin: 0 5px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        /* Episode List within Edit Form */
+        .episodes-management {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px dashed var(--border-color);
+        }
+        .episodes-management h4 {
+            color: var(--text-light);
+            font-size: 18px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .episode-item {
+            background: #2a2a2a;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #333;
+        }
+        .episode-item span {
+            flex-grow: 1;
+            font-size: 15px;
+        }
+        .episode-item-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .episode-item-actions button {
+            padding: 6px 10px;
+            font-size: 13px;
+            border-radius: 5px;
+        }
+        .episode-item-actions .toggle-new-btn {
+            background: #17a2b8; /* Cyan */
+        }
+        .episode-item-actions .toggle-new-btn.active {
+            background: #28a745; /* Green */
+        }
+        .episode-item-actions .toggle-new-btn:hover {
+            background: #138496;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px auto;
+                padding: 15px;
+            }
+            .admin-header {
+                flex-direction: column;
+                gap: 10px;
+                font-size: 20px;
+            }
+            .admin-header button {
+                width: 100%;
+            }
+            #series-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section id="admin-panel-section">
+        <div class="admin-header">
+            <span>لوحة إدارة حكايتنا</span>
+            <button id="logout-btn">تسجيل الخروج</button>
+        </div>
+
+        <div class="container">
+            <div class="form-section">
+                <h3>إضافة مسلسل جديد</h3>
+                <div class="form-group">
+                    <label for="new-series-title">عنوان المسلسل:</label>
+                    <input type="text" id="new-series-title" placeholder="مثال: مسلسل قيامة أرطغرل" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-series-image">رابط صورة المسلسل:</label>
+                    <input type="url" id="new-series-image" placeholder="مثال: https://example.com/image.jpg" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-series-category">تصنيف المسلسل:</label>
+                    <input type="text" id="new-series-category" placeholder="مثال: تاريخي، دراما، أكشن">
+                </div>
+                <button id="add-series-btn">إضافة المسلسل</button>
+            </div>
+
+            <div class="form-section">
+                <h3>تعديل / حذف مسلسل</h3>
+                <div class="form-group">
+                    <label for="edit-series-select">اختر مسلسلاً للتعديل أو الحذف:</label>
+                    <select id="edit-series-select">
+                        <option value="">-- اختر مسلسل --</option>
+                    </select>
+                </div>
+                <div id="edit-series-form" style="display: none;">
+                    <div class="form-group">
+                        <label for="edit-series-title">عنوان المسلسل:</label>
+                        <input type="text" id="edit-series-title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-series-image">رابط صورة المسلسل:</label>
+                        <input type="url" id="edit-series-image" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-series-category">تصنيف المسلسل:</label>
+                        <input type="text" id="edit-series-category">
+                    </div>
+                    <button id="update-series-btn">تحديث المسلسل</button>
+                    <button id="delete-series-btn" class="delete-btn">حذف المسلسل</button>
+
+                    <div class="episodes-management">
+                        <h4>إدارة الحلقات</h4>
+                        <div id="episodes-list">
+                            </div>
+                        <div class="form-group">
+                            <label for="new-episode-title">عنوان الحلقة الجديدة:</label>
+                            <input type="text" id="new-episode-title" placeholder="مثال: الحلقة 1 الموسم الأول" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="new-episode-link">رابط فيديو الحلقة الجديدة:</label>
+                            <input type="url" id="new-episode-link" placeholder="رابط يوتيوب أو رابط مباشر" required>
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="new-episode-is-new" style="width: auto;">
+                            <label for="new-episode-is-new" style="margin-bottom: 0;">ضع علامة "حلقة جديدة"</label>
+                        </div>
+                        <button id="add-episode-to-series-btn" class="add-episode-btn">إضافة الحلقة</button>
+                    </div>
+                </div>
+            </div>
+
+            <h2>جميع المسلسلات</h2>
+            <div id="series-list">
+                </div>
+        </div>
+    </section>
+
+    <script type="module">
+        //<![CDATA[
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+        import { getDatabase, ref, get, set, remove, update } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+
+        // Firebase configuration (from your provided code)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCEaxXR5eqzg0e5JvjWAFjZ5ZeMraMYREn",
+            authDomain: "mo-play-b0cb7.firebaseapp.com",
+            databaseURL: "https://mo-play-b0cb7-default-rtdb.firebaseio.com",
+            projectId: "mo-play-b0cb7",
+            storageBucket: "mo-play-b0cb7.firebasestorage.app",
+            messagingSenderId: "575424024738",
+            appId: "1:575424024738:web:0b1736c0c2e496adf607fb",
+            measurementId: "G-33QRGFTW30"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app); 
+        const db = getDatabase(app);
+        const seriesRef = ref(db, 'series');
+
+        // UI Elements
+        const adminPanelSection = document.getElementById('admin-panel-section');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        const newSeriesTitleInput = document.getElementById('new-series-title');
+        const newSeriesImageInput = document.getElementById('new-series-image');
+        const newSeriesCategoryInput = document.getElementById('new-series-category');
+        const addSeriesBtn = document.getElementById('add-series-btn');
+
+        const editSeriesSelect = document.getElementById('edit-series-select');
+        const editSeriesForm = document.getElementById('edit-series-form');
+        const editSeriesTitleInput = document.getElementById('edit-series-title');
+        const editSeriesImageInput = document.getElementById('edit-series-image');
+        const editSeriesCategoryInput = document.getElementById('edit-series-category');
+        const updateSeriesBtn = document.getElementById('update-series-btn');
+        const deleteSeriesBtn = document.getElementById('delete-series-btn'); // Corrected typo here
+
+        const episodesListDiv = document.getElementById('episodes-list');
+        const newEpisodeTitleInput = document.getElementById('new-episode-title');
+        const newEpisodeLinkInput = document.getElementById('new-episode-link');
+        const newEpisodeIsNewCheckbox = document.getElementById('new-episode-is-new');
+        const addEpisodeToSeriesBtn = document.getElementById('add-episode-to-series-btn');
+
+        const allSeriesDisplay = document.getElementById('series-list');
+
+        let currentSelectedSeriesId = null; // To store the key of the currently selected series for editing
+
+        // Function to normalize Arabic titles for Firebase keys
+        function normalizeTitleForFirebase(title) {
+            // Remove common Arabic series prefixes (e.g., "مسلسل ", "مسلسلات ")
+            let normalized = title.replace(/^(مسلسل|مسلسلات)\s*/, '');
+            // Replace non-alphanumeric/non-Arabic characters with underscores
+            normalized = normalized.replace(/[^a-zA-Z0-9\u0600-\u06FF]+/g, '_');
+            // Replace multiple underscores with a single underscore
+            normalized = normalized.replace(/_+/g, '_');
+            // Remove leading/trailing underscores
+            normalized = normalized.replace(/^_|_$/g, '');
+            // Trim whitespace and convert to lowercase for consistency
+            return normalized.trim();
+        }
+
+        // --- Authentication (simplified for direct admin panel access) ---
+        // Since there's no login page, we directly load the admin panel.
+        // onAuthStateChanged is no longer strictly necessary for initial display.
+        // However, getAuth and signOut are still useful if you want to allow users
+        // to explicitly log out from previous sessions or handle authentication states.
+
+        // Load series directly when the page loads
+        window.addEventListener('load', loadSeries);
+
+        // Logout functionality
+        logoutBtn.addEventListener('click', async () => {
+            if (confirm('هل أنت متأكد أنك تريد تسجيل الخروج؟')) {
+                try {
+                    await signOut(auth); // Sign out any current user
+                    alert('تم تسجيل الخروج بنجاح. لن تتمكن من تعديل البيانات بعد الآن.');
+                    adminPanelSection.style.display = 'none'; // Hide the panel
+                    // You might redirect to a login page or display a message here
+                } catch (error) {
+                    console.error("Logout failed:", error);
+                    alert('فشل تسجيل الخروج.');
+                }
+            }
+        });
+
+        // --- Series Management ---
+
+        // Load and display all series
+        async function loadSeries() {
+            try {
+                const snapshot = await get(seriesRef);
+                const seriesData = snapshot.val() || {};
+                
+                // Clear existing lists
+                editSeriesSelect.innerHTML = '<option value="">-- اختر مسلسل --</option>';
+                allSeriesDisplay.innerHTML = '';
+
+                // Populate select list and display all series cards
+                for (const key in seriesData) {
+                    const series = seriesData[key];
+                    
+                    // Add to dropdown for editing
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = series.title;
+                    editSeriesSelect.appendChild(option);
+
+                    // Display as a card in "All Series" section
+                    const card = document.createElement('div');
+                    card.className = 'series-item';
+                    card.setAttribute('data-series-id', key);
+                    card.innerHTML = `
+                        <img src="${series.image || 'https://via.placeholder.com/200x280?text=No+Image'}" alt="${series.title}">
+                        <div class="series-item-info">
+                            <h4>${series.title}</h4>
+                            <p>التصنيف: ${series.category || 'غير محدد'}</p>
+                            <p>المشاهدات: ${series.views || 0} | اللايكات: ${series.likes || 0}</p>
+                        </div>
+                        <div class="series-item-actions">
+                            <button class="edit-btn" data-series-id="${key}">تعديل</button>
+                            <button class="delete-btn" data-series-id="${key}">حذف</button>
+                        </div>
+                    `;
+                    allSeriesDisplay.appendChild(card);
+                }
+
+                // Add event listeners for edit and delete buttons on series cards
+                document.querySelectorAll('#series-list .edit-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const seriesId = e.target.getAttribute('data-series-id');
+                        editSeriesSelect.value = seriesId;
+                        editSeriesSelect.dispatchEvent(new Event('change')); // Trigger change event
+                    });
+                });
+                document.querySelectorAll('#series-list .delete-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const seriesId = e.target.getAttribute('data-series-id');
+                        deleteSeries(seriesId);
+                    });
+                });
+
+            } catch (error) {
+                console.error("Error loading series:", error);
+                alert('فشل تحميل المسلسلات.');
+            }
+        }
+
+        // Add new series
+        addSeriesBtn.addEventListener('click', async () => {
+            const title = newSeriesTitleInput.value.trim();
+            const image = newSeriesImageInput.value.trim();
+            const category = newSeriesCategoryInput.value.trim();
+
+            if (!title || !image) {
+                alert('الرجاء إدخال عنوان المسلسل ورابط الصورة.');
+                return;
+            }
+
+            const safeTitle = normalizeTitleForFirebase(title);
+            if (!safeTitle) {
+                alert('عنوان المسلسل غير صالح لإنشاء مفتاح.');
+                return;
+            }
+
+            const newSeriesData = {
+                title: title,
+                image: image,
+                category: category || 'عام',
+                views: 0,
+                likes: 0,
+                episodes: [] // Start with no episodes
+            };
+
+            try {
+                // Check if a series with this normalized title already exists
+                const existingSeriesSnapshot = await get(ref(db, `series/${safeTitle}`));
+                if (existingSeriesSnapshot.exists()) {
+                    alert('مسلسل بهذا العنوان موجود بالفعل. الرجاء اختيار عنوان مختلف أو تعديل المسلسل الحالي.');
+                    return;
+                }
+
+                await set(ref(db, `series/${safeTitle}`), newSeriesData);
+                alert('تم إضافة المسلسل بنجاح!');
+                newSeriesTitleInput.value = '';
+                newSeriesImageInput.value = '';
+                newSeriesCategoryInput.value = '';
+                loadSeries(); // Reload series to update lists
+            } catch (error) {
+                console.error("Error adding series:", error);
+                alert('فشل إضافة المسلسل. قد يكون هناك مشكلة في الاتصال أو الأذونات.');
+            }
+        });
+
+        // When a series is selected for editing
+        editSeriesSelect.addEventListener('change', async () => {
+            currentSelectedSeriesId = editSeriesSelect.value;
+            episodesListDiv.innerHTML = ''; // Clear episode list
+
+            if (currentSelectedSeriesId) {
+                editSeriesForm.style.display = 'block';
+                try {
+                    const snapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
+                    const series = snapshot.val();
+                    if (series) {
+                        editSeriesTitleInput.value = series.title;
+                        editSeriesImageInput.value = series.image;
+                        editSeriesCategoryInput.value = series.category || '';
+                        loadEpisodes(series.episodes || []); // Load episodes for the selected series
+                    } else {
+                        alert('المسلسل المحدد غير موجود.');
+                        editSeriesForm.style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error("Error loading series for edit:", error);
+                    alert('فشل تحميل بيانات المسلسل للتعديل.');
+                }
+            } else {
+                editSeriesForm.style.display = 'none';
+            }
+        });
+
+        // Update an existing series
+        updateSeriesBtn.addEventListener('click', async () => {
+            if (!currentSelectedSeriesId) {
+                alert('الرجاء اختيار مسلسل للتعديل.');
+                return;
+            }
+
+            const title = editSeriesTitleInput.value.trim();
+            const image = editSeriesImageInput.value.trim();
+            const category = editSeriesCategoryInput.value.trim();
+
+            if (!title || !image) {
+                alert('الرجاء إدخال عنوان المسلسل ورابط الصورة.');
+                return;
+            }
+
+            try {
+                // No need to normalize title if we are just updating existing fields of the currentSelectedSeriesId
+                await update(ref(db, `series/${currentSelectedSeriesId}`), {
+                    title: title,
+                    image: image,
+                    category: category || 'عام'
+                });
+                alert('تم تحديث المسلسل بنجاح!');
+                loadSeries(); // Reload series to update dropdown and cards
+                // Keep the same series selected in the dropdown
+                editSeriesSelect.value = currentSelectedSeriesId; 
+                editSeriesSelect.dispatchEvent(new Event('change')); // Trigger change to refresh edit form
+            } catch (error) {
+                console.error("Error updating series:", error);
+                alert('فشل تحديث المسلسل.');
+            }
+        });
+
+        // Delete a series
+        async function deleteSeries(seriesIdToDelete) {
+            if (confirm('هل أنت متأكد أنك تريد حذف هذا المسلسل وجميع حلقاته؟ هذا الإجراء لا يمكن التراجع عنه!')) {
+                try {
+                    await remove(ref(db, `series/${seriesIdToDelete}`));
+                    alert('تم حذف المسلسل بنجاح!');
+                    editSeriesForm.style.display = 'none'; // Hide edit form
+                    currentSelectedSeriesId = null; // Clear selected ID
+                    loadSeries(); // Reload series to update lists
+                } catch (error) {
+                    console.error("Error deleting series:", error);
+                    alert('فشل حذف المسلسل.');
+                }
+            }
+        }
+        deleteSeriesBtn.addEventListener('click', () => {
+            if (currentSelectedSeriesId) {
+                deleteSeries(currentSelectedSeriesId);
+            }
+        });
+
+        // --- Episode Management ---
+
+        // Load and display episodes for a given series
+        function loadEpisodes(episodes) {
+            episodesListDiv.innerHTML = '';
+            if (!episodes || episodes.length === 0) {
+                episodesListDiv.innerHTML = '<p style="text-align:center;color:var(--text-muted);">لا توجد حلقات لهذا المسلسل.</p>';
+                return;
+            }
+
+            episodes.forEach((ep, index) => {
+                const episodeItem = document.createElement('div');
+                episodeItem.className = 'episode-item';
+                episodeItem.innerHTML = `
+                    <span>${ep.title}</span>
+                    <div class="episode-item-actions">
+                        <button class="toggle-new-btn ${ep.isNew ? 'active' : ''}" data-index="${index}">${ep.isNew ? 'إزالة "جديدة"' : 'وضع "جديدة"'}</button>
+                        <button class="edit-episode-btn" data-index="${index}">تعديل</button>
+                        <button class="delete-episode-btn delete-btn" data-index="${index}">حذف</button>
+                    </div>
+                `;
+                episodesListDiv.appendChild(episodeItem);
+            });
+
+            // Add event listeners for episode buttons
+            document.querySelectorAll('.toggle-new-btn').forEach(btn => {
+                btn.addEventListener('click', toggleEpisodeNewStatus);
+            });
+            document.querySelectorAll('.edit-episode-btn').forEach(btn => {
+                btn.addEventListener('click', editEpisode);
+            });
+            document.querySelectorAll('.delete-episode-btn').forEach(btn => {
+                btn.addEventListener('click', deleteEpisode);
+            });
+        }
+
+        // Add new episode to a series
+        addEpisodeToSeriesBtn.addEventListener('click', async () => {
+            if (!currentSelectedSeriesId) {
+                alert('الرجاء اختيار مسلسل لإضافة حلقة إليه.');
+                return;
+            }
+
+            const title = newEpisodeTitleInput.value.trim();
+            const link = newEpisodeLinkInput.value.trim();
+            const isNew = newEpisodeIsNewCheckbox.checked;
+
+            if (!title || !link) {
+                alert('الرجاء إدخال عنوان الحلقة ورابط الفيديو.');
+                return;
+            }
+
+            try {
+                const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
+                const series = seriesSnapshot.val();
+                const episodes = series.episodes || []; // Ensure episodes is an array
+
+                const newEpisode = {
+                    title: title,
+                    link: link,
+                    isNew: isNew,
+                    updatedAt: new Date().toISOString() // Record current time
+                };
+
+                episodes.push(newEpisode); // Add new episode to the array
+
+                await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
+                alert('تم إضافة الحلقة بنجاح!');
+                // Clear episode input fields
+                newEpisodeTitleInput.value = '';
+                newEpisodeLinkInput.value = '';
+                newEpisodeIsNewCheckbox.checked = false;
+                loadEpisodes(episodes); // Reload episode list to show the new episode
+            } catch (error) {
+                console.error("Error adding episode:", error);
+                alert('فشل إضافة الحلقة.');
+            }
+        });
+
+        // Edit an existing episode
+        async function editEpisode(event) {
+            const index = parseInt(event.target.getAttribute('data-index'));
+            
+            const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
+            const series = seriesSnapshot.val();
+            const episodes = series.episodes || [];
+            const episodeToEdit = episodes[index];
+
+            const newTitle = prompt('أدخل العنوان الجديد للحلقة:', episodeToEdit.title);
+            const newLink = prompt('أدخل الرابط الجديد للحلقة:', episodeToEdit.link);
+
+            if (newTitle !== null && newLink !== null) { // If user didn't click Cancel
+                if (newTitle.trim() === '' || newLink.trim() === '') {
+                    alert('لا يمكن أن يكون العنوان أو الرابط فارغاً.');
+                    return;
+                }
+                episodes[index].title = newTitle.trim();
+                episodes[index].link = newLink.trim();
+                episodes[index].updatedAt = new Date().toISOString(); // Update modification time
+
+                try {
+                    await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
+                    alert('تم تحديث الحلقة بنجاح!');
+                    loadEpisodes(episodes); // Refresh episode list
+                } catch (error) {
+                    console.error("Error updating episode:", error);
+                    alert('فشل تحديث الحلقة.');
+                }
+            }
+        }
+
+        // Delete an episode
+        async function deleteEpisode(event) {
+            const index = parseInt(event.target.getAttribute('data-index'));
+            if (confirm('هل أنت متأكد أنك تريد حذف هذه الحلقة؟')) {
+                try {
+                    const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
+                    const series = seriesSnapshot.val();
+                    const episodes = series.episodes || [];
+
+                    episodes.splice(index, 1); // Remove the episode from the array
+
+                    await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
+                    alert('تم حذف الحلقة بنجاح!');
+                    loadEpisodes(episodes); // Refresh episode list
+                } catch (error) {
+                    console.error("Error deleting episode:", error);
+                    alert('فشل حذف الحلقة.');
+                }
+            }
+        }
+
+        // Toggle "isNew" status for an episode
+        async function toggleEpisodeNewStatus(event) {
+            const index = parseInt(event.target.getAttribute('data-index'));
+            try {
+                const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
+                const series = seriesSnapshot.val();
+                const episodes = series.episodes || [];
+
+                episodes[index].isNew = !episodes[index].isNew; // Toggle the status
+                episodes[index].updatedAt = new Date().toISOString(); // Update modification time
+
+                await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
+                alert('تم تحديث حالة الحلقة بنجاح!');
+                loadEpisodes(episodes); // Refresh episode list to reflect change
+            } catch (error) {
+                console.error("Error toggling new status:", error);
+                alert('فشل تحديث حالة الحلقة.');
+            }
+        }
+        //]]>
+    </script>
+</body>
+</html>
