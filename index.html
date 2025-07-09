@@ -105,6 +105,7 @@
         }
         .form-group input[type="text"],
         .form-group input[type="url"],
+        .form-group input[type="file"], /* Added for file input */
         .form-group select {
             width: calc(100% - 22px); /* Adjust for padding and border */
             padding: 10px;
@@ -113,6 +114,9 @@
             background-color: #222;
             color: var(--text-light);
             font-size: 16px;
+        }
+        .form-group input[type="file"] {
+            padding: 8px; /* Slightly less padding for file input */
         }
         .form-group button {
             background: var(--primary-color);
@@ -162,7 +166,6 @@
             overflow: hidden;
             border: 1px solid var(--border-color);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            /* cursor: pointer; */ /* Removed as buttons handle interaction */
         }
         .series-item:hover {
             transform: translateY(-5px);
@@ -326,8 +329,14 @@
                             <input type="text" id="new-episode-title" placeholder="مثال: الحلقة 1 الموسم الأول" required>
                         </div>
                         <div class="form-group">
-                            <label for="new-episode-link">رابط فيديو الحلقة الجديدة:</label>
-                            <input type="url" id="new-episode-link" placeholder="رابط يوتيوب أو رابط مباشر" required>
+                            <label for="new-episode-file">رفع ملف فيديو (MP4, MKV, etc.):</label>
+                            <input type="file" id="new-episode-file" accept="video/*">
+                            <small style="color: var(--text-muted);">أو أدخل رابط فيديو مباشر أدناه.</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="new-episode-link">أو رابط فيديو مباشر (يوتيوب أو رابط خارجي):</label>
+                            <input type="url" id="new-episode-link" placeholder="رابط يوتيوب أو رابط مباشر">
+                            <small style="color: var(--text-muted);">إذا رفعت ملفاً، سيتم تجاهل هذا الحقل.</small>
                         </div>
                         <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
                             <input type="checkbox" id="new-episode-is-new" style="width: auto;">
@@ -348,7 +357,8 @@
         //<![CDATA[
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
         import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
-        import { getDatabase, ref, get, set, remove, update } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+        import { getDatabase, ref as dbRef, get, set, remove, update } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-storage.js"; // Added deleteObject
 
         // Firebase configuration (from your provided code)
         const firebaseConfig = {
@@ -366,7 +376,8 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app); 
         const db = getDatabase(app);
-        const seriesRef = ref(db, 'series');
+        const storage = getStorage(app); // Initialize Firebase Storage
+        const seriesRef = dbRef(db, 'series'); // Use dbRef to avoid conflict with storageRef
 
         // UI Elements
         const adminPanelSection = document.getElementById('admin-panel-section');
@@ -383,10 +394,11 @@
         const editSeriesImageInput = document.getElementById('edit-series-image');
         const editSeriesCategoryInput = document.getElementById('edit-series-category');
         const updateSeriesBtn = document.getElementById('update-series-btn');
-        const deleteSeriesBtn = document.getElementById('delete-series-btn'); // Corrected typo here
+        const deleteSeriesBtn = document.getElementById('delete-series-btn');
 
         const episodesListDiv = document.getElementById('episodes-list');
         const newEpisodeTitleInput = document.getElementById('new-episode-title');
+        const newEpisodeFileIput = document.getElementById('new-episode-file'); // New file input element
         const newEpisodeLinkInput = document.getElementById('new-episode-link');
         const newEpisodeIsNewCheckbox = document.getElementById('new-episode-is-new');
         const addEpisodeToSeriesBtn = document.getElementById('add-episode-to-series-btn');
@@ -395,7 +407,7 @@
 
         let currentSelectedSeriesId = null; // To store the key of the currently selected series for editing
 
-        // Function to normalize Arabic titles for Firebase keys
+        // Function to normalize Arabic titles for Firebase keys and file paths
         function normalizeTitleForFirebase(title) {
             // Remove common Arabic series prefixes (e.g., "مسلسل ", "مسلسلات ")
             let normalized = title.replace(/^(مسلسل|مسلسلات)\s*/, '');
@@ -410,12 +422,6 @@
         }
 
         // --- Authentication (simplified for direct admin panel access) ---
-        // Since there's no login page, we directly load the admin panel.
-        // onAuthStateChanged is no longer strictly necessary for initial display.
-        // However, getAuth and signOut are still useful if you want to allow users
-        // to explicitly log out from previous sessions or handle authentication states.
-
-        // Load series directly when the page loads
         window.addEventListener('load', loadSeries);
 
         // Logout functionality
@@ -432,6 +438,40 @@
                 }
             }
         });
+
+        // --- Firebase Storage File Upload Function ---
+        async function uploadFileToStorage(file, seriesId, episodeTitle) {
+            if (!file) return null;
+
+            // Normalize episode title for safe file path
+            const normalizedEpisodeTitle = normalizeTitleForFirebase(episodeTitle);
+            // Create a unique file name using timestamp to avoid conflicts
+            // Use original file extension
+            const fileExtension = file.name.split('.').pop();
+            const fileName = `${normalizedEpisodeTitle}_${Date.now()}.${fileExtension}`;
+            const filePath = `series_episodes/${seriesId}/${fileName}`;
+            const fileRef = storageRef(storage, filePath);
+
+            try {
+                // Show a loading indicator or disable button during upload
+                addEpisodeToSeriesBtn.disabled = true;
+                addEpisodeToSeriesBtn.textContent = 'جاري الرفع...';
+
+                const snapshot = await uploadBytes(fileRef, file);
+                const downloadURL = await getDownloadURL(snapshot.ref);
+                console.log('File uploaded successfully. Download URL:', downloadURL);
+                alert('تم رفع ملف الفيديو بنجاح!');
+                return { url: downloadURL, path: filePath }; // Return both URL and path
+            } catch (error) {
+                console.error("Error uploading file to Firebase Storage:", error);
+                alert('فشل رفع ملف الفيديو. يرجى التحقق من الأذونات أو حجم الملف.');
+                return null;
+            } finally {
+                addEpisodeToSeriesBtn.disabled = false;
+                addEpisodeToSeriesBtn.textContent = 'إضافة الحلقة';
+            }
+        }
+
 
         // --- Series Management ---
 
@@ -523,13 +563,13 @@
 
             try {
                 // Check if a series with this normalized title already exists
-                const existingSeriesSnapshot = await get(ref(db, `series/${safeTitle}`));
+                const existingSeriesSnapshot = await get(dbRef(db, `series/${safeTitle}`)); // Use dbRef
                 if (existingSeriesSnapshot.exists()) {
                     alert('مسلسل بهذا العنوان موجود بالفعل. الرجاء اختيار عنوان مختلف أو تعديل المسلسل الحالي.');
                     return;
                 }
 
-                await set(ref(db, `series/${safeTitle}`), newSeriesData);
+                await set(dbRef(db, `series/${safeTitle}`), newSeriesData); // Use dbRef
                 alert('تم إضافة المسلسل بنجاح!');
                 newSeriesTitleInput.value = '';
                 newSeriesImageInput.value = '';
@@ -549,7 +589,7 @@
             if (currentSelectedSeriesId) {
                 editSeriesForm.style.display = 'block';
                 try {
-                    const snapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
+                    const snapshot = await get(dbRef(db, `series/${currentSelectedSeriesId}`)); // Use dbRef
                     const series = snapshot.val();
                     if (series) {
                         editSeriesTitleInput.value = series.title;
@@ -586,8 +626,7 @@
             }
 
             try {
-                // No need to normalize title if we are just updating existing fields of the currentSelectedSeriesId
-                await update(ref(db, `series/${currentSelectedSeriesId}`), {
+                await update(dbRef(db, `series/${currentSelectedSeriesId}`), { // Use dbRef
                     title: title,
                     image: image,
                     category: category || 'عام'
@@ -607,7 +646,25 @@
         async function deleteSeries(seriesIdToDelete) {
             if (confirm('هل أنت متأكد أنك تريد حذف هذا المسلسل وجميع حلقاته؟ هذا الإجراء لا يمكن التراجع عنه!')) {
                 try {
-                    await remove(ref(db, `series/${seriesIdToDelete}`));
+                    // Fetch episodes to delete associated files from Storage
+                    const seriesSnapshot = await get(dbRef(db, `series/${seriesIdToDelete}`));
+                    const series = seriesSnapshot.val();
+                    const episodes = series.episodes || [];
+
+                    for (const ep of episodes) {
+                        if (ep.filePath) {
+                            const fileRef = storageRef(storage, ep.filePath);
+                            try {
+                                await deleteObject(fileRef);
+                                console.log(`Deleted file: ${ep.filePath}`);
+                            } catch (storageError) {
+                                console.warn(`Failed to delete file ${ep.filePath}:`, storageError);
+                                // Continue even if file deletion fails
+                            }
+                        }
+                    }
+
+                    await remove(dbRef(db, `series/${seriesIdToDelete}`)); // Use dbRef
                     alert('تم حذف المسلسل بنجاح!');
                     editSeriesForm.style.display = 'none'; // Hide edit form
                     currentSelectedSeriesId = null; // Clear selected ID
@@ -668,33 +725,54 @@
             }
 
             const title = newEpisodeTitleInput.value.trim();
+            const file = newEpisodeFileIput.files[0]; // Get the selected file
             const link = newEpisodeLinkInput.value.trim();
             const isNew = newEpisodeIsNewCheckbox.checked;
 
-            if (!title || !link) {
-                alert('الرجاء إدخال عنوان الحلقة ورابط الفيديو.');
+            if (!title) {
+                alert('الرجاء إدخال عنوان الحلقة.');
+                return;
+            }
+
+            let episodeLink = link;
+            let uploadedFilePath = null;
+
+            if (file) {
+                // If a file is selected, upload it first
+                const uploadResult = await uploadFileToStorage(file, currentSelectedSeriesId, title);
+                if (!uploadResult) {
+                    // Upload failed, stop adding episode
+                    return;
+                }
+                episodeLink = uploadResult.url; // Use the URL from Firebase Storage
+                uploadedFilePath = uploadResult.path; // Store the file path for potential deletion
+            } else if (!link) {
+                // If no file and no link provided
+                alert('الرجاء إدخال رابط فيديو أو رفع ملف فيديو للحلقة.');
                 return;
             }
 
             try {
-                const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
+                const seriesSnapshot = await get(dbRef(db, `series/${currentSelectedSeriesId}`)); // Use dbRef
                 const series = seriesSnapshot.val();
                 const episodes = series.episodes || []; // Ensure episodes is an array
 
                 const newEpisode = {
                     title: title,
-                    link: link,
+                    link: episodeLink, // Use the link from storage or manual input
                     isNew: isNew,
-                    updatedAt: new Date().toISOString() // Record current time
+                    updatedAt: new Date().toISOString(), // Record current time
+                    filePath: uploadedFilePath // Store the path if it was an uploaded file
                 };
 
                 episodes.push(newEpisode); // Add new episode to the array
 
-                await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
+                await update(dbRef(db, `series/${currentSelectedSeriesId}`), { episodes: episodes }); // Use dbRef
                 alert('تم إضافة الحلقة بنجاح!');
                 // Clear episode input fields
                 newEpisodeTitleInput.value = '';
                 newEpisodeLinkInput.value = '';
+                newEpisodeFileIput.value = ''; // Clear file input
                 newEpisodeIsNewCheckbox.checked = false;
                 loadEpisodes(episodes); // Reload episode list to show the new episode
             } catch (error) {
@@ -707,13 +785,16 @@
         async function editEpisode(event) {
             const index = parseInt(event.target.getAttribute('data-index'));
             
-            const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
+            const seriesSnapshot = await get(dbRef(db, `series/${currentSelectedSeriesId}`)); // Use dbRef
             const series = seriesSnapshot.val();
             const episodes = series.episodes || [];
             const episodeToEdit = episodes[index];
 
             const newTitle = prompt('أدخل العنوان الجديد للحلقة:', episodeToEdit.title);
             const newLink = prompt('أدخل الرابط الجديد للحلقة:', episodeToEdit.link);
+            // Note: Editing the file itself (re-uploading) is more complex.
+            // For now, this only allows editing the title and the *link text*.
+            // If you want to change the file, you would manually delete and re-add the episode.
 
             if (newTitle !== null && newLink !== null) { // If user didn't click Cancel
                 if (newTitle.trim() === '' || newLink.trim() === '') {
@@ -723,9 +804,12 @@
                 episodes[index].title = newTitle.trim();
                 episodes[index].link = newLink.trim();
                 episodes[index].updatedAt = new Date().toISOString(); // Update modification time
+                // filePath is NOT changed here. If the user changes the link, the old filePath becomes irrelevant.
+                // You might want to delete the old file if newLink is NOT the old one AND filePath existed.
+                // This logic is omitted for simplicity in this example.
 
                 try {
-                    await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
+                    await update(dbRef(db, `series/${currentSelectedSeriesId}`), { episodes: episodes }); // Use dbRef
                     alert('تم تحديث الحلقة بنجاح!');
                     loadEpisodes(episodes); // Refresh episode list
                 } catch (error) {
@@ -740,13 +824,26 @@
             const index = parseInt(event.target.getAttribute('data-index'));
             if (confirm('هل أنت متأكد أنك تريد حذف هذه الحلقة؟')) {
                 try {
-                    const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
+                    const seriesSnapshot = await get(dbRef(db, `series/${currentSelectedSeriesId}`)); // Use dbRef
                     const series = seriesSnapshot.val();
                     const episodes = series.episodes || [];
+                    const episodeToDelete = episodes[index];
+
+                    // If the episode has an associated file in Firebase Storage, delete it
+                    if (episodeToDelete.filePath) {
+                        const fileRef = storageRef(storage, episodeToDelete.filePath);
+                        try {
+                            await deleteObject(fileRef);
+                            console.log('File deleted from Firebase Storage:', episodeToDelete.filePath);
+                        } catch (storageError) {
+                            console.warn('Failed to delete file from Firebase Storage (might not exist or permissions issue):', storageError);
+                            // Proceed with deleting the database record even if file deletion fails
+                        }
+                    }
 
                     episodes.splice(index, 1); // Remove the episode from the array
 
-                    await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
+                    await update(dbRef(db, `series/${currentSelectedSeriesId}`), { episodes: episodes }); // Use dbRef
                     alert('تم حذف الحلقة بنجاح!');
                     loadEpisodes(episodes); // Refresh episode list
                 } catch (error) {
@@ -760,14 +857,14 @@
         async function toggleEpisodeNewStatus(event) {
             const index = parseInt(event.target.getAttribute('data-index'));
             try {
-                const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
+                const seriesSnapshot = await get(dbRef(db, `series/${currentSelectedSeriesId}`)); // Use dbRef
                 const series = seriesSnapshot.val();
                 const episodes = series.episodes || [];
 
                 episodes[index].isNew = !episodes[index].isNew; // Toggle the status
                 episodes[index].updatedAt = new Date().toISOString(); // Update modification time
 
-                await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
+                await update(dbRef(db, `series/${currentSelectedSeriesId}`), { episodes: episodes }); // Use dbRef
                 alert('تم تحديث حالة الحلقة بنجاح!');
                 loadEpisodes(episodes); // Refresh episode list to reflect change
             } catch (error) {
