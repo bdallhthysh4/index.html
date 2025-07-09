@@ -279,6 +279,7 @@
             overflow: hidden;
             position: relative;
             height: 25px;
+            display: none; /* Hidden by default */
         }
 
         .progress-bar {
@@ -306,9 +307,47 @@
             left: 0;
             z-index: 1; /* Ensure text is above the bar */
         }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+            font-size: 24px;
+            flex-direction: column;
+            gap: 20px;
+            display: none; /* Hidden by default */
+        }
+
+        .spinner {
+            border: 8px solid rgba(255, 255, 255, 0.3);
+            border-top: 8px solid var(--primary-color);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner"></div>
+        <p id="loading-text">جاري التحميل...</p>
+    </div>
+
     <section id="admin-panel-section">
         <div class="admin-header">
             <span>لوحة إدارة حكايتنا</span>
@@ -337,8 +376,8 @@
                     <input type="text" id="new-series-category" placeholder="مثال: تاريخي، دراما، أكشن">
                 </div>
                 <button id="add-series-btn">إضافة المسلسل</button>
-                <div class="progress-container" id="new-series-upload-progress" style="display: none;">
-                    <div class="progress-bar" id="new-series-progress-bar" style="width: 0%;"></div>
+                <div class="progress-container" id="new-series-upload-progress">
+                    <div class="progress-bar" id="new-series-progress-bar"></div>
                     <div class="progress-text" id="new-series-progress-text">0%</div>
                 </div>
             </div>
@@ -372,8 +411,8 @@
                     </div>
                     <button id="update-series-btn">تحديث المسلسل</button>
                     <button id="delete-series-btn" class="delete-btn">حذف المسلسل</button>
-                    <div class="progress-container" id="edit-series-upload-progress" style="display: none;">
-                        <div class="progress-bar" id="edit-series-progress-bar" style="width: 0%;"></div>
+                    <div class="progress-container" id="edit-series-upload-progress">
+                        <div class="progress-bar" id="edit-series-progress-bar"></div>
                         <div class="progress-text" id="edit-series-progress-text">0%</div>
                     </div>
 
@@ -400,8 +439,8 @@
                             <label for="new-episode-is-new" style="margin-bottom: 0;">ضع علامة "حلقة جديدة"</label>
                         </div>
                         <button id="add-episode-to-series-btn" class="add-episode-btn">إضافة الحلقة</button>
-                        <div class="progress-container" id="episode-upload-progress" style="display: none;">
-                            <div class="progress-bar" id="episode-progress-bar" style="width: 0%;"></div>
+                        <div class="progress-container" id="episode-upload-progress">
+                            <div class="progress-bar" id="episode-progress-bar"></div>
                             <div class="progress-text" id="episode-progress-text">0%</div>
                         </div>
                     </div>
@@ -443,6 +482,9 @@
         // UI Elements
         const adminPanelSection = document.getElementById('admin-panel-section');
         const logoutBtn = document.getElementById('logout-btn');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const loadingText = document.getElementById('loading-text');
+
 
         // New Series Elements
         const newSeriesTitleInput = document.getElementById('new-series-title');
@@ -482,6 +524,16 @@
 
         let currentSelectedSeriesId = null; // To store the key of the currently selected series for editing
 
+        // Function to show/hide loading overlay
+        function showLoading(message = 'جاري التحميل...') {
+            loadingText.textContent = message;
+            loadingOverlay.style.display = 'flex';
+        }
+
+        function hideLoading() {
+            loadingOverlay.style.display = 'none';
+        }
+
         // Function to normalize Arabic titles for Firebase keys and file paths
         function normalizeTitleForFirebase(title) {
             let normalized = title.replace(/^(مسلسل|مسلسلات)\s*/, '');
@@ -492,25 +544,46 @@
         }
 
         // --- Authentication (simplified for direct admin panel access) ---
-        window.addEventListener('load', loadSeries);
+        window.addEventListener('load', () => {
+            // For a real application, you'd check auth state here:
+            // onAuthStateChanged(auth, (user) => {
+            //     if (user) {
+            //         adminPanelSection.style.display = 'block';
+            //         loadSeries();
+            //     } else {
+            //         // Redirect to login page or show login form
+            //         alert('لم يتم تسجيل الدخول. الرجاء تسجيل الدخول للوصول إلى لوحة الإدارة.');
+            //         adminPanelSection.style.display = 'none';
+            //     }
+            // });
+            // For now, assuming user is always authenticated for direct access
+            adminPanelSection.style.display = 'block';
+            loadSeries();
+        });
 
         // Logout functionality
         logoutBtn.addEventListener('click', async () => {
             if (confirm('هل أنت متأكد أنك تريد تسجيل الخروج؟')) {
                 try {
+                    showLoading('جاري تسجيل الخروج...');
                     await signOut(auth);
                     alert('تم تسجيل الخروج بنجاح. لن تتمكن من تعديل البيانات بعد الآن.');
                     adminPanelSection.style.display = 'none';
+                    hideLoading();
                 } catch (error) {
                     console.error("Logout failed:", error);
-                    alert('فشل تسجيل الخروج.');
+                    alert('فشل تسجيل الخروج: ' + error.message);
+                    hideLoading();
                 }
             }
         });
 
         // --- Firebase Storage File Upload Function with Progress ---
         async function uploadFileToStorage(file, pathPrefix, fileNameBase, progressBarElement, progressTextElement, progressContainerElement) {
-            if (!file) return null;
+            if (!file) {
+                console.warn("No file provided for upload.");
+                return null;
+            }
 
             const fileExtension = file.name.split('.').pop();
             const fileName = `${fileNameBase}_${Date.now()}.${fileExtension}`;
@@ -533,7 +606,7 @@
                     }, 
                     (error) => {
                         console.error("Error uploading file:", error);
-                        alert(`فشل رفع الملف: ${error.message}`);
+                        alert(`فشل رفع الملف: ${error.message}. تأكد من صلاحيات Firebase Storage.`);
                         progressContainerElement.style.display = 'none';
                         reject(error);
                     }, 
@@ -542,11 +615,11 @@
                         progressContainerElement.style.display = 'none';
                         try {
                             const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                            alert('تم رفع الملف بنجاح!');
+                            // alert('تم رفع الملف بنجاح!'); // Moved alert to main function for better flow
                             resolve({ url: downloadURL, path: filePath });
                         } catch (error) {
                             console.error("Error getting download URL:", error);
-                            alert(`فشل الحصول على رابط التحميل: ${error.message}`);
+                            alert(`فشل الحصول على رابط التحميل بعد الرفع: ${error.message}`);
                             reject(error);
                         }
                     }
@@ -558,12 +631,17 @@
 
         // Load and display all series
         async function loadSeries() {
+            showLoading('جاري تحميل المسلسلات...');
             try {
                 const snapshot = await get(seriesRef);
                 const seriesData = snapshot.val() || {};
                 
                 editSeriesSelect.innerHTML = '<option value="">-- اختر مسلسل --</option>';
                 allSeriesDisplay.innerHTML = '';
+
+                if (Object.keys(seriesData).length === 0) {
+                    allSeriesDisplay.innerHTML = '<p style="text-align:center;color:var(--text-muted);">لا توجد مسلسلات لعرضها.</p>';
+                }
 
                 for (const key in seriesData) {
                     const series = seriesData[key];
@@ -604,10 +682,12 @@
                         deleteSeries(seriesId);
                     });
                 });
+                hideLoading();
 
             } catch (error) {
                 console.error("Error loading series:", error);
-                alert('فشل تحميل المسلسلات.');
+                alert('فشل تحميل المسلسلات: ' + error.message);
+                hideLoading();
             }
         }
 
@@ -626,63 +706,67 @@
             let seriesImage = imageURL;
             let uploadedImagePath = null;
 
-            if (imageFile) {
-                addSeriesBtn.disabled = true;
-                addSeriesBtn.textContent = 'جاري الرفع...';
-                const uploadResult = await uploadFileToStorage(
-                    imageFile, 
-                    'series_images', 
-                    normalizeTitleForFirebase(title), 
-                    newSeriesProgressBar, 
-                    newSeriesProgressText, 
-                    newSeriesUploadProgress
-                );
-                addSeriesBtn.disabled = false;
-                addSeriesBtn.textContent = 'إضافة المسلسل';
-
-                if (!uploadResult) {
-                    return;
-                }
-                seriesImage = uploadResult.url;
-                uploadedImagePath = uploadResult.path;
-            } else if (!imageURL) {
-                alert('الرجاء إدخال رابط صورة أو رفع ملف صورة للمسلسل.');
-                return;
-            }
-
-            const safeTitle = normalizeTitleForFirebase(title);
-            if (!safeTitle) {
-                alert('عنوان المسلسل غير صالح لإنشاء مفتاح.');
-                return;
-            }
-
-            const newSeriesData = {
-                title: title,
-                image: seriesImage,
-                imagePath: uploadedImagePath,
-                category: category || 'عام',
-                views: 0,
-                likes: 0,
-                episodes: []
-            };
+            addSeriesBtn.disabled = true; // Disable button immediately
+            addSeriesBtn.textContent = 'جاري المعالجة...';
 
             try {
+                if (imageFile) {
+                    addSeriesBtn.textContent = 'جاري رفع الصورة...';
+                    const uploadResult = await uploadFileToStorage(
+                        imageFile, 
+                        'series_images', 
+                        normalizeTitleForFirebase(title), 
+                        newSeriesProgressBar, 
+                        newSeriesProgressText, 
+                        newSeriesUploadProgress
+                    );
+                    if (!uploadResult) {
+                        return; // Stop if upload failed
+                    }
+                    seriesImage = uploadResult.url;
+                    uploadedImagePath = uploadResult.path;
+                } else if (!imageURL) {
+                    alert('الرجاء إدخال رابط صورة أو رفع ملف صورة للمسلسل.');
+                    return;
+                }
+
+                const safeTitle = normalizeTitleForFirebase(title);
+                if (!safeTitle) {
+                    alert('عنوان المسلسل غير صالح لإنشاء مفتاح.');
+                    return;
+                }
+
                 const existingSeriesSnapshot = await get(dbRef(db, `series/${safeTitle}`));
                 if (existingSeriesSnapshot.exists()) {
                     alert('مسلسل بهذا العنوان موجود بالفعل. الرجاء اختيار عنوان مختلف أو تعديل المسلسل الحالي.');
                     return;
                 }
 
+                const newSeriesData = {
+                    title: title,
+                    image: seriesImage,
+                    imagePath: uploadedImagePath,
+                    category: category || 'عام',
+                    views: 0,
+                    likes: 0,
+                    episodes: []
+                };
+                
+                addSeriesBtn.textContent = 'جاري إضافة المسلسل...';
                 await set(dbRef(db, `series/${safeTitle}`), newSeriesData);
                 alert('تم إضافة المسلسل بنجاح!');
                 newSeriesTitleInput.value = '';
                 newSeriesImageFileInput.value = '';
                 newSeriesImageURLInput.value = '';
                 newSeriesCategoryInput.value = '';
-                loadSeries();
+                loadSeries(); // Reload series to update lists
             } catch (error) {
                 console.error("Error adding series:", error);
-                alert('فشل إضافة المسلسل. قد يكون هناك مشكلة في الاتصال أو الأذونات.');
+                alert('فشل إضافة المسلسل: ' + error.message);
+            } finally {
+                addSeriesBtn.disabled = false;
+                addSeriesBtn.textContent = 'إضافة المسلسل';
+                newSeriesUploadProgress.style.display = 'none'; // Hide progress bar on completion/error
             }
         });
 
@@ -690,9 +774,10 @@
         editSeriesSelect.addEventListener('change', async () => {
             currentSelectedSeriesId = editSeriesSelect.value;
             episodesListDiv.innerHTML = ''; // Clear episode list
+            editSeriesForm.style.display = 'none'; // Hide form until data is loaded
 
             if (currentSelectedSeriesId) {
-                editSeriesForm.style.display = 'block';
+                showLoading('جاري تحميل بيانات المسلسل...');
                 try {
                     const snapshot = await get(dbRef(db, `series/${currentSelectedSeriesId}`));
                     const series = snapshot.val();
@@ -700,25 +785,25 @@
                         editSeriesTitleInput.value = series.title;
                         // Populate image fields: prioritize uploaded path for internal tracking, otherwise show URL
                         if (series.imagePath) {
-                            // If an image was uploaded, clear URL input to force re-upload or new URL
                             editSeriesImageURLInput.value = ''; 
+                            // You might want to display the current uploaded image somehow, but clearing the URL input is correct if a file was uploaded.
+                            // The file input cannot be programmatically set for security reasons.
                         } else {
-                            // If it was a direct URL, display it in the URL input
                             editSeriesImageURLInput.value = series.image || '';
                         }
                         editSeriesImageFileInput.value = ''; // Always clear file input
                         editSeriesCategoryInput.value = series.category || '';
                         loadEpisodes(series.episodes || []);
+                        editSeriesForm.style.display = 'block';
                     } else {
                         alert('المسلسل المحدد غير موجود.');
-                        editSeriesForm.style.display = 'none';
                     }
                 } catch (error) {
                     console.error("Error loading series for edit:", error);
-                    alert('فشل تحميل بيانات المسلسل للتعديل.');
+                    alert('فشل تحميل بيانات المسلسل للتعديل: ' + error.message);
+                } finally {
+                    hideLoading();
                 }
-            } else {
-                editSeriesForm.style.display = 'none';
             }
         });
 
@@ -743,14 +828,16 @@
             let finalImagePath = null;
             let oldImagePath = null;
 
+            updateSeriesBtn.disabled = true; // Disable button immediately
+            updateSeriesBtn.textContent = 'جاري المعالجة...';
+
             try {
                 const currentSeriesSnapshot = await get(dbRef(db, `series/${currentSelectedSeriesId}`));
                 const currentSeries = currentSeriesSnapshot.val();
                 oldImagePath = currentSeries ? currentSeries.imagePath : null;
 
                 if (imageFile) {
-                    updateSeriesBtn.disabled = true;
-                    updateSeriesBtn.textContent = 'جاري الرفع...';
+                    updateSeriesBtn.textContent = 'جاري رفع الصورة...';
                     const uploadResult = await uploadFileToStorage(
                         imageFile, 
                         'series_images', 
@@ -759,11 +846,8 @@
                         editSeriesProgressText, 
                         editSeriesUploadProgress
                     );
-                    updateSeriesBtn.disabled = false;
-                    updateSeriesBtn.textContent = 'تحديث المسلسل';
-
                     if (!uploadResult) {
-                        return;
+                        return; // Stop if upload failed
                     }
                     finalImageURL = uploadResult.url;
                     finalImagePath = uploadResult.path;
@@ -773,24 +857,30 @@
                             await deleteObject(storageRef(storage, oldImagePath));
                             console.log('Old series image deleted from Storage:', oldImagePath);
                         } catch (delError) {
-                            console.warn('Failed to delete old series image from Storage (might not exist):', delError);
+                            console.warn('Failed to delete old series image from Storage (might not exist or permissions issue):', delError);
                         }
                     }
                 } else if (imageURL) {
                     finalImageURL = imageURL;
-                    finalImagePath = null; // No file path if using URL
+                    finalImagePath = null; // No file path if using URL directly
 
                     if (oldImagePath) {
                         try {
                             await deleteObject(storageRef(storage, oldImagePath));
                             console.log('Old series image deleted from Storage (replaced by URL):', oldImagePath);
                         } catch (delError) {
-                            console.warn('Failed to delete old series image from Storage (might not exist):', delError);
+                            console.warn('Failed to delete old series image from Storage (might not exist or permissions issue):', delError);
                         }
                     }
                 } else {
-                    alert('الرجاء إدخال رابط صورة أو رفع ملف صورة للمسلسل.');
-                    return;
+                    // If no new file and no new URL, keep the existing image
+                    if (currentSeries && currentSeries.image) {
+                        finalImageURL = currentSeries.image;
+                        finalImagePath = currentSeries.imagePath;
+                    } else {
+                        alert('الرجاء إدخال رابط صورة أو رفع ملف صورة للمسلسل.');
+                        return;
+                    }
                 }
 
                 const updateData = {
@@ -800,20 +890,27 @@
                     category: category || 'عام'
                 };
 
+                updateSeriesBtn.textContent = 'جاري تحديث المسلسل...';
                 await update(dbRef(db, `series/${currentSelectedSeriesId}`), updateData);
                 alert('تم تحديث المسلسل بنجاح!');
-                loadSeries();
+                loadSeries(); // Reload all series cards
+                // Re-select the current series to refresh its edit form, ensuring latest data is shown
                 editSeriesSelect.value = currentSelectedSeriesId; 
                 editSeriesSelect.dispatchEvent(new Event('change'));
             } catch (error) {
                 console.error("Error updating series:", error);
-                alert('فشل تحديث المسلسل.');
+                alert('فشل تحديث المسلسل: ' + error.message);
+            } finally {
+                updateSeriesBtn.disabled = false;
+                updateSeriesBtn.textContent = 'تحديث المسلسل';
+                editSeriesUploadProgress.style.display = 'none'; // Hide progress bar on completion/error
             }
         });
 
         // Delete a series
         async function deleteSeries(seriesIdToDelete) {
             if (confirm('هل أنت متأكد أنك تريد حذف هذا المسلسل وجميع حلقاته؟ هذا الإجراء لا يمكن التراجع عنه!')) {
+                showLoading('جاري حذف المسلسل...');
                 try {
                     const seriesSnapshot = await get(dbRef(db, `series/${seriesIdToDelete}`));
                     const series = seriesSnapshot.val();
@@ -824,7 +921,7 @@
                             await deleteObject(imageRef);
                             console.log(`Deleted series image: ${series.imagePath}`);
                         } catch (storageError) {
-                            console.warn(`Failed to delete series image ${series.imagePath}:`, storageError);
+                            console.warn(`Failed to delete series image ${series.imagePath} (might not exist or permissions issue):`, storageError);
                         }
                     }
 
@@ -836,7 +933,7 @@
                                 await deleteObject(fileRef);
                                 console.log(`Deleted episode file: ${ep.filePath}`);
                             } catch (storageError) {
-                                console.warn(`Failed to delete episode file ${ep.filePath}:`, storageError);
+                                console.warn(`Failed to delete episode file ${ep.filePath} (might not exist or permissions issue):`, storageError);
                             }
                         }
                     }
@@ -845,16 +942,20 @@
                     alert('تم حذف المسلسل بنجاح!');
                     editSeriesForm.style.display = 'none';
                     currentSelectedSeriesId = null;
-                    loadSeries();
+                    loadSeries(); // Reload all series lists
                 } catch (error) {
                     console.error("Error deleting series:", error);
-                    alert('فشل حذف المسلسل.');
+                    alert('فشل حذف المسلسل: ' + error.message);
+                } finally {
+                    hideLoading();
                 }
             }
         }
         deleteSeriesBtn.addEventListener('click', () => {
             if (currentSelectedSeriesId) {
                 deleteSeries(currentSelectedSeriesId);
+            } else {
+                alert('الرجاء اختيار مسلسل لحذفه.');
             }
         });
 
@@ -913,31 +1014,30 @@
             let episodeLink = link;
             let uploadedFilePath = null;
 
-            if (file) {
-                addEpisodeToSeriesBtn.disabled = true;
-                addEpisodeToSeriesBtn.textContent = 'جاري الرفع...';
-                const uploadResult = await uploadFileToStorage(
-                    file, 
-                    `series_episodes/${currentSelectedSeriesId}`, 
-                    normalizeTitleForFirebase(title), 
-                    episodeProgressBar, 
-                    episodeProgressText, 
-                    episodeUploadProgress
-                );
-                addEpisodeToSeriesBtn.disabled = false;
-                addEpisodeToSeriesBtn.textContent = 'إضافة الحلقة';
-
-                if (!uploadResult) {
-                    return;
-                }
-                episodeLink = uploadResult.url;
-                uploadedFilePath = uploadResult.path;
-            } else if (!link) {
-                alert('الرجاء إدخال رابط فيديو أو رفع ملف فيديو للحلقة.');
-                return;
-            }
+            addEpisodeToSeriesBtn.disabled = true;
+            addEpisodeToSeriesBtn.textContent = 'جاري المعالجة...';
 
             try {
+                if (file) {
+                    addEpisodeToSeriesBtn.textContent = 'جاري رفع الفيديو...';
+                    const uploadResult = await uploadFileToStorage(
+                        file, 
+                        `series_episodes/${currentSelectedSeriesId}`, // Path in storage
+                        normalizeTitleForFirebase(title), 
+                        episodeProgressBar, 
+                        episodeProgressText, 
+                        episodeUploadProgress
+                    );
+                    if (!uploadResult) {
+                        return; // Stop if upload failed
+                    }
+                    episodeLink = uploadResult.url;
+                    uploadedFilePath = uploadResult.path;
+                } else if (!link) {
+                    alert('الرجاء إدخال رابط فيديو أو رفع ملف فيديو للحلقة.');
+                    return;
+                }
+
                 const seriesSnapshot = await get(dbRef(db, `series/${currentSelectedSeriesId}`));
                 const series = seriesSnapshot.val();
                 const episodes = series.episodes || [];
@@ -947,60 +1047,72 @@
                     link: episodeLink,
                     isNew: isNew,
                     updatedAt: new Date().toISOString(),
-                    filePath: uploadedFilePath
+                    filePath: uploadedFilePath // Store storage path
                 };
 
                 episodes.push(newEpisode);
 
+                addEpisodeToSeriesBtn.textContent = 'جاري إضافة الحلقة...';
                 await update(dbRef(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
                 alert('تم إضافة الحلقة بنجاح!');
                 newEpisodeTitleInput.value = '';
                 newEpisodeLinkInput.value = '';
                 newEpisodeFileIput.value = '';
                 newEpisodeIsNewCheckbox.checked = false;
-                loadEpisodes(episodes);
+                loadEpisodes(episodes); // Reload episodes for the current series
             } catch (error) {
                 console.error("Error adding episode:", error);
-                alert('فشل إضافة الحلقة.');
+                alert('فشل إضافة الحلقة: ' + error.message);
+            } finally {
+                addEpisodeToSeriesBtn.disabled = false;
+                addEpisodeToSeriesBtn.textContent = 'إضافة الحلقة';
+                episodeUploadProgress.style.display = 'none'; // Hide progress bar on completion/error
             }
         });
 
-        // Edit an existing episode
+        // Edit an existing episode (simplified for demo, typically a modal form is better)
         async function editEpisode(event) {
             const index = parseInt(event.target.getAttribute('data-index'));
             
-            const seriesSnapshot = await get(dbRef(db, `series/${currentSelectedSeriesId}`));
-            const series = seriesSnapshot.val();
-            const episodes = series.episodes || [];
-            const episodeToEdit = episodes[index];
+            showLoading('جاري تحميل بيانات الحلقة...');
+            try {
+                const seriesSnapshot = await get(dbRef(db, `series/${currentSelectedSeriesId}`));
+                const series = seriesSnapshot.val();
+                const episodes = series.episodes || [];
+                const episodeToEdit = episodes[index];
+                hideLoading();
 
-            const newTitle = prompt('أدخل العنوان الجديد للحلقة:', episodeToEdit.title);
-            const newLink = prompt('أدخل الرابط الجديد للحلقة:', episodeToEdit.link);
+                const newTitle = prompt('أدخل العنوان الجديد للحلقة:', episodeToEdit.title);
+                const newLink = prompt('أدخل الرابط الجديد للحلقة:', episodeToEdit.link);
+                // Note: File editing for episodes would require a more complex UI (e.g., re-upload option)
 
-            if (newTitle !== null && newLink !== null) {
-                if (newTitle.trim() === '' || newLink.trim() === '') {
-                    alert('لا يمكن أن يكون العنوان أو الرابط فارغاً.');
-                    return;
-                }
-                episodes[index].title = newTitle.trim();
-                episodes[index].link = newLink.trim();
-                episodes[index].updatedAt = new Date().toISOString();
+                if (newTitle !== null && newLink !== null) {
+                    if (newTitle.trim() === '' || newLink.trim() === '') {
+                        alert('لا يمكن أن يكون العنوان أو الرابط فارغاً.');
+                        return;
+                    }
+                    episodes[index].title = newTitle.trim();
+                    episodes[index].link = newLink.trim();
+                    episodes[index].updatedAt = new Date().toISOString();
 
-                try {
+                    showLoading('جاري تحديث الحلقة...');
                     await update(dbRef(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
                     alert('تم تحديث الحلقة بنجاح!');
                     loadEpisodes(episodes);
-                } catch (error) {
-                    console.error("Error updating episode:", error);
-                    alert('فشل تحديث الحلقة.');
                 }
+            } catch (error) {
+                console.error("Error updating episode:", error);
+                alert('فشل تحديث الحلقة: ' + error.message);
+            } finally {
+                hideLoading();
             }
         }
 
         // Delete an episode
         async function deleteEpisode(event) {
             const index = parseInt(event.target.getAttribute('data-index'));
-            if (confirm('هل أنت متأكد أنك تريد حذف هذه الحلقة؟')) {
+            if (confirm('هل أنت متأكد أنك تريد حذف هذه الحلقة؟ هذا الإجراء لا يمكن التراجع عنه!')) {
+                showLoading('جاري حذف الحلقة...');
                 try {
                     const seriesSnapshot = await get(dbRef(db, `series/${currentSelectedSeriesId}`));
                     const series = seriesSnapshot.val();
@@ -1017,14 +1129,16 @@
                         }
                     }
 
-                    episodes.splice(index, 1);
+                    episodes.splice(index, 1); // Remove episode from array
 
                     await update(dbRef(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
                     alert('تم حذف الحلقة بنجاح!');
                     loadEpisodes(episodes);
                 } catch (error) {
                     console.error("Error deleting episode:", error);
-                    alert('فشل حذف الحلقة.');
+                    alert('فشل حذف الحلقة: ' + error.message);
+                } finally {
+                    hideLoading();
                 }
             }
         }
@@ -1032,20 +1146,23 @@
         // Toggle "isNew" status for an episode
         async function toggleEpisodeNewStatus(event) {
             const index = parseInt(event.target.getAttribute('data-index'));
+            showLoading('جاري تحديث حالة الحلقة...');
             try {
                 const seriesSnapshot = await get(dbRef(db, `series/${currentSelectedSeriesId}`));
                 const series = seriesSnapshot.val();
                 const episodes = series.episodes || [];
 
                 episodes[index].isNew = !episodes[index].isNew;
-                episodes[index].updatedAt = new Date().toISOString();
+                episodes[index].updatedAt = new Date().toISOString(); // Update timestamp
 
                 await update(dbRef(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
                 alert('تم تحديث حالة الحلقة بنجاح!');
-                loadEpisodes(episodes);
+                loadEpisodes(episodes); // Reload episodes to update UI
             } catch (error) {
                 console.error("Error toggling new status:", error);
-                alert('فشل تحديث حالة الحلقة.');
+                alert('فشل تحديث حالة الحلقة: ' + error.message);
+            } finally {
+                hideLoading();
             }
         }
         //]]>
