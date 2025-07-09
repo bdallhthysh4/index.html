@@ -106,7 +106,8 @@
         .form-group input[type="text"],
         .form-group input[type="url"],
         .form-group input[type="file"],
-        .form-group select {
+        .form-group select,
+        .form-group textarea { /* Added textarea style */
             width: calc(100% - 22px); /* Adjust for padding and border */
             padding: 10px;
             border: 1px solid var(--border-color);
@@ -114,6 +115,7 @@
             background-color: #222;
             color: var(--text-light);
             font-size: 16px;
+            resize: vertical; /* Allow vertical resizing for textareas */
         }
         .form-group input[type="file"] {
             padding: 8px; /* Slightly less padding for file input */
@@ -337,20 +339,23 @@
 
         <div class="container">
             <div class="form-section">
-                <h3>تحويل الصور إلى رابط مباشر</h3>
-                <div class="form-group">
-                    <label for="image-to-link-file">اختر ملف الصورة:</label>
-                    <input type="file" id="image-to-link-file" accept="image/*" required>
+                <h3>مركز رفع الصور</h3>
+                <div id="image-upload-fields-container">
+                    <div class="form-group upload-field">
+                        <label>حدد صورة:</label>
+                        <input type="file" name="file2up[]" accept="image/*" multiple>
+                    </div>
                 </div>
-                <button id="upload-image-for-link-btn">رفع الصورة والحصول على الرابط</button>
-                <div class="progress-container" id="image-to-link-upload-progress">
-                    <div class="progress-bar" id="image-to-link-progress-bar"></div>
-                    <div class="progress-text" id="image-to-link-progress-text">0%</div>
+                <button id="add-image-field-btn" style="margin-bottom: 15px;">إضافة حقل رفع صورة</button>
+                <button id="upload-multiple-images-btn">رفع الصور والحصول على الروابط</button>
+                <div class="progress-container" id="multiple-images-upload-progress">
+                    <div class="progress-bar" id="multiple-images-progress-bar"></div>
+                    <div class="progress-text" id="multiple-images-progress-text">0%</div>
                 </div>
                 <div class="form-group" style="margin-top: 20px;">
-                    <label for="uploaded-image-link">رابط الصورة المباشر:</label>
-                    <input type="text" id="uploaded-image-link" readonly placeholder="سيظهر الرابط هنا بعد الرفع">
-                    <button id="copy-image-link-btn" style="margin-top: 10px;">نسخ الرابط</button>
+                    <label for="uploaded-images-links">روابط الصور المباشرة:</label>
+                    <textarea id="uploaded-images-links" rows="8" readonly placeholder="ستظهر الروابط هنا بعد الرفع، كل رابط في سطر"></textarea>
+                    <button id="copy-all-image-links-btn" style="margin-top: 10px;">نسخ كل الروابط</button>
                 </div>
             </div>
             <div class="form-section">
@@ -521,14 +526,17 @@
 
         let currentSelectedSeriesId = null; // To store the key of the currently selected series for editing
 
-        // --- New Elements for Image to Link Converter ---
-        const imageToLinkFileInput = document.getElementById('image-to-link-file');
-        const uploadImageForLinkBtn = document.getElementById('upload-image-for-link-btn');
-        const uploadedImageLinkInput = document.getElementById('uploaded-image-link');
-        const copyImageLinkBtn = document.getElementById('copy-image-link-btn');
-        const imageToLinkUploadProgress = document.getElementById('image-to-link-upload-progress');
-        const imageToLinkProgressBar = document.getElementById('image-to-link-progress-bar');
-        const imageToLinkProgressText = document.getElementById('image-to-link-progress-text');
+        // --- New Elements for Image Upload Center ---
+        const imageUploadFieldsContainer = document.getElementById('image-upload-fields-container');
+        const addImageFieldBtn = document.getElementById('add-image-field-btn');
+        const uploadMultipleImagesBtn = document.getElementById('upload-multiple-images-btn');
+        const uploadedImagesLinksTextarea = document.getElementById('uploaded-images-links');
+        const copyAllImageLinksBtn = document.getElementById('copy-all-image-links-btn');
+        const multipleImagesUploadProgress = document.getElementById('multiple-images-upload-progress');
+        const multipleImagesProgressBar = document.getElementById('multiple-images-progress-bar');
+        const multipleImagesProgressText = document.getElementById('multiple-images-progress-text');
+
+        let imageFieldCount = 1; // Tracks how many image input fields are present
 
         // Function to show/hide loading overlay
         function showLoading(message = 'جاري التحميل...') {
@@ -585,30 +593,35 @@
         });
 
         // --- Firebase Storage File Upload Function with Progress ---
-        async function uploadFileToStorage(file, pathPrefix, fileNameBase, progressBarElement, progressTextElement, progressContainerElement) {
+        async function uploadFileToStorage(file, pathPrefix, fileNameBase, progressBarElement, progressTextElement, progressContainerElement, fileIndex = 0, totalFiles = 1) {
             if (!file) {
                 console.warn("No file provided for upload.");
                 return null;
             }
 
             const fileExtension = file.name.split('.').pop();
-            const fileName = `${fileNameBase}_${Date.now()}.${fileExtension}`;
+            const fileName = `${fileNameBase}_${Date.now()}_${fileIndex}.${fileExtension}`; // Add fileIndex for unique names
             const filePath = `${pathPrefix}/${fileName}`;
             const fileRef = storageRef(storage, filePath);
 
             const uploadTask = uploadBytesResumable(fileRef, file);
 
-            // Reset and show progress bar
-            progressBarElement.style.width = '0%';
-            progressTextElement.textContent = '0%';
-            progressContainerElement.style.display = 'block';
+            // Reset and show progress bar only for the *overall* process if it's multiple files
+            if (totalFiles === 1) {
+                progressBarElement.style.width = '0%';
+                progressTextElement.textContent = '0%';
+                progressContainerElement.style.display = 'block';
+            }
 
             return new Promise((resolve, reject) => {
                 uploadTask.on('state_changed', 
                     (snapshot) => {
                         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        progressBarElement.style.width = progress + '%';
-                        progressTextElement.textContent = Math.round(progress) + '%';
+                        if (totalFiles === 1) { // Only update for single file upload directly
+                            progressBarElement.style.width = progress + '%';
+                            progressTextElement.textContent = Math.round(progress) + '%';
+                        }
+                        // For multiple files, overall progress will be calculated outside this function
                     }, 
                     (error) => {
                         console.error("Error uploading file:", error);
@@ -618,10 +631,8 @@
                     }, 
                     async () => {
                         console.log('Upload complete');
-                        progressContainerElement.style.display = 'none';
                         try {
                             const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                            // alert('تم رفع الملف بنجاح!'); // Moved alert to main function for better flow
                             resolve({ url: downloadURL, path: filePath });
                         } catch (error) {
                             console.error("Error getting download URL:", error);
@@ -633,54 +644,106 @@
             });
         }
 
-        // --- Image to Link Converter Functionality ---
-        uploadImageForLinkBtn.addEventListener('click', async () => {
-            const imageFile = imageToLinkFileInput.files[0];
-            if (!imageFile) {
-                alert('الرجاء اختيار صورة لرفعها.');
+        // --- Image Upload Center Functionality ---
+        addImageFieldBtn.addEventListener('click', () => {
+            imageFieldCount++;
+            const newFieldDiv = document.createElement('div');
+            newFieldDiv.className = 'form-group upload-field';
+            newFieldDiv.innerHTML = `
+                <label>حدد صورة:</label>
+                <input type="file" name="file2up[]" accept="image/*" multiple>
+            `;
+            imageUploadFieldsContainer.appendChild(newFieldDiv);
+        });
+
+        uploadMultipleImagesBtn.addEventListener('click', async () => {
+            const fileInputs = document.querySelectorAll('#image-upload-fields-container input[type="file"]');
+            let filesToUpload = [];
+            fileInputs.forEach(input => {
+                // If 'multiple' attribute is set, input.files will contain all selected files
+                // If not, it will contain only one file.
+                // Loop through input.files for robustness.
+                for (let i = 0; i < input.files.length; i++) {
+                    filesToUpload.push(input.files[i]);
+                }
+            });
+
+            if (filesToUpload.length === 0) {
+                alert('الرجاء اختيار صورة واحدة على الأقل لرفعها.');
                 return;
             }
 
-            uploadImageForLinkBtn.disabled = true;
-            uploadImageForLinkBtn.textContent = 'جاري الرفع...';
-            uploadedImageLinkInput.value = ''; // Clear previous link
+            uploadMultipleImagesBtn.disabled = true;
+            uploadMultipleImagesBtn.textContent = `جاري الرفع (0/${filesToUpload.length})...`;
+            uploadedImagesLinksTextarea.value = ''; // Clear previous links
+            multipleImagesProgressText.textContent = '0%';
+            multipleImagesProgressBar.style.width = '0%';
+            multipleImagesUploadProgress.style.display = 'block';
+
+            let uploadedLinks = [];
+            let completedUploads = 0;
 
             try {
-                // Use a generic path for standalone images
-                const uploadResult = await uploadFileToStorage(
-                    imageFile, 
-                    'uploaded_images', 
-                    'image', // Generic filename base
-                    imageToLinkProgressBar, 
-                    imageToLinkProgressText, 
-                    imageToLinkUploadProgress
-                );
+                for (let i = 0; i < filesToUpload.length; i++) {
+                    const file = filesToUpload[i];
+                    uploadMultipleImagesBtn.textContent = `جاري الرفع (${i + 1}/${filesToUpload.length})...`;
+                    try {
+                        const uploadResult = await uploadFileToStorage(
+                            file, 
+                            'multiple_uploaded_images', // Dedicated folder for these uploads
+                            `image_${i}`, // Unique base for each file
+                            multipleImagesProgressBar, 
+                            multipleImagesProgressText, 
+                            multipleImagesUploadProgress,
+                            i, filesToUpload.length // Pass index and total for specific progress handling if needed
+                        );
 
-                if (uploadResult && uploadResult.url) {
-                    uploadedImageLinkInput.value = uploadResult.url;
-                    alert('تم رفع الصورة بنجاح! تم وضع الرابط في الحقل أعلاه.');
+                        if (uploadResult && uploadResult.url) {
+                            uploadedLinks.push(uploadResult.url);
+                        }
+                    } catch (fileUploadError) {
+                        console.error(`Error uploading file ${file.name}:`, fileUploadError);
+                        // Continue to next file even if one fails
+                    } finally {
+                        completedUploads++;
+                        const overallProgress = (completedUploads / filesToUpload.length) * 100;
+                        multipleImagesProgressBar.style.width = overallProgress + '%';
+                        multipleImagesProgressText.textContent = Math.round(overallProgress) + '%';
+                    }
+                }
+
+                if (uploadedLinks.length > 0) {
+                    uploadedImagesLinksTextarea.value = uploadedLinks.join('\n');
+                    alert(`تم رفع ${uploadedLinks.length} من أصل ${filesToUpload.length} صور بنجاح! تم وضع الروابط في الحقل أعلاه.`);
                 } else {
-                    alert('فشل رفع الصورة أو الحصول على رابطها.');
+                    alert('فشل رفع أي من الصور المحددة.');
                 }
             } catch (error) {
-                console.error("Error uploading image for link:", error);
-                alert('حدث خطأ أثناء رفع الصورة: ' + error.message);
+                console.error("Error during multiple image upload:", error);
+                alert('حدث خطأ أثناء رفع الصور: ' + error.message);
             } finally {
-                uploadImageForLinkBtn.disabled = false;
-                uploadImageForLinkBtn.textContent = 'رفع الصورة والحصول على الرابط';
-                imageToLinkFileInput.value = ''; // Clear the file input
+                uploadMultipleImagesBtn.disabled = false;
+                uploadMultipleImagesBtn.textContent = 'رفع الصور والحصول على الروابط';
+                // Clear all dynamic file inputs and reset to one
+                imageUploadFieldsContainer.innerHTML = `
+                    <div class="form-group upload-field">
+                        <label>حدد صورة:</label>
+                        <input type="file" name="file2up[]" accept="image/*" multiple>
+                    </div>
+                `;
+                imageFieldCount = 1;
+                multipleImagesUploadProgress.style.display = 'none'; // Hide progress bar
             }
         });
 
-        copyImageLinkBtn.addEventListener('click', () => {
-            uploadedImageLinkInput.select();
-            uploadedImageLinkInput.setSelectionRange(0, 99999); // For mobile devices
+        copyAllImageLinksBtn.addEventListener('click', () => {
+            uploadedImagesLinksTextarea.select();
+            uploadedImagesLinksTextarea.setSelectionRange(0, 99999); // For mobile devices
             document.execCommand("copy");
-            alert('تم نسخ الرابط إلى الحافظة!');
+            alert('تم نسخ جميع الروابط إلى الحافظة!');
         });
 
-
-        // --- Series Management ---
+        // --- Series Management (No changes in this section from previous version) ---
 
         // Load and display all series
         async function loadSeries() {
@@ -1012,7 +1075,7 @@
             }
         });
 
-        // --- Episode Management ---
+        // --- Episode Management (No changes in this section from previous version) ---
 
         // Load and display episodes for a given series
         function loadEpisodes(episodes) {
