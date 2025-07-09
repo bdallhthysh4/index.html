@@ -105,9 +105,7 @@
         }
         .form-group input[type="text"],
         .form-group input[type="url"],
-        .form-group input[type="file"],
-        .form-group select,
-        .form-group textarea { /* Added textarea style */
+        .form-group select {
             width: calc(100% - 22px); /* Adjust for padding and border */
             padding: 10px;
             border: 1px solid var(--border-color);
@@ -115,10 +113,6 @@
             background-color: #222;
             color: var(--text-light);
             font-size: 16px;
-            resize: vertical; /* Allow vertical resizing for textareas */
-        }
-        .form-group input[type="file"] {
-            padding: 8px; /* Slightly less padding for file input */
         }
         .form-group button {
             background: var(--primary-color);
@@ -168,6 +162,7 @@
             overflow: hidden;
             border: 1px solid var(--border-color);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            /* cursor: pointer; */ /* Removed as buttons handle interaction */
         }
         .series-item:hover {
             transform: translateY(-5px);
@@ -253,84 +248,27 @@
             background: #138496;
         }
 
-        /* Progress Bar Styles */
-        .progress-container {
-            width: 100%;
-            background-color: #333;
-            border-radius: 5px;
-            margin-top: 15px;
-            overflow: hidden;
-            position: relative;
-            height: 25px;
-            display: none; /* Hidden by default */
-        }
-
-        .progress-bar {
-            height: 100%;
-            background-color: var(--secondary-color);
-            width: 0%;
-            border-radius: 5px;
-            text-align: center;
-            line-height: 25px; /* Vertically center text */
-            color: white;
-            font-size: 14px;
-            transition: width 0.3s ease;
-        }
-
-        .progress-text {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 14px;
-            top: 0;
-            left: 0;
-            z-index: 1; /* Ensure text is above the bar */
-        }
-
-        /* Loading Overlay */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            color: white;
-            font-size: 24px;
-            flex-direction: column;
-            gap: 20px;
-            display: none; /* Hidden by default */
-        }
-
-        .spinner {
-            border: 8px solid rgba(255, 255, 255, 0.3);
-            border-top: 8px solid var(--primary-color);
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px auto;
+                padding: 15px;
+            }
+            .admin-header {
+                flex-direction: column;
+                gap: 10px;
+                font-size: 20px;
+            }
+            .admin-header button {
+                width: 100%;
+            }
+            #series-list {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="loading-overlay" id="loading-overlay">
-        <div class="spinner"></div>
-        <p id="loading-text">جاري التحميل...</p>
-    </div>
-
     <section id="admin-panel-section">
         <div class="admin-header">
             <span>لوحة إدارة حكايتنا</span>
@@ -339,50 +277,20 @@
 
         <div class="container">
             <div class="form-section">
-                <h3>مركز رفع الصور</h3>
-                <div id="image-upload-fields-container">
-                    <div class="form-group upload-field">
-                        <label>حدد صورة:</label>
-                        <input type="file" name="file2up[]" accept="image/*" multiple>
-                    </div>
-                </div>
-                <button id="add-image-field-btn" style="margin-bottom: 15px;">إضافة حقل رفع صورة</button>
-                <button id="upload-multiple-images-btn">رفع الصور والحصول على الروابط</button>
-                <div class="progress-container" id="multiple-images-upload-progress">
-                    <div class="progress-bar" id="multiple-images-progress-bar"></div>
-                    <div class="progress-text" id="multiple-images-progress-text">0%</div>
-                </div>
-                <div class="form-group" style="margin-top: 20px;">
-                    <label for="uploaded-images-links">روابط الصور المباشرة:</label>
-                    <textarea id="uploaded-images-links" rows="8" readonly placeholder="ستظهر الروابط هنا بعد الرفع، كل رابط في سطر"></textarea>
-                    <button id="copy-all-image-links-btn" style="margin-top: 10px;">نسخ كل الروابط</button>
-                </div>
-            </div>
-            <div class="form-section">
                 <h3>إضافة مسلسل جديد</h3>
                 <div class="form-group">
                     <label for="new-series-title">عنوان المسلسل:</label>
                     <input type="text" id="new-series-title" placeholder="مثال: مسلسل قيامة أرطغرل" required>
                 </div>
                 <div class="form-group">
-                    <label for="new-series-image-file">رفع ملف صورة المسلسل:</label>
-                    <input type="file" id="new-series-image-file" accept="image/*">
-                    <small style="color: var(--text-muted);">أو أدخل رابط صورة مباشر أدناه.</small>
-                </div>
-                <div class="form-group">
-                    <label for="new-series-image-url">أو رابط صورة المسلسل (URL):</label>
-                    <input type="url" id="new-series-image-url" placeholder="مثال: https://example.com/image.jpg">
-                    <small style="color: var(--text-muted);">إذا رفعت ملفاً، سيتم تجاهل هذا الحقل.</small>
+                    <label for="new-series-image">رابط صورة المسلسل:</label>
+                    <input type="url" id="new-series-image" placeholder="مثال: https://example.com/image.jpg" required>
                 </div>
                 <div class="form-group">
                     <label for="new-series-category">تصنيف المسلسل:</label>
                     <input type="text" id="new-series-category" placeholder="مثال: تاريخي، دراما، أكشن">
                 </div>
                 <button id="add-series-btn">إضافة المسلسل</button>
-                <div class="progress-container" id="new-series-upload-progress">
-                    <div class="progress-bar" id="new-series-progress-bar"></div>
-                    <div class="progress-text" id="new-series-progress-text">0%</div>
-                </div>
             </div>
 
             <div class="form-section">
@@ -399,14 +307,8 @@
                         <input type="text" id="edit-series-title" required>
                     </div>
                     <div class="form-group">
-                        <label for="edit-series-image-file">رفع ملف صورة المسلسل:</label>
-                        <input type="file" id="edit-series-image-file" accept="image/*">
-                        <small style="color: var(--text-muted);">أو أدخل رابط صورة مباشر أدناه.</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-series-image-url">أو رابط صورة المسلسل (URL):</label>
-                        <input type="url" id="edit-series-image-url" required>
-                        <small style="color: var(--text-muted);">إذا رفعت ملفاً، سيتم تجاهل هذا الحقل.</small>
+                        <label for="edit-series-image">رابط صورة المسلسل:</label>
+                        <input type="url" id="edit-series-image" required>
                     </div>
                     <div class="form-group">
                         <label for="edit-series-category">تصنيف المسلسل:</label>
@@ -414,10 +316,6 @@
                     </div>
                     <button id="update-series-btn">تحديث المسلسل</button>
                     <button id="delete-series-btn" class="delete-btn">حذف المسلسل</button>
-                    <div class="progress-container" id="edit-series-upload-progress">
-                        <div class="progress-bar" id="edit-series-progress-bar"></div>
-                        <div class="progress-text" id="edit-series-progress-text">0%</div>
-                    </div>
 
                     <div class="episodes-management">
                         <h4>إدارة الحلقات</h4>
@@ -428,24 +326,14 @@
                             <input type="text" id="new-episode-title" placeholder="مثال: الحلقة 1 الموسم الأول" required>
                         </div>
                         <div class="form-group">
-                            <label for="new-episode-file">رفع ملف فيديو (MP4, MKV, etc.):</label>
-                            <input type="file" id="new-episode-file" accept="video/*">
-                            <small style="color: var(--text-muted);">أو أدخل رابط فيديو مباشر أدناه.</small>
-                        </div>
-                        <div class="form-group">
-                            <label for="new-episode-link">أو رابط فيديو مباشر (يوتيوب أو رابط خارجي):</label>
-                            <input type="url" id="new-episode-link" placeholder="رابط يوتيوب أو رابط مباشر">
-                            <small style="color: var(--text-muted);">إذا رفعت ملفاً، سيتم تجاهل هذا الحقل.</small>
+                            <label for="new-episode-link">رابط فيديو الحلقة الجديدة:</label>
+                            <input type="url" id="new-episode-link" placeholder="رابط يوتيوب أو رابط مباشر" required>
                         </div>
                         <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
                             <input type="checkbox" id="new-episode-is-new" style="width: auto;">
                             <label for="new-episode-is-new" style="margin-bottom: 0;">ضع علامة "حلقة جديدة"</label>
                         </div>
                         <button id="add-episode-to-series-btn" class="add-episode-btn">إضافة الحلقة</button>
-                        <div class="progress-container" id="episode-upload-progress">
-                            <div class="progress-bar" id="episode-progress-bar"></div>
-                            <div class="progress-text" id="episode-progress-text">0%</div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -460,10 +348,9 @@
         //<![CDATA[
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
         import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
-        import { getDatabase, ref as dbRef, get, set, remove, update } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
-        import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-storage.js";
+        import { getDatabase, ref, get, set, remove, update } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
-        // Firebase configuration
+        // Firebase configuration (from your provided code)
         const firebaseConfig = {
             apiKey: "AIzaSyCEaxXR5eqzg0e5JvjWAFjZ5ZeMraMYREn",
             authDomain: "mo-play-b0cb7.firebaseapp.com",
@@ -479,294 +366,96 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app); 
         const db = getDatabase(app);
-        const storage = getStorage(app);
-        const seriesRef = dbRef(db, 'series');
+        const seriesRef = ref(db, 'series');
 
         // UI Elements
         const adminPanelSection = document.getElementById('admin-panel-section');
         const logoutBtn = document.getElementById('logout-btn');
-        const loadingOverlay = document.getElementById('loading-overlay');
-        const loadingText = document.getElementById('loading-text');
 
-        // New Series Elements
         const newSeriesTitleInput = document.getElementById('new-series-title');
-        const newSeriesImageFileInput = document.getElementById('new-series-image-file');
-        const newSeriesImageURLInput = document.getElementById('new-series-image-url');
+        const newSeriesImageInput = document.getElementById('new-series-image');
         const newSeriesCategoryInput = document.getElementById('new-series-category');
         const addSeriesBtn = document.getElementById('add-series-btn');
-        const newSeriesUploadProgress = document.getElementById('new-series-upload-progress');
-        const newSeriesProgressBar = document.getElementById('new-series-progress-bar');
-        const newSeriesProgressText = document.getElementById('new-series-progress-text');
 
-        // Edit Series Elements
         const editSeriesSelect = document.getElementById('edit-series-select');
         const editSeriesForm = document.getElementById('edit-series-form');
         const editSeriesTitleInput = document.getElementById('edit-series-title');
-        const editSeriesImageFileInput = document.getElementById('edit-series-image-file');
-        const editSeriesImageURLInput = document.getElementById('edit-series-image-url');
+        const editSeriesImageInput = document.getElementById('edit-series-image');
         const editSeriesCategoryInput = document.getElementById('edit-series-category');
         const updateSeriesBtn = document.getElementById('update-series-btn');
-        const deleteSeriesBtn = document.getElementById('delete-series-btn');
-        const editSeriesUploadProgress = document.getElementById('edit-series-upload-progress');
-        const editSeriesProgressBar = document.getElementById('edit-series-progress-bar');
-        const editSeriesProgressText = document.getElementById('edit-series-progress-text');
+        const deleteSeriesBtn = document.getElementById('delete-series-btn'); // Corrected typo here
 
-        // Episode Elements
         const episodesListDiv = document.getElementById('episodes-list');
         const newEpisodeTitleInput = document.getElementById('new-episode-title');
-        const newEpisodeFileIput = document.getElementById('new-episode-file');
         const newEpisodeLinkInput = document.getElementById('new-episode-link');
         const newEpisodeIsNewCheckbox = document.getElementById('new-episode-is-new');
         const addEpisodeToSeriesBtn = document.getElementById('add-episode-to-series-btn');
-        const episodeUploadProgress = document.getElementById('episode-upload-progress');
-        const episodeProgressBar = document.getElementById('episode-progress-bar');
-        const episodeProgressText = document.getElementById('episode-progress-text');
 
         const allSeriesDisplay = document.getElementById('series-list');
 
         let currentSelectedSeriesId = null; // To store the key of the currently selected series for editing
 
-        // --- New Elements for Image Upload Center ---
-        const imageUploadFieldsContainer = document.getElementById('image-upload-fields-container');
-        const addImageFieldBtn = document.getElementById('add-image-field-btn');
-        const uploadMultipleImagesBtn = document.getElementById('upload-multiple-images-btn');
-        const uploadedImagesLinksTextarea = document.getElementById('uploaded-images-links');
-        const copyAllImageLinksBtn = document.getElementById('copy-all-image-links-btn');
-        const multipleImagesUploadProgress = document.getElementById('multiple-images-upload-progress');
-        const multipleImagesProgressBar = document.getElementById('multiple-images-progress-bar');
-        const multipleImagesProgressText = document.getElementById('multiple-images-progress-text');
-
-        let imageFieldCount = 1; // Tracks how many image input fields are present
-
-        // Function to show/hide loading overlay
-        function showLoading(message = 'جاري التحميل...') {
-            loadingText.textContent = message;
-            loadingOverlay.style.display = 'flex';
-        }
-
-        function hideLoading() {
-            loadingOverlay.style.display = 'none';
-        }
-
-        // Function to normalize Arabic titles for Firebase keys and file paths
+        // Function to normalize Arabic titles for Firebase keys
         function normalizeTitleForFirebase(title) {
+            // Remove common Arabic series prefixes (e.g., "مسلسل ", "مسلسلات ")
             let normalized = title.replace(/^(مسلسل|مسلسلات)\s*/, '');
+            // Replace non-alphanumeric/non-Arabic characters with underscores
             normalized = normalized.replace(/[^a-zA-Z0-9\u0600-\u06FF]+/g, '_');
+            // Replace multiple underscores with a single underscore
             normalized = normalized.replace(/_+/g, '_');
+            // Remove leading/trailing underscores
             normalized = normalized.replace(/^_|_$/g, '');
+            // Trim whitespace and convert to lowercase for consistency
             return normalized.trim();
         }
 
         // --- Authentication (simplified for direct admin panel access) ---
-        window.addEventListener('load', () => {
-            // For a real application, you'd check auth state here:
-            // onAuthStateChanged(auth, (user) => {
-            //     if (user) {
-            //         adminPanelSection.style.display = 'block';
-            //         loadSeries();
-            //     } else {
-            //         // Redirect to login page or show login form
-            //         alert('لم يتم تسجيل الدخول. الرجاء تسجيل الدخول للوصول إلى لوحة الإدارة.');
-            //         adminPanelSection.style.display = 'none';
-            //     }
-            // });
-            // For now, assuming user is always authenticated for direct access
-            adminPanelSection.style.display = 'block';
-            loadSeries();
-        });
+        // Since there's no login page, we directly load the admin panel.
+        // onAuthStateChanged is no longer strictly necessary for initial display.
+        // However, getAuth and signOut are still useful if you want to allow users
+        // to explicitly log out from previous sessions or handle authentication states.
+
+        // Load series directly when the page loads
+        window.addEventListener('load', loadSeries);
 
         // Logout functionality
         logoutBtn.addEventListener('click', async () => {
             if (confirm('هل أنت متأكد أنك تريد تسجيل الخروج؟')) {
                 try {
-                    showLoading('جاري تسجيل الخروج...');
-                    await signOut(auth);
+                    await signOut(auth); // Sign out any current user
                     alert('تم تسجيل الخروج بنجاح. لن تتمكن من تعديل البيانات بعد الآن.');
-                    adminPanelSection.style.display = 'none';
-                    hideLoading();
+                    adminPanelSection.style.display = 'none'; // Hide the panel
+                    // You might redirect to a login page or display a message here
                 } catch (error) {
                     console.error("Logout failed:", error);
-                    alert('فشل تسجيل الخروج: ' + error.message);
-                    hideLoading();
+                    alert('فشل تسجيل الخروج.');
                 }
             }
         });
 
-        // --- Firebase Storage File Upload Function with Progress ---
-        async function uploadFileToStorage(file, pathPrefix, fileNameBase, progressBarElement, progressTextElement, progressContainerElement, fileIndex = 0, totalFiles = 1) {
-            if (!file) {
-                console.warn("No file provided for upload.");
-                return null;
-            }
-
-            const fileExtension = file.name.split('.').pop();
-            const fileName = `${fileNameBase}_${Date.now()}_${fileIndex}.${fileExtension}`; // Add fileIndex for unique names
-            const filePath = `${pathPrefix}/${fileName}`;
-            const fileRef = storageRef(storage, filePath);
-
-            const uploadTask = uploadBytesResumable(fileRef, file);
-
-            // Reset and show progress bar only for the *overall* process if it's multiple files
-            if (totalFiles === 1) {
-                progressBarElement.style.width = '0%';
-                progressTextElement.textContent = '0%';
-                progressContainerElement.style.display = 'block';
-            }
-
-            return new Promise((resolve, reject) => {
-                uploadTask.on('state_changed', 
-                    (snapshot) => {
-                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        if (totalFiles === 1) { // Only update for single file upload directly
-                            progressBarElement.style.width = progress + '%';
-                            progressTextElement.textContent = Math.round(progress) + '%';
-                        }
-                        // For multiple files, overall progress will be calculated outside this function
-                    }, 
-                    (error) => {
-                        console.error("Error uploading file:", error);
-                        alert(`فشل رفع الملف: ${error.message}. تأكد من صلاحيات Firebase Storage.`);
-                        progressContainerElement.style.display = 'none';
-                        reject(error);
-                    }, 
-                    async () => {
-                        console.log('Upload complete');
-                        try {
-                            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                            resolve({ url: downloadURL, path: filePath });
-                        } catch (error) {
-                            console.error("Error getting download URL:", error);
-                            alert(`فشل الحصول على رابط التحميل بعد الرفع: ${error.message}`);
-                            reject(error);
-                        }
-                    }
-                );
-            });
-        }
-
-        // --- Image Upload Center Functionality ---
-        addImageFieldBtn.addEventListener('click', () => {
-            imageFieldCount++;
-            const newFieldDiv = document.createElement('div');
-            newFieldDiv.className = 'form-group upload-field';
-            newFieldDiv.innerHTML = `
-                <label>حدد صورة:</label>
-                <input type="file" name="file2up[]" accept="image/*" multiple>
-            `;
-            imageUploadFieldsContainer.appendChild(newFieldDiv);
-        });
-
-        uploadMultipleImagesBtn.addEventListener('click', async () => {
-            const fileInputs = document.querySelectorAll('#image-upload-fields-container input[type="file"]');
-            let filesToUpload = [];
-            fileInputs.forEach(input => {
-                // If 'multiple' attribute is set, input.files will contain all selected files
-                // If not, it will contain only one file.
-                // Loop through input.files for robustness.
-                for (let i = 0; i < input.files.length; i++) {
-                    filesToUpload.push(input.files[i]);
-                }
-            });
-
-            if (filesToUpload.length === 0) {
-                alert('الرجاء اختيار صورة واحدة على الأقل لرفعها.');
-                return;
-            }
-
-            uploadMultipleImagesBtn.disabled = true;
-            uploadMultipleImagesBtn.textContent = `جاري الرفع (0/${filesToUpload.length})...`;
-            uploadedImagesLinksTextarea.value = ''; // Clear previous links
-            multipleImagesProgressText.textContent = '0%';
-            multipleImagesProgressBar.style.width = '0%';
-            multipleImagesUploadProgress.style.display = 'block';
-
-            let uploadedLinks = [];
-            let completedUploads = 0;
-
-            try {
-                for (let i = 0; i < filesToUpload.length; i++) {
-                    const file = filesToUpload[i];
-                    uploadMultipleImagesBtn.textContent = `جاري الرفع (${i + 1}/${filesToUpload.length})...`;
-                    try {
-                        const uploadResult = await uploadFileToStorage(
-                            file, 
-                            'multiple_uploaded_images', // Dedicated folder for these uploads
-                            `image_${i}`, // Unique base for each file
-                            multipleImagesProgressBar, 
-                            multipleImagesProgressText, 
-                            multipleImagesUploadProgress,
-                            i, filesToUpload.length // Pass index and total for specific progress handling if needed
-                        );
-
-                        if (uploadResult && uploadResult.url) {
-                            uploadedLinks.push(uploadResult.url);
-                        }
-                    } catch (fileUploadError) {
-                        console.error(`Error uploading file ${file.name}:`, fileUploadError);
-                        // Continue to next file even if one fails
-                    } finally {
-                        completedUploads++;
-                        const overallProgress = (completedUploads / filesToUpload.length) * 100;
-                        multipleImagesProgressBar.style.width = overallProgress + '%';
-                        multipleImagesProgressText.textContent = Math.round(overallProgress) + '%';
-                    }
-                }
-
-                if (uploadedLinks.length > 0) {
-                    uploadedImagesLinksTextarea.value = uploadedLinks.join('\n');
-                    alert(`تم رفع ${uploadedLinks.length} من أصل ${filesToUpload.length} صور بنجاح! تم وضع الروابط في الحقل أعلاه.`);
-                } else {
-                    alert('فشل رفع أي من الصور المحددة.');
-                }
-            } catch (error) {
-                console.error("Error during multiple image upload:", error);
-                alert('حدث خطأ أثناء رفع الصور: ' + error.message);
-            } finally {
-                uploadMultipleImagesBtn.disabled = false;
-                uploadMultipleImagesBtn.textContent = 'رفع الصور والحصول على الروابط';
-                // Clear all dynamic file inputs and reset to one
-                imageUploadFieldsContainer.innerHTML = `
-                    <div class="form-group upload-field">
-                        <label>حدد صورة:</label>
-                        <input type="file" name="file2up[]" accept="image/*" multiple>
-                    </div>
-                `;
-                imageFieldCount = 1;
-                multipleImagesUploadProgress.style.display = 'none'; // Hide progress bar
-            }
-        });
-
-        copyAllImageLinksBtn.addEventListener('click', () => {
-            uploadedImagesLinksTextarea.select();
-            uploadedImagesLinksTextarea.setSelectionRange(0, 99999); // For mobile devices
-            document.execCommand("copy");
-            alert('تم نسخ جميع الروابط إلى الحافظة!');
-        });
-
-        // --- Series Management (No changes in this section from previous version) ---
+        // --- Series Management ---
 
         // Load and display all series
         async function loadSeries() {
-            showLoading('جاري تحميل المسلسلات...');
             try {
                 const snapshot = await get(seriesRef);
                 const seriesData = snapshot.val() || {};
                 
+                // Clear existing lists
                 editSeriesSelect.innerHTML = '<option value="">-- اختر مسلسل --</option>';
                 allSeriesDisplay.innerHTML = '';
 
-                if (Object.keys(seriesData).length === 0) {
-                    allSeriesDisplay.innerHTML = '<p style="text-align:center;color:var(--text-muted);">لا توجد مسلسلات لعرضها.</p>';
-                }
-
+                // Populate select list and display all series cards
                 for (const key in seriesData) {
                     const series = seriesData[key];
                     
+                    // Add to dropdown for editing
                     const option = document.createElement('option');
                     option.value = key;
                     option.textContent = series.title;
                     editSeriesSelect.appendChild(option);
 
+                    // Display as a card in "All Series" section
                     const card = document.createElement('div');
                     card.className = 'series-item';
                     card.setAttribute('data-series-id', key);
@@ -785,11 +474,12 @@
                     allSeriesDisplay.appendChild(card);
                 }
 
+                // Add event listeners for edit and delete buttons on series cards
                 document.querySelectorAll('#series-list .edit-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const seriesId = e.target.getAttribute('data-series-id');
                         editSeriesSelect.value = seriesId;
-                        editSeriesSelect.dispatchEvent(new Event('change'));
+                        editSeriesSelect.dispatchEvent(new Event('change')); // Trigger change event
                     });
                 });
                 document.querySelectorAll('#series-list .delete-btn').forEach(btn => {
@@ -798,91 +488,56 @@
                         deleteSeries(seriesId);
                     });
                 });
-                hideLoading();
 
             } catch (error) {
                 console.error("Error loading series:", error);
-                alert('فشل تحميل المسلسلات: ' + error.message);
-                hideLoading();
+                alert('فشل تحميل المسلسلات.');
             }
         }
 
         // Add new series
         addSeriesBtn.addEventListener('click', async () => {
             const title = newSeriesTitleInput.value.trim();
-            const imageFile = newSeriesImageFileInput.files[0];
-            const imageURL = newSeriesImageURLInput.value.trim();
+            const image = newSeriesImageInput.value.trim();
             const category = newSeriesCategoryInput.value.trim();
 
-            if (!title) {
-                alert('الرجاء إدخال عنوان المسلسل.');
+            if (!title || !image) {
+                alert('الرجاء إدخال عنوان المسلسل ورابط الصورة.');
                 return;
             }
 
-            let seriesImage = imageURL;
-            let uploadedImagePath = null;
+            const safeTitle = normalizeTitleForFirebase(title);
+            if (!safeTitle) {
+                alert('عنوان المسلسل غير صالح لإنشاء مفتاح.');
+                return;
+            }
 
-            addSeriesBtn.disabled = true; // Disable button immediately
-            addSeriesBtn.textContent = 'جاري المعالجة...';
+            const newSeriesData = {
+                title: title,
+                image: image,
+                category: category || 'عام',
+                views: 0,
+                likes: 0,
+                episodes: [] // Start with no episodes
+            };
 
             try {
-                if (imageFile) {
-                    addSeriesBtn.textContent = 'جاري رفع الصورة...';
-                    const uploadResult = await uploadFileToStorage(
-                        imageFile, 
-                        'series_images', 
-                        normalizeTitleForFirebase(title), 
-                        newSeriesProgressBar, 
-                        newSeriesProgressText, 
-                        newSeriesUploadProgress
-                    );
-                    if (!uploadResult) {
-                        return; // Stop if upload failed
-                    }
-                    seriesImage = uploadResult.url;
-                    uploadedImagePath = uploadResult.path;
-                } else if (!imageURL) {
-                    alert('الرجاء إدخال رابط صورة أو رفع ملف صورة للمسلسل.');
-                    return;
-                }
-
-                const safeTitle = normalizeTitleForFirebase(title);
-                if (!safeTitle) {
-                    alert('عنوان المسلسل غير صالح لإنشاء مفتاح.');
-                    return;
-                }
-
-                const existingSeriesSnapshot = await get(dbRef(db, `series/${safeTitle}`));
+                // Check if a series with this normalized title already exists
+                const existingSeriesSnapshot = await get(ref(db, `series/${safeTitle}`));
                 if (existingSeriesSnapshot.exists()) {
                     alert('مسلسل بهذا العنوان موجود بالفعل. الرجاء اختيار عنوان مختلف أو تعديل المسلسل الحالي.');
                     return;
                 }
 
-                const newSeriesData = {
-                    title: title,
-                    image: seriesImage,
-                    imagePath: uploadedImagePath,
-                    category: category || 'عام',
-                    views: 0,
-                    likes: 0,
-                    episodes: []
-                };
-                
-                addSeriesBtn.textContent = 'جاري إضافة المسلسل...';
-                await set(dbRef(db, `series/${safeTitle}`), newSeriesData);
+                await set(ref(db, `series/${safeTitle}`), newSeriesData);
                 alert('تم إضافة المسلسل بنجاح!');
                 newSeriesTitleInput.value = '';
-                newSeriesImageFileInput.value = '';
-                newSeriesImageURLInput.value = '';
+                newSeriesImageInput.value = '';
                 newSeriesCategoryInput.value = '';
                 loadSeries(); // Reload series to update lists
             } catch (error) {
                 console.error("Error adding series:", error);
-                alert('فشل إضافة المسلسل: ' + error.message);
-            } finally {
-                addSeriesBtn.disabled = false;
-                addSeriesBtn.textContent = 'إضافة المسلسل';
-                newSeriesUploadProgress.style.display = 'none'; // Hide progress bar on completion/error
+                alert('فشل إضافة المسلسل. قد يكون هناك مشكلة في الاتصال أو الأذونات.');
             }
         });
 
@@ -890,36 +545,27 @@
         editSeriesSelect.addEventListener('change', async () => {
             currentSelectedSeriesId = editSeriesSelect.value;
             episodesListDiv.innerHTML = ''; // Clear episode list
-            editSeriesForm.style.display = 'none'; // Hide form until data is loaded
 
             if (currentSelectedSeriesId) {
-                showLoading('جاري تحميل بيانات المسلسل...');
+                editSeriesForm.style.display = 'block';
                 try {
-                    const snapshot = await get(dbRef(db, `series/${currentSelectedSeriesId}`));
+                    const snapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
                     const series = snapshot.val();
                     if (series) {
                         editSeriesTitleInput.value = series.title;
-                        // Populate image fields: prioritize uploaded path for internal tracking, otherwise show URL
-                        if (series.imagePath) {
-                            editSeriesImageURLInput.value = ''; 
-                            // You might want to display the current uploaded image somehow, but clearing the URL input is correct if a file was uploaded.
-                            // The file input cannot be programmatically set for security reasons.
-                        } else {
-                            editSeriesImageURLInput.value = series.image || '';
-                        }
-                        editSeriesImageFileInput.value = ''; // Always clear file input
+                        editSeriesImageInput.value = series.image;
                         editSeriesCategoryInput.value = series.category || '';
-                        loadEpisodes(series.episodes || []);
-                        editSeriesForm.style.display = 'block';
+                        loadEpisodes(series.episodes || []); // Load episodes for the selected series
                     } else {
                         alert('المسلسل المحدد غير موجود.');
+                        editSeriesForm.style.display = 'none';
                     }
                 } catch (error) {
                     console.error("Error loading series for edit:", error);
-                    alert('فشل تحميل بيانات المسلسل للتعديل: ' + error.message);
-                } finally {
-                    hideLoading();
+                    alert('فشل تحميل بيانات المسلسل للتعديل.');
                 }
+            } else {
+                editSeriesForm.style.display = 'none';
             }
         });
 
@@ -931,151 +577,54 @@
             }
 
             const title = editSeriesTitleInput.value.trim();
-            const imageFile = editSeriesImageFileInput.files[0];
-            const imageURL = editSeriesImageURLInput.value.trim();
+            const image = editSeriesImageInput.value.trim();
             const category = editSeriesCategoryInput.value.trim();
 
-            if (!title) {
-                alert('الرجاء إدخال عنوان المسلسل.');
+            if (!title || !image) {
+                alert('الرجاء إدخال عنوان المسلسل ورابط الصورة.');
                 return;
             }
 
-            let finalImageURL = imageURL;
-            let finalImagePath = null;
-            let oldImagePath = null;
-
-            updateSeriesBtn.disabled = true; // Disable button immediately
-            updateSeriesBtn.textContent = 'جاري المعالجة...';
-
             try {
-                const currentSeriesSnapshot = await get(dbRef(db, `series/${currentSelectedSeriesId}`));
-                const currentSeries = currentSeriesSnapshot.val();
-                oldImagePath = currentSeries ? currentSeries.imagePath : null;
-
-                if (imageFile) {
-                    updateSeriesBtn.textContent = 'جاري رفع الصورة...';
-                    const uploadResult = await uploadFileToStorage(
-                        imageFile, 
-                        'series_images', 
-                        normalizeTitleForFirebase(title),
-                        editSeriesProgressBar, 
-                        editSeriesProgressText, 
-                        editSeriesUploadProgress
-                    );
-                    if (!uploadResult) {
-                        return; // Stop if upload failed
-                    }
-                    finalImageURL = uploadResult.url;
-                    finalImagePath = uploadResult.path;
-
-                    if (oldImagePath) {
-                        try {
-                            await deleteObject(storageRef(storage, oldImagePath));
-                            console.log('Old series image deleted from Storage:', oldImagePath);
-                        } catch (delError) {
-                            console.warn('Failed to delete old series image from Storage (might not exist or permissions issue):', delError);
-                        }
-                    }
-                } else if (imageURL) {
-                    finalImageURL = imageURL;
-                    finalImagePath = null; // No file path if using URL directly
-
-                    if (oldImagePath) {
-                        try {
-                            await deleteObject(storageRef(storage, oldImagePath));
-                            console.log('Old series image deleted from Storage (replaced by URL):', oldImagePath);
-                        } catch (delError) {
-                            console.warn('Failed to delete old series image from Storage (might not exist or permissions issue):', delError);
-                        }
-                    }
-                } else {
-                    // If no new file and no new URL, keep the existing image
-                    if (currentSeries && currentSeries.image) {
-                        finalImageURL = currentSeries.image;
-                        finalImagePath = currentSeries.imagePath;
-                    } else {
-                        alert('الرجاء إدخال رابط صورة أو رفع ملف صورة للمسلسل.');
-                        return;
-                    }
-                }
-
-                const updateData = {
+                // No need to normalize title if we are just updating existing fields of the currentSelectedSeriesId
+                await update(ref(db, `series/${currentSelectedSeriesId}`), {
                     title: title,
-                    image: finalImageURL,
-                    imagePath: finalImagePath,
+                    image: image,
                     category: category || 'عام'
-                };
-
-                updateSeriesBtn.textContent = 'جاري تحديث المسلسل...';
-                await update(dbRef(db, `series/${currentSelectedSeriesId}`), updateData);
+                });
                 alert('تم تحديث المسلسل بنجاح!');
-                loadSeries(); // Reload all series cards
-                // Re-select the current series to refresh its edit form, ensuring latest data is shown
+                loadSeries(); // Reload series to update dropdown and cards
+                // Keep the same series selected in the dropdown
                 editSeriesSelect.value = currentSelectedSeriesId; 
-                editSeriesSelect.dispatchEvent(new Event('change'));
+                editSeriesSelect.dispatchEvent(new Event('change')); // Trigger change to refresh edit form
             } catch (error) {
                 console.error("Error updating series:", error);
-                alert('فشل تحديث المسلسل: ' + error.message);
-            } finally {
-                updateSeriesBtn.disabled = false;
-                updateSeriesBtn.textContent = 'تحديث المسلسل';
-                editSeriesUploadProgress.style.display = 'none'; // Hide progress bar on completion/error
+                alert('فشل تحديث المسلسل.');
             }
         });
 
         // Delete a series
         async function deleteSeries(seriesIdToDelete) {
             if (confirm('هل أنت متأكد أنك تريد حذف هذا المسلسل وجميع حلقاته؟ هذا الإجراء لا يمكن التراجع عنه!')) {
-                showLoading('جاري حذف المسلسل...');
                 try {
-                    const seriesSnapshot = await get(dbRef(db, `series/${seriesIdToDelete}`));
-                    const series = seriesSnapshot.val();
-
-                    if (series && series.imagePath) {
-                        const imageRef = storageRef(storage, series.imagePath);
-                        try {
-                            await deleteObject(imageRef);
-                            console.log(`Deleted series image: ${series.imagePath}`);
-                        } catch (storageError) {
-                            console.warn(`Failed to delete series image ${series.imagePath} (might not exist or permissions issue):`, storageError);
-                        }
-                    }
-
-                    const episodes = series ? series.episodes || [] : [];
-                    for (const ep of episodes) {
-                        if (ep.filePath) {
-                            const fileRef = storageRef(storage, ep.filePath);
-                            try {
-                                await deleteObject(fileRef);
-                                console.log(`Deleted episode file: ${ep.filePath}`);
-                            } catch (storageError) {
-                                console.warn(`Failed to delete episode file ${ep.filePath} (might not exist or permissions issue):`, storageError);
-                            }
-                        }
-                    }
-
-                    await remove(dbRef(db, `series/${seriesIdToDelete}`));
+                    await remove(ref(db, `series/${seriesIdToDelete}`));
                     alert('تم حذف المسلسل بنجاح!');
-                    editSeriesForm.style.display = 'none';
-                    currentSelectedSeriesId = null;
-                    loadSeries(); // Reload all series lists
+                    editSeriesForm.style.display = 'none'; // Hide edit form
+                    currentSelectedSeriesId = null; // Clear selected ID
+                    loadSeries(); // Reload series to update lists
                 } catch (error) {
                     console.error("Error deleting series:", error);
-                    alert('فشل حذف المسلسل: ' + error.message);
-                } finally {
-                    hideLoading();
+                    alert('فشل حذف المسلسل.');
                 }
             }
         }
         deleteSeriesBtn.addEventListener('click', () => {
             if (currentSelectedSeriesId) {
                 deleteSeries(currentSelectedSeriesId);
-            } else {
-                alert('الرجاء اختيار مسلسل لحذفه.');
             }
         });
 
-        // --- Episode Management (No changes in this section from previous version) ---
+        // --- Episode Management ---
 
         // Load and display episodes for a given series
         function loadEpisodes(episodes) {
@@ -1099,6 +648,7 @@
                 episodesListDiv.appendChild(episodeItem);
             });
 
+            // Add event listeners for episode buttons
             document.querySelectorAll('.toggle-new-btn').forEach(btn => {
                 btn.addEventListener('click', toggleEpisodeNewStatus);
             });
@@ -1118,143 +668,90 @@
             }
 
             const title = newEpisodeTitleInput.value.trim();
-            const file = newEpisodeFileIput.files[0];
             const link = newEpisodeLinkInput.value.trim();
             const isNew = newEpisodeIsNewCheckbox.checked;
 
-            if (!title) {
-                alert('الرجاء إدخال عنوان الحلقة.');
+            if (!title || !link) {
+                alert('الرجاء إدخال عنوان الحلقة ورابط الفيديو.');
                 return;
             }
 
-            let episodeLink = link;
-            let uploadedFilePath = null;
-
-            addEpisodeToSeriesBtn.disabled = true;
-            addEpisodeToSeriesBtn.textContent = 'جاري المعالجة...';
-
             try {
-                if (file) {
-                    addEpisodeToSeriesBtn.textContent = 'جاري رفع الفيديو...';
-                    const uploadResult = await uploadFileToStorage(
-                        file, 
-                        `series_episodes/${currentSelectedSeriesId}`, // Path in storage
-                        normalizeTitleForFirebase(title), 
-                        episodeProgressBar, 
-                        episodeProgressText, 
-                        episodeUploadProgress
-                    );
-                    if (!uploadResult) {
-                        return; // Stop if upload failed
-                    }
-                    episodeLink = uploadResult.url;
-                    uploadedFilePath = uploadResult.path;
-                } else if (!link) {
-                    alert('الرجاء إدخال رابط فيديو أو رفع ملف فيديو للحلقة.');
-                    return;
-                }
-
-                const seriesSnapshot = await get(dbRef(db, `series/${currentSelectedSeriesId}`));
+                const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
                 const series = seriesSnapshot.val();
-                const episodes = series.episodes || [];
+                const episodes = series.episodes || []; // Ensure episodes is an array
 
                 const newEpisode = {
                     title: title,
-                    link: episodeLink,
+                    link: link,
                     isNew: isNew,
-                    updatedAt: new Date().toISOString(),
-                    filePath: uploadedFilePath // Store storage path
+                    updatedAt: new Date().toISOString() // Record current time
                 };
 
-                episodes.push(newEpisode);
+                episodes.push(newEpisode); // Add new episode to the array
 
-                addEpisodeToSeriesBtn.textContent = 'جاري إضافة الحلقة...';
-                await update(dbRef(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
+                await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
                 alert('تم إضافة الحلقة بنجاح!');
+                // Clear episode input fields
                 newEpisodeTitleInput.value = '';
                 newEpisodeLinkInput.value = '';
-                newEpisodeFileIput.value = '';
                 newEpisodeIsNewCheckbox.checked = false;
-                loadEpisodes(episodes); // Reload episodes for the current series
+                loadEpisodes(episodes); // Reload episode list to show the new episode
             } catch (error) {
                 console.error("Error adding episode:", error);
-                alert('فشل إضافة الحلقة: ' + error.message);
-            } finally {
-                addEpisodeToSeriesBtn.disabled = false;
-                addEpisodeToSeriesBtn.textContent = 'إضافة الحلقة';
-                episodeUploadProgress.style.display = 'none'; // Hide progress bar on completion/error
+                alert('فشل إضافة الحلقة.');
             }
         });
 
-        // Edit an existing episode (simplified for demo, typically a modal form is better)
+        // Edit an existing episode
         async function editEpisode(event) {
             const index = parseInt(event.target.getAttribute('data-index'));
             
-            showLoading('جاري تحميل بيانات الحلقة...');
-            try {
-                const seriesSnapshot = await get(dbRef(db, `series/${currentSelectedSeriesId}`));
-                const series = seriesSnapshot.val();
-                const episodes = series.episodes || [];
-                const episodeToEdit = episodes[index];
-                hideLoading();
+            const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
+            const series = seriesSnapshot.val();
+            const episodes = series.episodes || [];
+            const episodeToEdit = episodes[index];
 
-                const newTitle = prompt('أدخل العنوان الجديد للحلقة:', episodeToEdit.title);
-                const newLink = prompt('أدخل الرابط الجديد للحلقة:', episodeToEdit.link);
-                // Note: File editing for episodes would require a more complex UI (e.g., re-upload option)
+            const newTitle = prompt('أدخل العنوان الجديد للحلقة:', episodeToEdit.title);
+            const newLink = prompt('أدخل الرابط الجديد للحلقة:', episodeToEdit.link);
 
-                if (newTitle !== null && newLink !== null) {
-                    if (newTitle.trim() === '' || newLink.trim() === '') {
-                        alert('لا يمكن أن يكون العنوان أو الرابط فارغاً.');
-                        return;
-                    }
-                    episodes[index].title = newTitle.trim();
-                    episodes[index].link = newLink.trim();
-                    episodes[index].updatedAt = new Date().toISOString();
-
-                    showLoading('جاري تحديث الحلقة...');
-                    await update(dbRef(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
-                    alert('تم تحديث الحلقة بنجاح!');
-                    loadEpisodes(episodes);
+            if (newTitle !== null && newLink !== null) { // If user didn't click Cancel
+                if (newTitle.trim() === '' || newLink.trim() === '') {
+                    alert('لا يمكن أن يكون العنوان أو الرابط فارغاً.');
+                    return;
                 }
-            } catch (error) {
-                console.error("Error updating episode:", error);
-                alert('فشل تحديث الحلقة: ' + error.message);
-            } finally {
-                hideLoading();
+                episodes[index].title = newTitle.trim();
+                episodes[index].link = newLink.trim();
+                episodes[index].updatedAt = new Date().toISOString(); // Update modification time
+
+                try {
+                    await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
+                    alert('تم تحديث الحلقة بنجاح!');
+                    loadEpisodes(episodes); // Refresh episode list
+                } catch (error) {
+                    console.error("Error updating episode:", error);
+                    alert('فشل تحديث الحلقة.');
+                }
             }
         }
 
         // Delete an episode
         async function deleteEpisode(event) {
             const index = parseInt(event.target.getAttribute('data-index'));
-            if (confirm('هل أنت متأكد أنك تريد حذف هذه الحلقة؟ هذا الإجراء لا يمكن التراجع عنه!')) {
-                showLoading('جاري حذف الحلقة...');
+            if (confirm('هل أنت متأكد أنك تريد حذف هذه الحلقة؟')) {
                 try {
-                    const seriesSnapshot = await get(dbRef(db, `series/${currentSelectedSeriesId}`));
+                    const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
                     const series = seriesSnapshot.val();
                     const episodes = series.episodes || [];
-                    const episodeToDelete = episodes[index];
 
-                    if (episodeToDelete.filePath) {
-                        const fileRef = storageRef(storage, episodeToDelete.filePath);
-                        try {
-                            await deleteObject(fileRef);
-                            console.log('File deleted from Firebase Storage:', episodeToDelete.filePath);
-                        } catch (storageError) {
-                            console.warn('Failed to delete file from Firebase Storage (might not exist or permissions issue):', storageError);
-                        }
-                    }
+                    episodes.splice(index, 1); // Remove the episode from the array
 
-                    episodes.splice(index, 1); // Remove episode from array
-
-                    await update(dbRef(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
+                    await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
                     alert('تم حذف الحلقة بنجاح!');
-                    loadEpisodes(episodes);
+                    loadEpisodes(episodes); // Refresh episode list
                 } catch (error) {
                     console.error("Error deleting episode:", error);
-                    alert('فشل حذف الحلقة: ' + error.message);
-                } finally {
-                    hideLoading();
+                    alert('فشل حذف الحلقة.');
                 }
             }
         }
@@ -1262,23 +759,20 @@
         // Toggle "isNew" status for an episode
         async function toggleEpisodeNewStatus(event) {
             const index = parseInt(event.target.getAttribute('data-index'));
-            showLoading('جاري تحديث حالة الحلقة...');
             try {
-                const seriesSnapshot = await get(dbRef(db, `series/${currentSelectedSeriesId}`));
+                const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
                 const series = seriesSnapshot.val();
                 const episodes = series.episodes || [];
 
-                episodes[index].isNew = !episodes[index].isNew;
-                episodes[index].updatedAt = new Date().toISOString(); // Update timestamp
+                episodes[index].isNew = !episodes[index].isNew; // Toggle the status
+                episodes[index].updatedAt = new Date().toISOString(); // Update modification time
 
-                await update(dbRef(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
+                await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
                 alert('تم تحديث حالة الحلقة بنجاح!');
-                loadEpisodes(episodes); // Reload episodes to update UI
+                loadEpisodes(episodes); // Refresh episode list to reflect change
             } catch (error) {
                 console.error("Error toggling new status:", error);
-                alert('فشل تحديث حالة الحلقة: ' + error.message);
-            } finally {
-                hideLoading();
+                alert('فشل تحديث حالة الحلقة.');
             }
         }
         //]]>
