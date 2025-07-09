@@ -251,25 +251,6 @@
             background: #138496;
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .container {
-                margin: 20px auto;
-                padding: 15px;
-            }
-            .admin-header {
-                flex-direction: column;
-                gap: 10px;
-                font-size: 20px;
-            }
-            .admin-header button {
-                width: 100%;
-            }
-            #series-list {
-                grid-template-columns: 1fr;
-            }
-        }
-
         /* Progress Bar Styles */
         .progress-container {
             width: 100%;
@@ -355,6 +336,23 @@
         </div>
 
         <div class="container">
+            <div class="form-section">
+                <h3>تحويل الصور إلى رابط مباشر</h3>
+                <div class="form-group">
+                    <label for="image-to-link-file">اختر ملف الصورة:</label>
+                    <input type="file" id="image-to-link-file" accept="image/*" required>
+                </div>
+                <button id="upload-image-for-link-btn">رفع الصورة والحصول على الرابط</button>
+                <div class="progress-container" id="image-to-link-upload-progress">
+                    <div class="progress-bar" id="image-to-link-progress-bar"></div>
+                    <div class="progress-text" id="image-to-link-progress-text">0%</div>
+                </div>
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="uploaded-image-link">رابط الصورة المباشر:</label>
+                    <input type="text" id="uploaded-image-link" readonly placeholder="سيظهر الرابط هنا بعد الرفع">
+                    <button id="copy-image-link-btn" style="margin-top: 10px;">نسخ الرابط</button>
+                </div>
+            </div>
             <div class="form-section">
                 <h3>إضافة مسلسل جديد</h3>
                 <div class="form-group">
@@ -485,7 +483,6 @@
         const loadingOverlay = document.getElementById('loading-overlay');
         const loadingText = document.getElementById('loading-text');
 
-
         // New Series Elements
         const newSeriesTitleInput = document.getElementById('new-series-title');
         const newSeriesImageFileInput = document.getElementById('new-series-image-file');
@@ -523,6 +520,15 @@
         const allSeriesDisplay = document.getElementById('series-list');
 
         let currentSelectedSeriesId = null; // To store the key of the currently selected series for editing
+
+        // --- New Elements for Image to Link Converter ---
+        const imageToLinkFileInput = document.getElementById('image-to-link-file');
+        const uploadImageForLinkBtn = document.getElementById('upload-image-for-link-btn');
+        const uploadedImageLinkInput = document.getElementById('uploaded-image-link');
+        const copyImageLinkBtn = document.getElementById('copy-image-link-btn');
+        const imageToLinkUploadProgress = document.getElementById('image-to-link-upload-progress');
+        const imageToLinkProgressBar = document.getElementById('image-to-link-progress-bar');
+        const imageToLinkProgressText = document.getElementById('image-to-link-progress-text');
 
         // Function to show/hide loading overlay
         function showLoading(message = 'جاري التحميل...') {
@@ -626,6 +632,53 @@
                 );
             });
         }
+
+        // --- Image to Link Converter Functionality ---
+        uploadImageForLinkBtn.addEventListener('click', async () => {
+            const imageFile = imageToLinkFileInput.files[0];
+            if (!imageFile) {
+                alert('الرجاء اختيار صورة لرفعها.');
+                return;
+            }
+
+            uploadImageForLinkBtn.disabled = true;
+            uploadImageForLinkBtn.textContent = 'جاري الرفع...';
+            uploadedImageLinkInput.value = ''; // Clear previous link
+
+            try {
+                // Use a generic path for standalone images
+                const uploadResult = await uploadFileToStorage(
+                    imageFile, 
+                    'uploaded_images', 
+                    'image', // Generic filename base
+                    imageToLinkProgressBar, 
+                    imageToLinkProgressText, 
+                    imageToLinkUploadProgress
+                );
+
+                if (uploadResult && uploadResult.url) {
+                    uploadedImageLinkInput.value = uploadResult.url;
+                    alert('تم رفع الصورة بنجاح! تم وضع الرابط في الحقل أعلاه.');
+                } else {
+                    alert('فشل رفع الصورة أو الحصول على رابطها.');
+                }
+            } catch (error) {
+                console.error("Error uploading image for link:", error);
+                alert('حدث خطأ أثناء رفع الصورة: ' + error.message);
+            } finally {
+                uploadImageForLinkBtn.disabled = false;
+                uploadImageForLinkBtn.textContent = 'رفع الصورة والحصول على الرابط';
+                imageToLinkFileInput.value = ''; // Clear the file input
+            }
+        });
+
+        copyImageLinkBtn.addEventListener('click', () => {
+            uploadedImageLinkInput.select();
+            uploadedImageLinkInput.setSelectionRange(0, 99999); // For mobile devices
+            document.execCommand("copy");
+            alert('تم نسخ الرابط إلى الحافظة!');
+        });
+
 
         // --- Series Management ---
 
