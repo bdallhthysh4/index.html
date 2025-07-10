@@ -875,4 +875,156 @@
                 return;
             }
 
-            episodes.forEach((
+            episodes.forEach((ep, index) => {
+                const episodeItem = document.createElement('div');
+                episodeItem.className = 'episode-item';
+                episodeItem.innerHTML = `
+                    <span>${ep.title}</span>
+                    <div class="episode-item-actions">
+                        <button class="toggle-new-btn ${ep.isNew ? 'active' : ''}" data-index="${index}">${ep.isNew ? 'إزالة "جديدة"' : 'وضع "جديدة"'}</button>
+                        <button class="edit-episode-btn" data-index="${index}">تعديل</button>
+                        <button class="delete-episode-btn delete-btn" data-index="${index}">حذف</button>
+                    </div>
+                `;
+                episodesListDiv.appendChild(episodeItem);
+            });
+
+            // Add event listeners for episode buttons
+            document.querySelectorAll('.toggle-new-btn').forEach(btn => {
+                btn.addEventListener('click', toggleEpisodeNewStatus);
+            });
+            document.querySelectorAll('.edit-episode-btn').forEach(btn => {
+                btn.addEventListener('click', editEpisode);
+            });
+            document.querySelectorAll('.delete-episode-btn').forEach(btn => {
+                btn.addEventListener('click', deleteEpisode);
+            });
+        }
+
+        // Add new episode to a series
+        addEpisodeToSeriesBtn.addEventListener('click', async () => {
+            if (!currentSelectedSeriesId) {
+                alert('الرجاء اختيار مسلسل لإضافة حلقة إليه.');
+                return;
+            }
+
+            const title = newEpisodeTitleInput.value.trim();
+            const link = newEpisodeLinkInput.value.trim();
+            const isNew = newEpisodeIsNewCheckbox.checked;
+
+            if (!title || !link) {
+                alert('الرجاء إدخال عنوان الحلقة ورابط الفيديو.');
+                return;
+            }
+
+            try {
+                const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
+                const series = seriesSnapshot.val();
+                const episodes = series.episodes || []; // Ensure episodes is an array
+
+                const newEpisode = {
+                    title: title,
+                    link: link,
+                    isNew: isNew,
+                    updatedAt: new Date().toISOString() // Record current time
+                };
+
+                episodes.push(newEpisode); // Add new episode to the array
+
+                await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
+                alert('تم إضافة الحلقة بنجاح!');
+                
+                // ** Credit System Integration **
+                const currentUser = auth.currentUser;
+                if (currentUser) {
+                    await updateBalanceForEpisodeAddition(currentUser.uid);
+                    alert(`تمت إضافة الحلقة بنجاح! وزيادة رصيدك بـ ${EPISODE_CREDIT.toFixed(2)}.`);
+                }
+                // End Credit System Integration
+
+                // Clear episode input fields
+                newEpisodeTitleInput.value = '';
+                newEpisodeLinkInput.value = '';
+                newEpisodeIsNewCheckbox.checked = false;
+                loadEpisodes(episodes); // Reload episode list to show the new episode
+            } catch (error) {
+                console.error("Error adding episode:", error);
+                alert('فشل إضافة الحلقة.');
+            }
+        });
+
+        // Edit an existing episode
+        async function editEpisode(event) {
+            const index = parseInt(event.target.getAttribute('data-index'));
+            
+            const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
+            const series = seriesSnapshot.val();
+            const episodes = series.episodes || [];
+            const episodeToEdit = episodes[index];
+
+            const newTitle = prompt('أدخل العنوان الجديد للحلقة:', episodeToEdit.title);
+            const newLink = prompt('أدخل الرابط الجديد للحلقة:', episodeToEdit.link);
+
+            if (newTitle !== null && newLink !== null) { // If user didn't click Cancel
+                if (newTitle.trim() === '' || newLink.trim() === '') {
+                    alert('لا يمكن أن يكون العنوان أو الرابط فارغاً.');
+                    return;
+                }
+                episodes[index].title = newTitle.trim();
+                episodes[index].link = newLink.trim();
+                episodes[index].updatedAt = new Date().toISOString(); // Update modification time
+
+                try {
+                    await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
+                    alert('تم تحديث الحلقة بنجاح!');
+                    loadEpisodes(episodes); // Refresh episode list
+                } catch (error) {
+                    console.error("Error updating episode:", error);
+                    alert('فشل تحديث الحلقة.');
+                }
+            }
+        }
+
+        // Delete an episode
+        async function deleteEpisode(event) {
+            const index = parseInt(event.target.getAttribute('data-index'));
+            if (confirm('هل أنت متأكد أنك تريد حذف هذه الحلقة؟')) {
+                try {
+                    const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
+                    const series = seriesSnapshot.val();
+                    const episodes = series.episodes || [];
+
+                    episodes.splice(index, 1); // Remove the episode from the array
+
+                    await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
+                    alert('تم حذف الحلقة بنجاح!');
+                    loadEpisodes(episodes); // Refresh episode list
+                } catch (error) {
+                    console.error("Error deleting episode:", error);
+                    alert('فشل حذف الحلقة.');
+                }
+            }
+        }
+
+        // Toggle "isNew" status for an episode
+        async function toggleEpisodeNewStatus(event) {
+            const index = parseInt(event.target.getAttribute('data-index'));
+            try {
+                const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
+                const series = seriesSnapshot.val();
+                const episodes = series.episodes || [];
+
+                episodes[index].isNew = !episodes[index].isNew; // Toggle the status
+                episodes[index].updatedAt = new Date().toISOString(); // Update modification time
+
+                await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
+                alert('تم تحديث حالة الحلقة بنجاح!');
+                loadEpisodes(episodes); // Refresh episode list to reflect change
+            } catch (error) {
+                console.error("Error toggling new status:", error);
+                alert('فشل تحديث حالة الحلقة.');
+            }
+        }
+    </script>
+</body>
+</html>
