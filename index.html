@@ -450,16 +450,16 @@
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
         import { getDatabase, ref, get, set, remove, update, runTransaction } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
-        // Firebase configuration (from your provided code)
+        // Firebase configuration - REPLACE WITH YOUR ACTUAL CONFIG
         const firebaseConfig = {
-            apiKey: "AIzaSyCEaxXR5eqzg0e5JvjWAFjZ5ZeMraMYREn",
-            authDomain: "mo-play-b0cb7.firebaseapp.com",
-            databaseURL: "https://mo-play-b0cb7-default-rtdb.firebaseio.com",
-            projectId: "mo-play-b0cb7",
-            storageBucket: "mo-play-b0cb7.firebasestorage.app",
-            messagingSenderId: "575424024738",
-            appId: "1:575424024738:web:0b1736c0c2e496adf607fb",
-            measurementId: "G-33QRGFTW30"
+            apiKey: "YOUR_API_KEY", // Replace with your Firebase project's API Key
+            authDomain: "YOUR_AUTH_DOMAIN", // Replace with your Firebase project's Auth Domain
+            databaseURL: "YOUR_DATABASE_URL", // Replace with your Firebase project's Realtime Database URL
+            projectId: "YOUR_PROJECT_ID", // Replace with your Firebase project ID
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID",
+            measurementId: "YOUR_MEASUREMENT_ID"
         };
 
         // Initialize Firebase
@@ -467,7 +467,7 @@
         const auth = getAuth(app); 
         const db = getDatabase(app);
         const seriesRef = ref(db, 'series');
-        const usersRef = ref(db, 'users'); // New reference for user data
+        const usersRef = ref(db, 'users'); // Reference for user data
 
         // UI Elements - Authentication
         const authSection = document.getElementById('auth-section');
@@ -476,7 +476,7 @@
         const authPasswordInput = document.getElementById('auth-password');
         const authSubmitBtn = document.getElementById('auth-submit-btn');
         const toggleAuthModeLink = document.getElementById('toggle-auth-mode');
-        const showRegisterLink = document.getElementById('show-register-link');
+        const showRegisterLink = document.getElementById('show-register-link'); // Note: This ID gets overwritten
         const authErrorMessage = document.getElementById('auth-error-message');
 
         // UI Elements - Admin Panel
@@ -522,20 +522,22 @@
         // Toggle between login and registration forms
         toggleAuthModeLink.addEventListener('click', (e) => {
             e.preventDefault();
-            authErrorMessage.style.display = 'none'; // Hide any previous error messages
+            displayAuthError('', false); // Clear any previous error messages, don't show it
+
             if (authMode === 'login') {
                 authMode = 'register';
                 authTitle.textContent = 'إنشاء حساب جديد';
                 authSubmitBtn.textContent = 'إنشاء حساب';
                 toggleAuthModeLink.innerHTML = 'لديك حساب بالفعل؟ <a href="#" id="show-login-link">سجل الدخول</a>';
+                // Attach listener for the newly created "show-login-link"
                 document.getElementById('show-login-link').addEventListener('click', (ev) => {
                     ev.preventDefault();
-                    authErrorMessage.style.display = 'none';
+                    displayAuthError('', false);
                     authMode = 'login';
                     authTitle.textContent = 'تسجيل الدخول';
                     authSubmitBtn.textContent = 'تسجيل الدخول';
                     toggleAuthModeLink.innerHTML = 'ليس لديك حساب؟ <a href="#" id="show-register-link">سجل الآن</a>';
-                    // Re-attach listener for the new "show-register-link" if needed, though it's already done by the main listener
+                    // No need to re-attach for "show-register-link" as the main listener handles its initial state.
                 });
             } else {
                 authMode = 'login';
@@ -555,7 +557,7 @@
                 return;
             }
 
-            authErrorMessage.style.display = 'none'; // Clear previous errors
+            displayAuthError('', false); // Clear previous errors before new attempt
 
             if (authMode === 'login') {
                 try {
@@ -568,7 +570,7 @@
                 try {
                     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                     const userId = userCredential.user.uid;
-                    // Initialize user balance in Realtime Database
+                    // Initialize user balance in Realtime Database for new users
                     await set(ref(db, `users/${userId}/balance`), 0);
                     // onAuthStateChanged will handle UI update
                 } catch (error) {
@@ -578,9 +580,9 @@
         });
 
         // Display authentication error messages
-        function displayAuthError(message) {
+        function displayAuthError(message, show = true) {
             authErrorMessage.textContent = message;
-            authErrorMessage.style.display = 'block';
+            authErrorMessage.style.display = show ? 'block' : 'none';
         }
 
         // Map Firebase auth error codes to user-friendly messages
@@ -600,9 +602,10 @@
                     return 'كلمة المرور ضعيفة جداً، يجب أن تكون 6 أحرف على الأقل.';
                 case 'auth/network-request-failed':
                     return 'فشل الاتصال بالشبكة. الرجاء التحقق من اتصالك بالإنترنت.';
-                case 'auth/operation-not-allowed': // This is the error you were likely getting
+                case 'auth/operation-not-allowed':
                     return 'هذه العملية غير مسموح بها. الرجاء التأكد من تمكين تسجيل الدخول بالبريد الإلكتروني/كلمة المرور في إعدادات Firebase.';
                 default:
+                    console.error("Firebase Auth Error:", errorCode); // Log unknown errors for debugging
                     return 'حدث خطأ غير معروف. الرجاء المحاولة مرة أخرى.';
             }
         }
@@ -612,7 +615,7 @@
             if (user) {
                 // User is signed in, show admin panel
                 authSection.style.display = 'none';
-                adminPanelSection.style.display = 'flex';
+                adminPanelSection.style.display = 'flex'; // Use flex to maintain column layout
                 currentUserEmailSpan.textContent = user.email;
                 await loadUserBalance(user.uid); // Load user's balance
                 loadSeries(); // Load series data
@@ -622,7 +625,7 @@
                 adminPanelSection.style.display = 'none';
                 authEmailInput.value = '';
                 authPasswordInput.value = '';
-                authErrorMessage.style.display = 'none';
+                displayAuthError('', false); // Clear any error message
                 authTitle.textContent = 'تسجيل الدخول';
                 authSubmitBtn.textContent = 'تسجيل الدخول';
                 toggleAuthModeLink.innerHTML = 'ليس لديك حساب؟ <a href="#" id="show-register-link">سجل الآن</a>';
@@ -643,7 +646,7 @@
         });
 
         // --- User Balance Management ---
-        const EPISODE_CREDIT = 0.01;
+        const EPISODE_CREDIT = 0.01; // Amount to credit user for adding an episode
 
         async function loadUserBalance(userId) {
             try {
@@ -872,156 +875,4 @@
                 return;
             }
 
-            episodes.forEach((ep, index) => {
-                const episodeItem = document.createElement('div');
-                episodeItem.className = 'episode-item';
-                episodeItem.innerHTML = `
-                    <span>${ep.title}</span>
-                    <div class="episode-item-actions">
-                        <button class="toggle-new-btn ${ep.isNew ? 'active' : ''}" data-index="${index}">${ep.isNew ? 'إزالة "جديدة"' : 'وضع "جديدة"'}</button>
-                        <button class="edit-episode-btn" data-index="${index}">تعديل</button>
-                        <button class="delete-episode-btn delete-btn" data-index="${index}">حذف</button>
-                    </div>
-                `;
-                episodesListDiv.appendChild(episodeItem);
-            });
-
-            // Add event listeners for episode buttons
-            document.querySelectorAll('.toggle-new-btn').forEach(btn => {
-                btn.addEventListener('click', toggleEpisodeNewStatus);
-            });
-            document.querySelectorAll('.edit-episode-btn').forEach(btn => {
-                btn.addEventListener('click', editEpisode);
-            });
-            document.querySelectorAll('.delete-episode-btn').forEach(btn => {
-                btn.addEventListener('click', deleteEpisode);
-            });
-        }
-
-        // Add new episode to a series
-        addEpisodeToSeriesBtn.addEventListener('click', async () => {
-            if (!currentSelectedSeriesId) {
-                alert('الرجاء اختيار مسلسل لإضافة حلقة إليه.');
-                return;
-            }
-
-            const title = newEpisodeTitleInput.value.trim();
-            const link = newEpisodeLinkInput.value.trim();
-            const isNew = newEpisodeIsNewCheckbox.checked;
-
-            if (!title || !link) {
-                alert('الرجاء إدخال عنوان الحلقة ورابط الفيديو.');
-                return;
-            }
-
-            try {
-                const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
-                const series = seriesSnapshot.val();
-                const episodes = series.episodes || []; // Ensure episodes is an array
-
-                const newEpisode = {
-                    title: title,
-                    link: link,
-                    isNew: isNew,
-                    updatedAt: new Date().toISOString() // Record current time
-                };
-
-                episodes.push(newEpisode); // Add new episode to the array
-
-                await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
-                alert('تم إضافة الحلقة بنجاح!');
-                
-                // ** Credit System Integration **
-                const currentUser = auth.currentUser;
-                if (currentUser) {
-                    await updateBalanceForEpisodeAddition(currentUser.uid);
-                    alert(`تمت إضافة الحلقة بنجاح! وزيادة رصيدك بـ ${EPISODE_CREDIT.toFixed(2)}.`);
-                }
-                // End Credit System Integration
-
-                // Clear episode input fields
-                newEpisodeTitleInput.value = '';
-                newEpisodeLinkInput.value = '';
-                newEpisodeIsNewCheckbox.checked = false;
-                loadEpisodes(episodes); // Reload episode list to show the new episode
-            } catch (error) {
-                console.error("Error adding episode:", error);
-                alert('فشل إضافة الحلقة.');
-            }
-        });
-
-        // Edit an existing episode
-        async function editEpisode(event) {
-            const index = parseInt(event.target.getAttribute('data-index'));
-            
-            const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
-            const series = seriesSnapshot.val();
-            const episodes = series.episodes || [];
-            const episodeToEdit = episodes[index];
-
-            const newTitle = prompt('أدخل العنوان الجديد للحلقة:', episodeToEdit.title);
-            const newLink = prompt('أدخل الرابط الجديد للحلقة:', episodeToEdit.link);
-
-            if (newTitle !== null && newLink !== null) { // If user didn't click Cancel
-                if (newTitle.trim() === '' || newLink.trim() === '') {
-                    alert('لا يمكن أن يكون العنوان أو الرابط فارغاً.');
-                    return;
-                }
-                episodes[index].title = newTitle.trim();
-                episodes[index].link = newLink.trim();
-                episodes[index].updatedAt = new Date().toISOString(); // Update modification time
-
-                try {
-                    await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
-                    alert('تم تحديث الحلقة بنجاح!');
-                    loadEpisodes(episodes); // Refresh episode list
-                } catch (error) {
-                    console.error("Error updating episode:", error);
-                    alert('فشل تحديث الحلقة.');
-                }
-            }
-        }
-
-        // Delete an episode
-        async function deleteEpisode(event) {
-            const index = parseInt(event.target.getAttribute('data-index'));
-            if (confirm('هل أنت متأكد أنك تريد حذف هذه الحلقة؟')) {
-                try {
-                    const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
-                    const series = seriesSnapshot.val();
-                    const episodes = series.episodes || [];
-
-                    episodes.splice(index, 1); // Remove the episode from the array
-
-                    await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
-                    alert('تم حذف الحلقة بنجاح!');
-                    loadEpisodes(episodes); // Refresh episode list
-                } catch (error) {
-                    console.error("Error deleting episode:", error);
-                    alert('فشل حذف الحلقة.');
-                }
-            }
-        }
-
-        // Toggle "isNew" status for an episode
-        async function toggleEpisodeNewStatus(event) {
-            const index = parseInt(event.target.getAttribute('data-index'));
-            try {
-                const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
-                const series = seriesSnapshot.val();
-                const episodes = series.episodes || [];
-
-                episodes[index].isNew = !episodes[index].isNew; // Toggle the status
-                episodes[index].updatedAt = new Date().toISOString(); // Update modification time
-
-                await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
-                alert('تم تحديث حالة الحلقة بنجاح!');
-                loadEpisodes(episodes); // Refresh episode list to reflect change
-            } catch (error) {
-                console.error("Error toggling new status:", error);
-                alert('فشل تحديث حالة الحلقة.');
-            }
-        }
-    </script>
-</body>
-</html>
+            episodes.forEach((
