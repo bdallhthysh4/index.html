@@ -926,25 +926,13 @@
             <a href="javascript:void(0)" class="close-btn" id="close-sidebar-btn">&times;</a>
         </div>
         <div class="sidebar-content">
-            <h3>تغيير رابط JSON للمستخدمين</h3>
-            <div class="form-group">
-                <label for="admin-json-url">رابط ملف JSON للمستخدمين:</label>
-                <input type="url" id="admin-json-url" placeholder="الصق رابط ملف JSON هنا" required>
+            <div class="form-section"> <h3>إدارة الرصيد والسحب</h3>
+                <div class="form-group">
+                    <label for="current-balance">رصيد حسابك (المدير):</label>
+                    <span id="current-balance-display">0.00 ريال</span>
+                </div>
+                <button id="request-withdrawal-btn" style="background: #007bff; margin-top: 15px;">طلب سحب الرصيد (عند 20 ريال)</button>
             </div>
-            <button id="save-json-url-btn">حفظ الرابط</button>
-
-            <hr style="border-color: #333; margin: 30px 0;">
-
-            <h3>إدارة الرصيد والسحب</h3>
-            <div class="form-group">
-                <label for="current-balance">رصيد حسابك (المدير):</label>
-                <span id="current-balance-display">0.00 ريال</span>
-            </div>
-            <div class="form-group">
-                <label for="telegram-channel-link">رابط تليجرام لتحويل السحب (ثابت):</label>
-                <input type="url" id="telegram-channel-link" value="https://t.me/loguxj" readonly title="هذا الرابط ثابت ولا يمكن تغييره من هنا">
-            </div>
-            <button id="request-withdrawal-btn" style="background: #007bff; margin-top: 15px;">طلب سحب الرصيد (عند 20 ريال)</button>
         </div>
     </div>
 
@@ -1067,9 +1055,8 @@
         const auth = getAuth(app); 
         const db = getDatabase(app);
         const seriesRef = ref(db, 'series');
-        // Define new Firebase refs for JSON URL, Telegram Link, and User Balance
+        // Define new Firebase refs for JSON URL and User Balance
         const jsonUrlRef = ref(db, 'settings/usersJsonUrl'); 
-        // Removed telegramLinkRef as it's now hardcoded
         // NOTE: The `userBalance/currentBalance` will be the *admin's* balance earned by adding episodes.
         // For individual user balances who work *for* the admin, you'd need a separate structure.
         // For this specific request, we'll assume the balance being tracked here is for the logged-in admin.
@@ -1083,15 +1070,18 @@
         // Renamed for clarity, this is the button on the login screen
         const adminOptionsBtnLogin = document.getElementById('admin-options-btn-login'); 
 
-        // UI Elements - Admin Sidebar
+        // UI Elements - Admin Sidebar (Main Sidebar)
         const adminSidebar = document.getElementById('admin-sidebar');
         const closeSidebarBtn = document.getElementById('close-sidebar-btn');
-        const adminJsonUrlInput = document.getElementById('admin-json-url');
-        const saveJsonUrlBtn = document.getElementById('save-json-url-btn');
+        // adminJsonUrlInput and saveJsonUrlBtn are still used if you uncomment the "Change JSON link for users" section in login-screen's sidebar logic or if you have another settings modal for it.
+        // For the *main* sidebar, these are no longer directly referenced for display/editing as the UI is removed.
+        const adminJsonUrlInput = document.getElementById('admin-json-url'); // Still needed for logic from login sidebar
+        const saveJsonUrlBtn = document.getElementById('save-json-url-btn'); // Still needed for logic from login sidebar
+
 
         // New UI Elements - Balance & Telegram (Telegram input is now readonly)
         const currentBalanceDisplay = document.getElementById('current-balance-display');
-        const telegramChannelLinkInput = document.getElementById('telegram-channel-link');
+        // Removed telegramChannelLinkInput as it's no longer present in the main sidebar UI
         // Removed saveTelegramLinkBtn as it's no longer needed
         const requestWithdrawalBtn = document.getElementById('request-withdrawal-btn');
 
@@ -1135,8 +1125,8 @@
         const currentTelegramLink = "https://t.me/loguxj"; 
         let currentAdminBalance = 0; // To store the current admin's balance
 
-        // Offline password for admin options (for the sidebar settings)
-        const OFFLINE_ADMIN_PASSWORD = 'eswaq123'; 
+        // OFFLINE_ADMIN_PASSWORD is no longer needed as the password prompt is removed
+        // const OFFLINE_ADMIN_PASSWORD = 'eswaq123'; 
 
         // Sound Effects
         const clickSound = document.getElementById('clickSound');
@@ -1188,12 +1178,12 @@
                 const snapshot = await get(jsonUrlRef);
                 const url = snapshot.val();
                 if (url) {
-                    adminJsonUrlInput.value = url;
+                    // adminJsonUrlInput.value = url; // This element is hidden in main sidebar but still exists for login sidebar
                     currentUsersJsonUrl = url;
                 } else {
                     const defaultUrl = "https://raw.githubusercontent.com/bdallhthysh4/users/main/data.json";
                     await set(jsonUrlRef, defaultUrl);
-                    adminJsonUrlInput.value = defaultUrl;
+                    // adminJsonUrlInput.value = defaultUrl; // This element is hidden in main sidebar but still exists for login sidebar
                     currentUsersJsonUrl = defaultUrl;
                 }
                 console.log("JSON URL loaded/set from Firebase:", currentUsersJsonUrl);
@@ -1202,35 +1192,38 @@
                 alert('فشل جلب رابط JSON للمستخدمين من Firebase. الرجاء التحقق من اتصالك وأذونات Firebase.');
                 playSound(errorSound);
                 // Fallback to a hardcoded URL if Firebase fails
-                adminJsonUrlInput.value = "https://raw.githubusercontent.com/bdallhthysh4/users/main/data.json";
+                // adminJsonUrlInput.value = "https://raw.githubusercontent.com/bdallhthysh4/users/main/data.json"; // This element is hidden in main sidebar but still exists for login sidebar
                 currentUsersJsonUrl = "https://raw.githubusercontent.com/bdallhthysh4/users/main/data.json";
             }
         }
 
-        // Save JSON URL to Firebase
-        saveJsonUrlBtn.addEventListener('click', async () => {
-            playSound(clickSound);
-            const newJsonUrl = adminJsonUrlInput.value.trim();
-            if (newJsonUrl) {
-                try {
-                    await set(jsonUrlRef, newJsonUrl);
-                    currentUsersJsonUrl = newJsonUrl;
-                    alert('تم حفظ رابط JSON للمستخدمين في Firebase بنجاح!');
-                    playSound(successSound);
-                    // Do not close sidebar here, user might want to adjust other settings
-                } catch (error) {
-                    console.error("Error saving JSON URL to Firebase:", error);
-                    alert('فشل حفظ رابط JSON للمستخدمين في Firebase. الرجاء المحاولة مرة أخرى.');
+        // Save JSON URL to Firebase (This is still present for the login sidebar's admin options)
+        // Note: The UI element for this input (adminJsonUrlInput) is commented out/removed from the HTML
+        // as per previous instructions to simplify the main sidebar. If you still need to change
+        // this URL, you would need to add a UI element for it somewhere else.
+        // For now, this part of the code remains, assuming you might reintroduce a way to set this.
+        if (saveJsonUrlBtn) { // Check if the button exists (it might be removed if related input is removed)
+            saveJsonUrlBtn.addEventListener('click', async () => {
+                playSound(clickSound);
+                const newJsonUrl = adminJsonUrlInput.value.trim(); 
+                if (newJsonUrl) {
+                    try {
+                        await set(jsonUrlRef, newJsonUrl);
+                        currentUsersJsonUrl = newJsonUrl;
+                        alert('تم حفظ رابط JSON للمستخدمين في Firebase بنجاح!');
+                        playSound(successSound);
+                    } catch (error) {
+                        console.error("Error saving JSON URL to Firebase:", error);
+                        alert('فشل حفظ رابط JSON للمستخدمين في Firebase. الرجاء المحاولة مرة أخرى.');
+                        playSound(errorSound);
+                    }
+                } else {
+                    alert('الرجاء إدخال رابط JSON صحيح.');
                     playSound(errorSound);
                 }
-            } else {
-                alert('الرجاء إدخال رابط JSON صحيح.');
-                playSound(errorSound);
-            }
-        });
+            });
+        }
 
-        // Removed loadTelegramLinkFromFirebase and saveTelegramLinkBtn as per request (hardcoded now)
-        // The telegramChannelLinkInput will be initialized directly with the hardcoded value
 
         // Load Admin Balance from Firebase
         async function loadAdminBalanceFromFirebase() {
@@ -1299,7 +1292,8 @@
                     alert('رابط تليجرام المدير غير متوفر. يرجى التأكد من أن الكود يحتوي على الرابط الصحيح.');
                     playSound(errorSound);
                 }
-            } else {
+            }
+            else {
                 alert(`يجب أن يكون رصيدك ${WITHDRAWAL_THRESHOLD.toFixed(2)} ريال أو أكثر لطلب السحب. رصيدك الحالي: ${currentAdminBalance.toFixed(2)} ريال.`);
                 playSound(errorSound);
             }
@@ -1310,8 +1304,7 @@
         window.addEventListener('load', async () => {
             document.body.classList.add('loaded');
             await loadJsonUrlFromFirebase(); // Load JSON URL when page loads
-            // Removed loadTelegramLinkFromFirebase() because it's hardcoded
-            telegramChannelLinkInput.value = currentTelegramLink; // Set hardcoded value to input field
+            // telegramChannelLinkInput is removed from the main sidebar, so no need to set its value here for the main sidebar.
             await loadAdminBalanceFromFirebase(); // Load Admin Balance
         });
 
@@ -1400,21 +1393,11 @@
 
         // --- Admin Sidebar Functionality ---
 
-        // Function to open sidebar with password prompt
+        // Function to open sidebar (password prompt removed)
         function openAdminSidebar() {
             playSound(clickSound);
-            const adminPass = prompt('أدخل كلمة سر المدير لفتح الخيارات:');
-            if (adminPass === OFFLINE_ADMIN_PASSWORD) {
-                adminSidebar.classList.add('open');
-                // Ensure the current JSON URL from Firebase is displayed in the input
-                adminJsonUrlInput.value = currentUsersJsonUrl; 
-                telegramChannelLinkInput.value = currentTelegramLink; // Display hardcoded Telegram link
-                loadAdminBalanceFromFirebase(); // Refresh admin's balance when opening sidebar
-            } else if (adminPass !== null) { // User entered something but it was wrong
-                alert('كلمة سر المدير غير صحيحة.');
-                playSound(errorSound);
-            }
-            // If adminPass is null, user cancelled, do nothing
+            adminSidebar.classList.add('open');
+            loadAdminBalanceFromFirebase(); // Refresh admin's balance when opening sidebar
         }
 
         // Event listener for the Admin Options button on the Login Screen
