@@ -6,47 +6,70 @@
     <title>حكايتنا - لوحة الإدارة</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Modern Netflix-like Colors & Styling */
         :root {
-            --primary-color: #ff3b3b; /* أحمر ناري */
-            --secondary-color: #ff8c00; /* برتقالي حيوي */
-            --dark-bg-main: #0a0a0a; /* أسود عميق جداً */
-            --dark-bg-secondary: #1a1a1a;
-            --card-bg: #1f1f1f;
-            --section-bg: #2b2b2b;
-            --text-light: #f0f0f0;
-            --text-muted: #aaaaaa;
-            --border-color: #444444;
-            --shadow-dark: rgba(0,0,0,0.9);
-            --glow-primary: rgba(255, 59, 59, 0.7);
+            --netflix-red: #E50914; /* Netflix's iconic red */
+            --dark-charcoal: #141414; /* Main dark background */
+            --dark-gray: #222222; /* Secondary background/card */
+            --light-gray: #B3B3B3; /* Muted text */
+            --white: #FFFFFF;
+            --off-white: #F5F5F1; /* Primary text */
+            --accent-blue: #007bff; /* For buttons/highlights */
+            --accent-green: #28a745;
+            --accent-danger: #dc3545;
+            --border-color: #333333;
+            --shadow-strong: rgba(0, 0, 0, 0.7);
+            --shadow-light: rgba(0, 0, 0, 0.4);
         }
 
         body {
             font-family: 'Cairo', sans-serif;
-            background: linear-gradient(145deg, var(--dark-bg-main), #100000);
-            color: var(--text-light);
+            background: linear-gradient(135deg, var(--dark-charcoal), #000000); /* Darker, richer gradient */
+            color: var(--off-white);
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
             direction: rtl;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--dark-gray);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--netflix-red);
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #CC0810;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1300px; /* Slightly wider container */
             margin: 40px auto;
-            padding: 20px;
-            background: var(--dark-bg-secondary);
-            border-radius: 15px;
-            box-shadow: 0 10px 30px var(--shadow-dark);
+            padding: 30px;
+            background: var(--dark-gray);
+            border-radius: 18px; /* More rounded corners */
+            box-shadow: 0 15px 40px var(--shadow-strong); /* Stronger shadow for depth */
             flex-grow: 1;
+            position: relative;
+            z-index: 1;
+            border: 1px solid var(--border-color);
         }
 
-        h1, h2 {
-            color: var(--primary-color);
+        h1, h2, h3, h4 {
+            font-family: 'Poppins', sans-serif;
+            color: var(--netflix-red); /* Headings in Netflix red */
             text-align: center;
             margin-bottom: 30px;
-            text-shadow: 0 0 10px var(--glow-primary);
+            text-shadow: 0 0 15px rgba(229, 9, 20, 0.7); /* Red glow effect */
+            letter-spacing: 0.5px;
         }
 
         /* Admin Panel Header */
@@ -54,216 +77,405 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 20px;
-            background: linear-gradient(90deg, #8b0000, var(--primary-color));
-            border-bottom: 3px solid var(--secondary-color);
-            box-shadow: 0 4px 15px var(--shadow-dark);
-            color: white;
-            font-size: 24px;
+            padding: 20px 40px; /* More padding */
+            background: linear-gradient(90deg, #8a0007, var(--netflix-red)); /* Richer gradient */
+            border-bottom: 4px solid #F0F000; /* Vibrant yellow accent border */
+            box-shadow: 0 6px 20px var(--shadow-strong);
+            color: var(--white);
+            font-size: 28px; /* Larger font */
             font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
         .admin-header button {
-            background: var(--secondary-color);
-            color: white;
+            background: var(--accent-blue); /* Action button in blue */
+            color: var(--white);
             border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
+            padding: 12px 25px; /* Larger button */
+            border-radius: 10px; /* More rounded */
             cursor: pointer;
-            font-size: 16px;
-            transition: background 0.3s ease, transform 0.3s ease;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.4);
         }
         .admin-header button:hover {
-            background: #ff6a00;
-            transform: scale(1.05);
+            background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.6);
         }
 
-        /* Forms */
+        /* Form Sections */
         .form-section {
-            background: var(--card-bg);
-            padding: 25px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            background: var(--dark-charcoal); /* Darker background for forms */
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 25px var(--shadow-strong);
             border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden; /* For pseudo-elements */
+        }
+        .form-section::before { /* Subtle diagonal pattern */
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(45deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02) 10px, transparent 10px, transparent 20px);
+            opacity: 0.1;
+            z-index: 0;
+        }
+        .form-section > * {
+            position: relative; /* Ensure content is above pseudo-element */
+            z-index: 1;
         }
         .form-section h3 {
-            color: var(--secondary-color);
-            margin-top: 0;
-            margin-bottom: 20px;
+            color: var(--netflix-red); /* Heading for forms */
+            font-size: 26px;
+            margin-bottom: 25px;
+            text-shadow: 0 0 10px rgba(229, 9, 20, 0.5);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-left: -30px;
+            margin-right: -30px;
             text-align: center;
-            font-size: 22px;
-            text-shadow: 0 0 8px rgba(255,140,0,0.5);
         }
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            color: var(--text-light);
-            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--off-white);
+            font-weight: 600;
+            font-size: 17px;
+            letter-spacing: 0.2px;
         }
         .form-group input[type="text"],
         .form-group input[type="url"],
         .form-group select {
-            width: calc(100% - 22px); /* Adjust for padding and border */
-            padding: 10px;
+            width: calc(100% - 24px); /* Adjust for padding and border */
+            padding: 12px;
             border: 1px solid var(--border-color);
-            border-radius: 6px;
-            background-color: #222;
-            color: var(--text-light);
+            border-radius: 8px;
+            background-color: #2a2a2a; /* Slightly lighter input background */
+            color: var(--white);
             font-size: 16px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
+        .form-group input[type="text"]:focus,
+        .form-group input[type="url"]:focus,
+        .form-group select:focus {
+            border-color: var(--netflix-red);
+            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.3); /* Glow on focus */
+            outline: none;
+        }
+        .form-group select {
+            appearance: none; /* Remove default arrow */
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http://www.w3.org/2000/svg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23F5F5F1%22%20d%3D%22M287%20197.97L146.2%2057.19%205.4%20197.97c-3.6%203.6-8.2%205.4-12.9%205.4s-9.3-1.8-12.9-5.4c-7.2-7.2-7.2-18.9%200-26.1L133.3%2018.67c7.2-7.2%2018.9-7.2%2026.1%200L312.8%20171.87c7.2%207.2%207.2%2018.9%200%2026.1-7.2%207.2-18.9%207.2-26.1%200z%22/%3E%3C/svg%3E'); /* Custom arrow */
+            background-repeat: no-repeat;
+            background-position: left 15px top 50%; /* Position for RTL */
+            background-size: 12px;
+        }
+
         .form-group button {
-            background: var(--primary-color);
-            color: white;
+            background: var(--netflix-red);
+            color: var(--white);
             border: none;
-            padding: 10px 20px;
+            padding: 12px 25px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 17px;
+            font-weight: 600;
             transition: all 0.3s ease;
-            margin-top: 10px;
+            margin-top: 15px;
+            box-shadow: 0 4px 10px rgba(229, 9, 20, 0.4);
+            display: inline-block; /* Allow side-by-side buttons */
+            margin-left: 10px; /* Space between buttons */
         }
         .form-group button:hover {
-            background: #cc2a2a;
-            transform: translateY(-1px);
+            background: #CC0810;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(229, 9, 20, 0.6);
         }
         .form-group button.delete-btn {
-            background: #dc3545;
+            background: var(--accent-danger);
+            box-shadow: 0 4px 10px rgba(220, 53, 69, 0.4);
         }
         .form-group button.delete-btn:hover {
             background: #c82333;
+            box-shadow: 0 6px 15px rgba(220, 53, 69, 0.6);
         }
         .form-group button.edit-btn {
-            background: #007bff;
+            background: var(--accent-blue);
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.4);
         }
         .form-group button.edit-btn:hover {
             background: #0056b3;
+            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.6);
         }
         .form-group button.add-episode-btn {
-            background: #28a745;
+            background: var(--accent-green);
+            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.4);
         }
         .form-group button.add-episode-btn:hover {
             background: #218838;
+            box-shadow: 0 6px 15px rgba(40, 167, 69, 0.6);
         }
 
-        /* Series List */
+        /* Checkbox styling */
+        .form-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-left: 10px;
+            accent-color: var(--netflix-red); /* Color of the checkbox checkmark */
+            cursor: pointer;
+        }
+        .form-group label[for="new-episode-is-new"] {
+            display: inline-block; /* Keep label next to checkbox */
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+
+        /* Series List (Grid Display) */
         #series-list {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 25px;
-            margin-top: 30px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Larger cards */
+            gap: 30px; /* More space between cards */
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #1a1a1a; /* Section background */
+            border-radius: 15px;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5); /* Inner shadow */
+            border: 1px solid var(--border-color);
         }
         .series-item {
-            background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            background: var(--dark-gray);
+            border-radius: 15px;
+            box-shadow: 0 6px 20px var(--shadow-strong);
             overflow: hidden;
             border: 1px solid var(--border-color);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            /* cursor: pointer; */ /* Removed as buttons handle interaction */
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            flex-direction: column;
         }
         .series-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px var(--glow-primary);
+            transform: translateY(-8px) scale(1.02); /* More pronounced lift */
+            box-shadow: 0 12px 35px rgba(229, 9, 20, 0.6); /* Red glow on hover */
         }
         .series-item img {
             width: 100%;
-            height: 200px;
+            height: 220px; /* Slightly taller images */
             object-fit: cover;
             display: block;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 2px solid var(--netflix-red); /* Red border below image */
         }
         .series-item-info {
-            padding: 15px;
+            padding: 20px;
             text-align: center;
+            flex-grow: 1; /* Allows info to take available space */
         }
         .series-item-info h4 {
             margin-top: 0;
-            margin-bottom: 10px;
-            color: var(--text-light);
-            font-size: 18px;
+            margin-bottom: 12px;
+            color: var(--white);
+            font-size: 20px;
+            text-shadow: none; /* Remove glow from card titles */
         }
         .series-item-info p {
-            color: var(--text-muted);
-            font-size: 14px;
+            color: var(--light-gray);
+            font-size: 15px;
+            margin-bottom: 8px;
         }
         .series-item-actions {
             display: flex;
             justify-content: space-around;
-            padding: 10px;
+            padding: 15px;
             border-top: 1px solid var(--border-color);
+            background-color: #222; /* Darker background for actions */
         }
         .series-item-actions button {
             flex: 1;
-            margin: 0 5px;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 14px;
+            margin: 0 8px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            box-shadow: none; /* Remove individual button shadows inside card */
+        }
+        .series-item-actions button:hover {
+            transform: translateY(-1px); /* Subtler lift for card buttons */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
 
         /* Episode List within Edit Form */
         .episodes-management {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px dashed var(--border-color);
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 2px dashed var(--border-color); /* Stronger dashed line */
         }
         .episodes-management h4 {
-            color: var(--text-light);
-            font-size: 18px;
-            margin-bottom: 15px;
+            color: var(--off-white);
+            font-size: 20px;
+            margin-bottom: 20px;
             text-align: center;
+            text-shadow: none;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        #episodes-list {
+            max-height: 300px; /* Fixed height for scrollable episode list */
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 10px; /* For scrollbar */
+            padding-left: 5px;
         }
         .episode-item {
             background: #2a2a2a;
-            padding: 10px 15px;
-            margin-bottom: 10px;
-            border-radius: 8px;
+            padding: 12px 18px;
+            margin-bottom: 12px;
+            border-radius: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border: 1px solid #333;
+            border: 1px solid #444;
+            transition: background 0.2s ease;
+        }
+        .episode-item:hover {
+            background: #333;
         }
         .episode-item span {
             flex-grow: 1;
-            font-size: 15px;
+            font-size: 16px;
+            color: var(--off-white);
         }
         .episode-item-actions {
             display: flex;
-            gap: 8px;
+            gap: 10px;
         }
         .episode-item-actions button {
-            padding: 6px 10px;
-            font-size: 13px;
-            border-radius: 5px;
+            padding: 8px 12px;
+            font-size: 14px;
+            border-radius: 6px;
+            font-weight: 500;
+            margin-top: 0; /* Override form-group margin */
+            box-shadow: none;
+        }
+        .episode-item-actions button:hover {
+            transform: translateY(-1px);
         }
         .episode-item-actions .toggle-new-btn {
-            background: #17a2b8; /* Cyan */
+            background: #6c757d; /* Gray for inactive toggle */
         }
         .episode-item-actions .toggle-new-btn.active {
-            background: #28a745; /* Green */
+            background: var(--accent-green); /* Green when active */
         }
         .episode-item-actions .toggle-new-btn:hover {
-            background: #138496;
+            background: #5a6268;
+        }
+        .episode-item-actions .toggle-new-btn.active:hover {
+            background: #218838;
         }
 
+
         /* Responsive adjustments */
-        @media (max-width: 768px) {
+        @media (max-width: 992px) {
             .container {
                 margin: 20px auto;
-                padding: 15px;
+                padding: 20px;
             }
             .admin-header {
                 flex-direction: column;
-                gap: 10px;
-                font-size: 20px;
+                gap: 15px;
+                font-size: 24px;
+                padding: 15px 20px;
             }
             .admin-header button {
-                width: 100%;
+                width: 80%;
+                padding: 10px 20px;
+                font-size: 16px;
             }
             #series-list {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Smaller cards on medium screens */
+                gap: 20px;
+            }
+            .series-item img {
+                height: 180px;
+            }
+            .form-section h3 {
+                font-size: 22px;
+                padding-bottom: 10px;
+            }
+            .form-group label {
+                font-size: 16px;
+            }
+            .form-group input, .form-group select {
+                font-size: 15px;
+                padding: 10px;
+            }
+            .form-group button {
+                padding: 10px 20px;
+                font-size: 15px;
+                margin-left: 8px;
+            }
+            .episode-item span {
+                font-size: 14px;
+            }
+            .episode-item-actions button {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 15px;
+                padding: 15px;
+                border-radius: 10px;
+            }
+            .admin-header {
+                font-size: 20px;
+                padding: 10px 15px;
+            }
+            .admin-header button {
+                width: 90%;
+            }
+            #series-list {
+                grid-template-columns: 1fr; /* Single column on small screens */
+                gap: 15px;
+                padding: 10px;
+            }
+            .series-item img {
+                height: 200px; /* Maintain good image height */
+            }
+            .form-section {
+                padding: 20px;
+                margin-bottom: 25px;
+            }
+            .form-section h3 {
+                font-size: 20px;
+            }
+            .form-group button {
+                display: block; /* Stack buttons vertically */
+                width: 100%;
+                margin-left: 0;
+                margin-bottom: 10px;
+            }
+            .episode-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                padding: 10px;
+            }
+            .episode-item-actions {
+                width: 100%;
+                justify-content: space-between;
+                gap: 5px;
+            }
+            .episode-item-actions button {
+                flex: 1;
             }
         }
     </style>
@@ -271,7 +483,7 @@
 <body>
     <section id="admin-panel-section">
         <div class="admin-header">
-            <span>لوحة إدارة حكايتنا</span>
+            <span>لوحة إدارة حكايتنا - محتوى حصري</span>
             <button id="logout-btn">تسجيل الخروج</button>
         </div>
 
@@ -283,18 +495,18 @@
                     <input type="text" id="new-series-title" placeholder="مثال: مسلسل قيامة أرطغرل" required>
                 </div>
                 <div class="form-group">
-                    <label for="new-series-image">رابط صورة المسلسل:</label>
-                    <input type="url" id="new-series-image" placeholder="مثال: https://example.com/image.jpg" required>
+                    <label for="new-series-image">رابط صورة المسلسل (بوستر):</label>
+                    <input type="url" id="new-series-image" placeholder="مثال: https://example.com/artoghrul-poster.jpg" required>
                 </div>
                 <div class="form-group">
                     <label for="new-series-category">تصنيف المسلسل:</label>
-                    <input type="text" id="new-series-category" placeholder="مثال: تاريخي، دراما، أكشن">
+                    <input type="text" id="new-series-category" placeholder="مثال: تاريخي، دراما، أكشن، كوميديا">
                 </div>
                 <button id="add-series-btn">إضافة المسلسل</button>
             </div>
 
             <div class="form-section">
-                <h3>تعديل / حذف مسلسل</h3>
+                <h3>تعديل / حذف مسلسل وحلقاته</h3>
                 <div class="form-group">
                     <label for="edit-series-select">اختر مسلسلاً للتعديل أو الحذف:</label>
                     <select id="edit-series-select">
@@ -314,11 +526,11 @@
                         <label for="edit-series-category">تصنيف المسلسل:</label>
                         <input type="text" id="edit-series-category">
                     </div>
-                    <button id="update-series-btn">تحديث المسلسل</button>
-                    <button id="delete-series-btn" class="delete-btn">حذف المسلسل</button>
+                    <button id="update-series-btn" class="edit-btn">تحديث المسلسل</button>
+                    <button id="delete-series-btn" class="delete-btn">حذف المسلسل بالكامل</button>
 
                     <div class="episodes-management">
-                        <h4>إدارة الحلقات</h4>
+                        <h4>إدارة الحلقات الحالية</h4>
                         <div id="episodes-list">
                             </div>
                         <div class="form-group">
@@ -327,18 +539,18 @@
                         </div>
                         <div class="form-group">
                             <label for="new-episode-link">رابط فيديو الحلقة الجديدة:</label>
-                            <input type="url" id="new-episode-link" placeholder="رابط يوتيوب أو رابط مباشر" required>
+                            <input type="url" id="new-episode-link" placeholder="رابط يوتيوب أو رابط مباشر للفيديو" required>
                         </div>
                         <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
-                            <input type="checkbox" id="new-episode-is-new" style="width: auto;">
-                            <label for="new-episode-is-new" style="margin-bottom: 0;">ضع علامة "حلقة جديدة"</label>
+                            <input type="checkbox" id="new-episode-is-new">
+                            <label for="new-episode-is-new">وضع علامة "حلقة جديدة" (تظهر في الواجهة)</label>
                         </div>
                         <button id="add-episode-to-series-btn" class="add-episode-btn">إضافة الحلقة</button>
                     </div>
                 </div>
             </div>
 
-            <h2>جميع المسلسلات</h2>
+            <h2>جميع المسلسلات المتوفرة</h2>
             <div id="series-list">
                 </div>
         </div>
@@ -350,7 +562,7 @@
         import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
         import { getDatabase, ref, get, set, remove, update } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
-        // Firebase configuration (from your provided code)
+        // Firebase configuration (from your provided code - make sure this is correct for your project)
         const firebaseConfig = {
             apiKey: "AIzaSyCEaxXR5eqzg0e5JvjWAFjZ5ZeMraMYREn",
             authDomain: "mo-play-b0cb7.firebaseapp.com",
@@ -383,7 +595,7 @@
         const editSeriesImageInput = document.getElementById('edit-series-image');
         const editSeriesCategoryInput = document.getElementById('edit-series-category');
         const updateSeriesBtn = document.getElementById('update-series-btn');
-        const deleteSeriesBtn = document.getElementById('delete-series-btn'); // Corrected typo here
+        const deleteSeriesBtn = document.getElementById('delete-series-btn');
 
         const episodesListDiv = document.getElementById('episodes-list');
         const newEpisodeTitleInput = document.getElementById('new-episode-title');
@@ -410,11 +622,6 @@
         }
 
         // --- Authentication (simplified for direct admin panel access) ---
-        // Since there's no login page, we directly load the admin panel.
-        // onAuthStateChanged is no longer strictly necessary for initial display.
-        // However, getAuth and signOut are still useful if you want to allow users
-        // to explicitly log out from previous sessions or handle authentication states.
-
         // Load series directly when the page loads
         window.addEventListener('load', loadSeries);
 
@@ -460,7 +667,7 @@
                     card.className = 'series-item';
                     card.setAttribute('data-series-id', key);
                     card.innerHTML = `
-                        <img src="${series.image || 'https://via.placeholder.com/200x280?text=No+Image'}" alt="${series.title}">
+                        <img src="${series.image || 'https://via.placeholder.com/280x220?text=No+Image'}" alt="${series.title}">
                         <div class="series-item-info">
                             <h4>${series.title}</h4>
                             <p>التصنيف: ${series.category || 'غير محدد'}</p>
@@ -480,6 +687,7 @@
                         const seriesId = e.target.getAttribute('data-series-id');
                         editSeriesSelect.value = seriesId;
                         editSeriesSelect.dispatchEvent(new Event('change')); // Trigger change event
+                        window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top for edit form
                     });
                 });
                 document.querySelectorAll('#series-list .delete-btn').forEach(btn => {
@@ -630,7 +838,7 @@
         function loadEpisodes(episodes) {
             episodesListDiv.innerHTML = '';
             if (!episodes || episodes.length === 0) {
-                episodesListDiv.innerHTML = '<p style="text-align:center;color:var(--text-muted);">لا توجد حلقات لهذا المسلسل.</p>';
+                episodesListDiv.innerHTML = '<p style="text-align:center;color:var(--light-gray); padding: 20px;">لا توجد حلقات لهذا المسلسل. ابدأ بإضافة حلقات جديدة!</p>';
                 return;
             }
 
