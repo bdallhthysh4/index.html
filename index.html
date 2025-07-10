@@ -31,6 +31,13 @@
             --genie-shadow: 0 0 20px rgba(255, 59, 59, 0.6);
             --genie-item-bg: #333;
             --genie-item-hover: var(--primary-color);
+
+            /* Sidebar Variables */
+            --sidebar-width: 300px;
+            --sidebar-bg: #111;
+            --sidebar-text: var(--text-light);
+            --sidebar-border: 1px solid #333;
+            --sidebar-header-bg: var(--primary-color);
         }
 
         /* Base Styles */
@@ -646,6 +653,7 @@
             width: 90%;
             max-width: 400px;
             animation: bounceIn 0.8s ease-out forwards;
+            position: relative; /* For admin options button */
         }
 
         .login-box h2 {
@@ -675,6 +683,106 @@
             background: #cc2a2a;
             transform: translateY(-2px) scale(1.01);
             box-shadow: 0 8px 20px rgba(255, 59, 59, 0.4);
+        }
+
+        /* Admin Options Button on Login Screen */
+        #admin-options-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: #444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            transition: background 0.3s ease, transform 0.3s ease;
+            z-index: 10;
+        }
+        #admin-options-btn:hover {
+            background: #666;
+            transform: scale(1.1);
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            height: 100%;
+            width: 0; /* Hidden by default */
+            position: fixed;
+            z-index: 1002; /* Above login screen but below full-screen overlays */
+            top: 0;
+            left: 0;
+            background-color: var(--sidebar-bg);
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+            border-right: var(--sidebar-border);
+            box-shadow: 5px 0 15px rgba(0,0,0,0.7);
+        }
+
+        .sidebar.open {
+            width: var(--sidebar-width);
+        }
+
+        .sidebar-header {
+            padding: 20px 25px;
+            background: var(--sidebar-header-bg);
+            color: white;
+            font-size: 24px;
+            text-align: center;
+            position: absolute;
+            top: 0;
+            width: 100%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .sidebar .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 36px;
+            margin-left: 50px;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .sidebar .close-btn:hover {
+            color: var(--secondary-color);
+        }
+
+        .sidebar-content {
+            padding: 20px 25px;
+            color: var(--sidebar-text);
+        }
+
+        .sidebar-content h3 {
+            color: var(--secondary-color);
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 20px;
+            text-align: center;
+            text-shadow: none; /* Override default h3 style */
+            animation: none; /* Override default h3 animation */
+        }
+
+        .sidebar .form-group input {
+            width: calc(100% - 20px);
+            margin-top: 5px;
+        }
+        .sidebar .form-group button {
+            width: auto;
+            margin-top: 15px;
+            padding: 8px 15px;
+        }
+        .sidebar .form-group {
+            margin-bottom: 20px;
         }
 
         /* Responsive adjustments */
@@ -735,6 +843,21 @@
             .login-box {
                 padding: 30px 20px;
             }
+
+            .sidebar {
+                width: 0; /* Still hidden by default */
+            }
+            .sidebar.open {
+                width: 80%; /* Takes more width on small screens */
+            }
+            .sidebar-header {
+                font-size: 20px;
+                padding: 15px 20px;
+            }
+            .sidebar .close-btn {
+                font-size: 30px;
+                right: 15px;
+            }
         }
     </style>
 </head>
@@ -747,6 +870,7 @@
 
     <div class="login-container" id="login-screen">
         <div class="login-box">
+            <button id="admin-options-btn" title="خيارات المدير"><span class="material-icons">settings</span></button>
             <h2>تسجيل الدخول إلى لوحة الإدارة</h2>
             <div class="form-group">
                 <label for="login-email">البريد الإلكتروني:</label>
@@ -756,11 +880,22 @@
                 <label for="login-password">كلمة المرور:</label>
                 <input type="password" id="login-password" placeholder="أدخل كلمة المرور" required>
             </div>
-             <div class="form-group">
-                <label for="json-url">رابط ملف JSON للمستخدمين:</label>
-                <input type="url" id="json-url" value="https://raw.githubusercontent.com/bdallhthysh4/users/main/data.json" placeholder="أو اتركها افتراضية" required>
-            </div>
             <button id="login-btn">تسجيل الدخول</button>
+        </div>
+    </div>
+
+    <div id="admin-sidebar" class="sidebar">
+        <div class="sidebar-header">
+            خيارات المدير
+            <a href="javascript:void(0)" class="close-btn" id="close-sidebar-btn">&times;</a>
+        </div>
+        <div class="sidebar-content">
+            <h3>تغيير رابط JSON للمستخدمين</h3>
+            <div class="form-group">
+                <label for="admin-json-url">رابط ملف JSON للمستخدمين:</label>
+                <input type="url" id="admin-json-url" value="https://raw.githubusercontent.com/bdallhthysh4/users/main/data.json" placeholder="الصق رابط ملف JSON هنا" required>
+            </div>
+            <button id="save-json-url-btn">حفظ الرابط</button>
         </div>
     </div>
 
@@ -884,8 +1019,14 @@
         const loginScreen = document.getElementById('login-screen');
         const loginEmailInput = document.getElementById('login-email');
         const loginPasswordInput = document.getElementById('login-password');
-        const jsonUrlInput = document.getElementById('json-url');
         const loginBtn = document.getElementById('login-btn');
+        const adminOptionsBtn = document.getElementById('admin-options-btn');
+
+        // UI Elements - Admin Sidebar
+        const adminSidebar = document.getElementById('admin-sidebar');
+        const closeSidebarBtn = document.getElementById('close-sidebar-btn');
+        const adminJsonUrlInput = document.getElementById('admin-json-url');
+        const saveJsonUrlBtn = document.getElementById('save-json-url-btn');
 
         // UI Elements - Admin Panel Header
         const adminPanelSection = document.getElementById('admin-panel-section');
@@ -920,6 +1061,10 @@
 
         let currentSelectedSeriesId = null; 
         let currentLoggedInUser = null; // To store information of the logged-in user
+
+        // Local Storage Key for JSON URL
+        const JSON_URL_STORAGE_KEY = 'adminJsonUrl';
+        const OFFLINE_ADMIN_PASSWORD = 'eswaq123'; // Offline password for admin options
 
         // Sound Effects
         const clickSound = document.getElementById('clickSound');
@@ -966,6 +1111,11 @@
         // Page Entrance Animation
         window.addEventListener('load', () => {
             document.body.classList.add('loaded');
+            // Load JSON URL from local storage on page load
+            const storedUrl = localStorage.getItem(JSON_URL_STORAGE_KEY);
+            if (storedUrl) {
+                adminJsonUrlInput.value = storedUrl;
+            }
         });
 
         // --- Authentication (with JSON users list) ---
@@ -992,10 +1142,10 @@
             playSound(clickSound);
             const email = loginEmailInput.value.trim();
             const password = loginPasswordInput.value.trim();
-            const jsonUrl = jsonUrlInput.value.trim();
+            const jsonUrl = adminJsonUrlInput.value.trim(); // Get URL from the admin settings input
 
             if (!email || !password || !jsonUrl) {
-                alert('الرجاء إدخال البريد الإلكتروني وكلمة المرور ورابط ملف JSON للمستخدمين.');
+                alert('الرجاء إدخال البريد الإلكتروني وكلمة المرور ورابط ملف JSON (إذا لم يكن معدلاً).');
                 playSound(errorSound);
                 return;
             }
@@ -1022,7 +1172,7 @@
                     playSound(errorSound);
                 }
             } else {
-                alert('صيغة ملف JSON للمستخدمين غير صحيحة.');
+                alert('صيغة ملف JSON للمستخدمين غير صحيحة أو فارغة.');
                 playSound(errorSound);
             }
         });
@@ -1046,6 +1196,42 @@
                     alert('فشل تسجيل الخروج.');
                     playSound(errorSound);
                 }
+            }
+        });
+
+        // --- Admin Sidebar Functionality ---
+
+        // Open Sidebar
+        adminOptionsBtn.addEventListener('click', () => {
+            playSound(clickSound);
+            const adminPass = prompt('أدخل كلمة سر المدير لفتح الخيارات:');
+            if (adminPass === OFFLINE_ADMIN_PASSWORD) {
+                adminSidebar.classList.add('open');
+            } else if (adminPass !== null) { // User entered something but it was wrong
+                alert('كلمة سر المدير غير صحيحة.');
+                playSound(errorSound);
+            }
+            // If adminPass is null, user cancelled, do nothing
+        });
+
+        // Close Sidebar
+        closeSidebarBtn.addEventListener('click', () => {
+            playSound(clickSound);
+            adminSidebar.classList.remove('open');
+        });
+
+        // Save JSON URL
+        saveJsonUrlBtn.addEventListener('click', () => {
+            playSound(clickSound);
+            const newJsonUrl = adminJsonUrlInput.value.trim();
+            if (newJsonUrl) {
+                localStorage.setItem(JSON_URL_STORAGE_KEY, newJsonUrl);
+                alert('تم حفظ رابط JSON للمستخدمين بنجاح!');
+                playSound(successSound);
+                adminSidebar.classList.remove('open'); // Close sidebar after saving
+            } else {
+                alert('الرجاء إدخال رابط JSON صحيح.');
+                playSound(errorSound);
             }
         });
 
@@ -1087,11 +1273,6 @@
 
 
                 seriesArray.forEach((series, index) => {
-                    const option = document.createElement('option');
-                    option.value = series.id;
-                    option.textContent = series.title;
-                    editSeriesSelect.appendChild(option);
-
                     const card = document.createElement('div');
                     card.className = 'series-item';
                     card.setAttribute('data-series-id', series.id);
@@ -1109,6 +1290,11 @@
                         </div>
                     `;
                     allSeriesDisplay.appendChild(card);
+
+                    const option = document.createElement('option');
+                    option.value = series.id;
+                    option.textContent = series.title;
+                    editSeriesSelect.appendChild(option);
                 });
 
                 document.querySelectorAll('#series-list .edit-btn').forEach(btn => {
@@ -1291,7 +1477,7 @@
                 } catch (error) {
                     console.error("Error deleting series:", error);
                     alert('فشل حذف المسلسل.');
-                    playSound(errorSound);
+                    playSound(errorError);
                 } finally {
                     deleteSeriesBtn.disabled = false;
                     deleteSeriesBtn.textContent = 'حذف المسلسل';
@@ -1517,7 +1703,7 @@
 
         // Add event listeners for general button clicks to play sound
         document.querySelectorAll('button').forEach(button => {
-            if (button.id !== 'genieButton' && button.id !== 'login-btn' && button.id !== 'logout-btn') { 
+            if (button.id !== 'genieButton' && button.id !== 'login-btn' && button.id !== 'logout-btn' && button.id !== 'admin-options-btn' && button.id !== 'save-json-url-btn') { 
                 button.addEventListener('click', () => playSound(clickSound));
             }
         });
