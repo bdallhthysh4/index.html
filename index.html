@@ -3,22 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حكايتنا - تسجيل الدخول</title>
+    <title>حكايتنا - لوحة الإدارة</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Variables */
         :root {
             --primary-color: #ff3b3b; /* أحمر ناري */
             --secondary-color: #ff8c00; /* برتقالي حيوي */
             --dark-bg-main: #0a0a0a; /* أسود عميق جداً */
             --dark-bg-secondary: #1a1a1a;
             --card-bg: #1f1f1f;
+            --section-bg: #2b2b2b;
             --text-light: #f0f0f0;
             --text-muted: #aaaaaa;
             --border-color: #444444;
             --shadow-dark: rgba(0,0,0,0.9);
             --glow-primary: rgba(255, 59, 59, 0.7);
+            --glow-secondary: rgba(255, 140, 0, 0.7);
+            --transition-speed: 0.4s;
+            --bounce-height: 5px;
         }
 
+        /* Base Styles */
         body {
             font-family: 'Cairo', sans-serif;
             background: linear-gradient(145deg, var(--dark-bg-main), #100000);
@@ -26,286 +32,551 @@
             margin: 0;
             padding: 0;
             display: flex;
-            justify-content: center;
-            align-items: center;
+            flex-direction: column;
             min-height: 100vh;
             direction: rtl;
-            overflow: hidden; /* Prevent scroll for animations */
+            overflow-x: hidden; /* Prevent horizontal scroll from animations */
+            position: relative; /* For particle background */
         }
 
-        /* Background Animation */
-        .background-circles {
+        /* Particle Background */
+        .particle-bg {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             overflow: hidden;
-            z-index: 0;
+            z-index: -1;
         }
-        .background-circles li {
+        .particle {
             position: absolute;
-            display: block;
-            list-style: none;
-            width: 20px;
-            height: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            animation: animate 25s linear infinite;
-            bottom: -150px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            animation: floatAndFade var(--duration) infinite ease-in-out;
         }
-        .background-circles li:nth-child(1) {
-            left: 25%;
-            width: 80px;
-            height: 80px;
-            animation-delay: 0s;
-        }
-        .background-circles li:nth-child(2) {
-            left: 10%;
-            width: 20px;
-            height: 20px;
-            animation-delay: 2s;
-            animation-duration: 12s;
-        }
-        .background-circles li:nth-child(3) {
-            left: 70%;
-            width: 20px;
-            height: 20px;
-            animation-delay: 4s;
-        }
-        .background-circles li:nth-child(4) {
-            left: 40%;
-            width: 60px;
-            height: 60px;
-            animation-delay: 0s;
-            animation-duration: 18s;
-        }
-        .background-circles li:nth-child(5) {
-            left: 65%;
-            width: 20px;
-            height: 20px;
-            animation-delay: 0s;
-        }
-        .background-circles li:nth-child(6) {
-            left: 75%;
-            width: 110px;
-            height: 110px;
-            animation-delay: 3s;
-        }
-        .background-circles li:nth-child(7) {
-            left: 35%;
-            width: 150px;
-            height: 150px;
-            animation-delay: 7s;
-        }
-        .background-circles li:nth-child(8) {
-            left: 50%;
-            width: 25px;
-            height: 25px;
-            animation-delay: 15s;
-            animation-duration: 45s;
-        }
-        .background-circles li:nth-child(9) {
-            left: 20%;
-            width: 15px;
-            height: 15px;
-            animation-delay: 2s;
-            animation-duration: 35s;
-        }
-        .background-circles li:nth-child(10) {
-            left: 85%;
-            width: 150px;
-            height: 150px;
-            animation-delay: 0s;
-            animation-duration: 11s;
-        }
-        @keyframes animate {
+        @keyframes floatAndFade {
             0% {
-                transform: translateY(0) rotate(0deg);
-                opacity: 1;
-                border-radius: 0;
+                transform: translateY(0) translateX(0) scale(1);
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.2;
             }
             100% {
-                transform: translateY(-1000px) rotate(720deg);
+                transform: translateY(calc(var(--size) * -15)) translateX(calc(var(--size) * var(--direction))) scale(var(--scale));
                 opacity: 0;
-                border-radius: 50%;
             }
         }
 
-        .login-container {
-            position: relative;
-            z-index: 1;
-            background: var(--card-bg);
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 15px 40px var(--shadow-dark);
-            text-align: center;
-            width: 380px;
-            max-width: 90%;
-            animation: fadeInScale 0.8s ease-out forwards;
-            border: 1px solid var(--border-color);
+        /* Keyframe Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
-        @keyframes fadeInScale {
-            from {
-                opacity: 0;
-                transform: scale(0.9) translateY(20px);
+        @keyframes slideInUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 rgba(255, 59, 59, 0.7); }
+            70% { transform: scale(1.02); box-shadow: 0 0 15px rgba(255, 59, 59, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 rgba(255, 59, 59, 0.7); }
+        }
+
+        @keyframes bounceIn {
+            0%, 20%, 40%, 60%, 80%, 100% {
+                transition-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
             }
-            to {
+            0% {
+                opacity: 0;
+                transform: scale3d(0.3, 0.3, 0.3);
+            }
+            20% {
+                transform: scale3d(1.1, 1.1, 1.1);
+            }
+            40% {
+                transform: scale3d(0.9, 0.9, 0.9);
+            }
+            60% {
                 opacity: 1;
-                transform: scale(1) translateY(0);
+                transform: scale3d(1.03, 1.03, 1.03);
+            }
+            80% {
+                transform: scale3d(0.97, 0.97, 0.97);
+            }
+            100% {
+                opacity: 1;
+                transform: scale3d(1, 1, 1);
             }
         }
 
-        h1 {
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* Global Animations */
+        h1, h2, h3 {
+            animation: slideInUp 0.8s ease-out forwards;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: var(--dark-bg-secondary);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px var(--shadow-dark);
+            flex-grow: 1;
+            position: relative; /* For inner glow */
+            overflow: hidden;
+            animation: fadeIn 1s ease-out forwards;
+        }
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            z-index: -1;
+            filter: blur(15px);
+            opacity: 0.3;
+            border-radius: 18px;
+            animation: pulse-border 4s infinite alternate;
+        }
+        @keyframes pulse-border {
+            0% { transform: scale(1); opacity: 0.3; }
+            100% { transform: scale(1.02); opacity: 0.5; }
+        }
+
+        h1, h2 {
             color: var(--primary-color);
+            text-align: center;
             margin-bottom: 30px;
-            font-size: 32px;
-            text-shadow: 0 0 12px var(--glow-primary);
+            text-shadow: 0 0 10px var(--glow-primary);
         }
 
-        .form-group {
+        /* Admin Panel Header */
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: linear-gradient(90deg, #8b0000, var(--primary-color));
+            border-bottom: 3px solid var(--secondary-color);
+            box-shadow: 0 4px 15px var(--shadow-dark);
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            animation: slideInDown 0.8s ease-out forwards;
+        }
+        @keyframes slideInDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .admin-header button {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background var(--transition-speed) ease, transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+        }
+        .admin-header button:hover {
+            background: #ff6a00;
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 140, 0, 0.5);
+        }
+
+        /* Forms */
+        .form-section {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            border: 1px solid var(--border-color);
+            animation: slideInUp 0.8s ease-out forwards;
+            position: relative;
+            overflow: hidden;
+        }
+        .form-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+        .form-section:hover::before {
+            opacity: 1;
+        }
+
+        .form-section h3 {
+            color: var(--secondary-color);
+            margin-top: 0;
             margin-bottom: 20px;
-            text-align: start;
+            text-align: center;
+            font-size: 22px;
+            text-shadow: 0 0 8px rgba(255,140,0,0.5);
+            animation: none; /* Override global h3 animation for this context */
         }
-
+        .form-group {
+            margin-bottom: 15px;
+            position: relative;
+        }
         .form-group label {
             display: block;
             margin-bottom: 8px;
             color: var(--text-light);
             font-weight: bold;
+            transition: color var(--transition-speed) ease;
         }
-
-        .form-group input {
-            width: calc(100% - 24px); /* Adjust for padding and border */
-            padding: 12px;
+        .form-group input[type="text"],
+        .form-group input[type="url"],
+        .form-group select {
+            width: calc(100% - 22px);
+            padding: 10px;
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 6px;
             background-color: #222;
             color: var(--text-light);
             font-size: 16px;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
-        .form-group input:focus {
+        .form-group input[type="text"]:focus,
+        .form-group input[type="url"]:focus,
+        .form-group select:focus {
             outline: none;
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(255, 59, 59, 0.3);
+            box-shadow: 0 0 10px var(--glow-primary);
+        }
+        .form-group button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all var(--transition-speed) ease;
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .form-group button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: all var(--transition-speed) ease;
+        }
+        .form-group button:hover::before {
+            left: 100%;
+        }
+        .form-group button:hover {
+            background: #cc2a2a;
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 8px 20px rgba(255, 59, 59, 0.4);
+        }
+        .form-group button.delete-btn {
+            background: #dc3545;
+        }
+        .form-group button.delete-btn:hover {
+            background: #c82333;
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 8px 20px rgba(220, 53, 69, 0.4);
+        }
+        .form-group button.edit-btn {
+            background: #007bff;
+        }
+        .form-group button.edit-btn:hover {
+            background: #0056b3;
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 8px 20px rgba(0, 123, 255, 0.4);
+        }
+        .form-group button.add-episode-btn {
+            background: #28a745;
+        }
+        .form-group button.add-episode-btn:hover {
+            background: #218838;
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4);
         }
 
-        .auth-buttons button {
+        /* Series List */
+        #series-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .series-item {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease, border-color var(--transition-speed) ease;
+            position: relative;
+            transform-style: preserve-3d; /* For 3D hover effect */
+            animation: bounceIn 0.8s ease-out forwards;
+        }
+        .series-item:hover {
+            transform: translateY(-8px) rotateX(2deg) scale(1.02);
+            box-shadow: 0 12px 30px var(--glow-primary);
+            border-color: var(--primary-color);
+        }
+        .series-item img {
             width: 100%;
-            padding: 12px;
-            margin-top: 10px;
-            border: none;
-            border-radius: 8px;
-            font-size: 17px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: bold;
-            color: white;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+            border-bottom: 1px solid var(--border-color);
+            transition: transform 0.3s ease;
+        }
+        .series-item:hover img {
+            transform: scale(1.05);
+        }
+        .series-item-info {
+            padding: 15px;
+            text-align: center;
+        }
+        .series-item-info h4 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: var(--text-light);
+            font-size: 18px;
+            text-shadow: 0 0 5px rgba(255,255,255,0.2);
+        }
+        .series-item-info p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        .series-item-actions {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            border-top: 1px solid var(--border-color);
+        }
+        .series-item-actions button {
+            flex: 1;
+            margin: 0 5px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            /* Override global button animations for compactness */
+            transition: all 0.2s ease;
+        }
+        .series-item-actions button:hover {
+            transform: translateY(-1px) scale(1.02);
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
-        .auth-buttons #login-btn {
-            background-color: var(--primary-color);
+        /* Episode List within Edit Form */
+        .episodes-management {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px dashed var(--border-color);
         }
-        .auth-buttons #login-btn:hover {
-            background-color: #cc2a2a;
-            transform: translateY(-2px);
-        }
-
-        #loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            flex-direction: column;
-            gap: 20px;
+        .episodes-management h4 {
             color: var(--text-light);
-            font-size: 20px;
-            animation: fadeEffect 0.5s ease-in-out forwards;
+            font-size: 18px;
+            margin-bottom: 15px;
+            text-align: center;
+            animation: none; /* Override global h4 animation */
+        }
+        .episode-item {
+            background: #2a2a2a;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #333;
+            transition: all 0.3s ease;
+            animation: slideInUp 0.5s ease-out forwards; /* For new episodes appearing */
+        }
+        .episode-item:hover {
+            background: #3a3a3a;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            transform: translateX(-3px);
+        }
+        .episode-item span {
+            flex-grow: 1;
+            font-size: 15px;
+        }
+        .episode-item-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .episode-item-actions button {
+            padding: 6px 10px;
+            font-size: 13px;
+            border-radius: 5px;
+            transition: all 0.2s ease;
+            /* Override global button animations */
+        }
+        .episode-item-actions button:hover {
+            transform: translateY(-1px);
+        }
+        .episode-item-actions .toggle-new-btn {
+            background: #17a2b8; /* Cyan */
+        }
+        .episode-item-actions .toggle-new-btn.active {
+            background: #28a745; /* Green */
+            animation: pulse 1s infinite alternate; /* Pulse when active */
+        }
+        .episode-item-actions .toggle-new-btn:hover {
+            background: #138496;
         }
 
-        @keyframes fadeEffect {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .loader {
-            border: 5px solid rgba(255, 255, 255, 0.3);
-            border-top: 5px solid var(--primary-color);
+        /* Loading Spinner */
+        .loading-spinner {
+            display: none; /* Hidden by default */
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid var(--primary-color);
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
+            width: 30px;
+            height: 30px;
             animation: spin 1s linear infinite;
+            margin: 20px auto;
         }
-
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
 
-        .error-message {
-            color: #dc3545;
-            margin-top: 15px;
-            font-size: 14px;
-            text-align: center;
-            animation: slideIn 0.3s ease-out forwards;
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px auto;
+                padding: 15px;
+            }
+            .admin-header {
+                flex-direction: column;
+                gap: 10px;
+                font-size: 20px;
+            }
+            .admin-header button {
+                width: 100%;
+            }
+            #series-list {
+                grid-template-columns: 1fr;
+            }
+            .form-group input[type="text"],
+            .form-group input[type="url"],
+            .form-group select {
+                width: calc(100% - 20px); /* Adjust for smaller screens */
+            }
         }
     </style>
 </head>
 <body>
-    <ul class="background-circles">
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-    </ul>
-
-    <div class="login-container">
-        <h1>تسجيل الدخول إلى حكايتنا</h1>
-
-        <div id="single-key-form">
-            <div class="form-group">
-                <label for="admin-key">المفتاح السري:</label>
-                <input type="password" id="admin-key" placeholder="أدخل المفتاح السري" required>
-            </div>
-            <div class="auth-buttons">
-                <button id="login-btn">تسجيل الدخول</button>
-            </div>
-            <div id="auth-error-message" class="error-message" style="display: none;"></div>
+    <div class="particle-bg"></div> <section id="admin-panel-section">
+        <div class="admin-header">
+            <span>لوحة إدارة حكايتنا</span>
+            <button id="logout-btn">تسجيل الخروج</button>
         </div>
-    </div>
 
-    <div id="loading-overlay" style="display: none;">
-        <div class="loader"></div>
-        <p>جاري التحقق من المفتاح...</p>
-    </div>
+        <div class="container">
+            <div class="form-section">
+                <h3>إضافة مسلسل جديد</h3>
+                <div class="form-group">
+                    <label for="new-series-title">عنوان المسلسل:</label>
+                    <input type="text" id="new-series-title" placeholder="مثال: مسلسل قيامة أرطغرل" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-series-image">رابط صورة المسلسل:</label>
+                    <input type="url" id="new-series-image" placeholder="مثال: https://example.com/image.jpg" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-series-category">تصنيف المسلسل:</label>
+                    <input type="text" id="new-series-category" placeholder="مثال: تاريخي، دراما، أكشن">
+                </div>
+                <button id="add-series-btn">إضافة المسلسل</button>
+            </div>
+
+            <div class="form-section">
+                <h3>تعديل / حذف مسلسل</h3>
+                <div class="form-group">
+                    <label for="edit-series-select">اختر مسلسلاً للتعديل أو الحذف:</label>
+                    <select id="edit-series-select">
+                        <option value="">-- اختر مسلسل --</option>
+                    </select>
+                </div>
+                <div id="edit-series-form" style="display: none;">
+                    <div class="form-group">
+                        <label for="edit-series-title">عنوان المسلسل:</label>
+                        <input type="text" id="edit-series-title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-series-image">رابط صورة المسلسل:</label>
+                        <input type="url" id="edit-series-image" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-series-category">تصنيف المسلسل:</label>
+                        <input type="text" id="edit-series-category">
+                    </div>
+                    <button id="update-series-btn">تحديث المسلسل</button>
+                    <button id="delete-series-btn" class="delete-btn">حذف المسلسل</button>
+
+                    <div class="episodes-management">
+                        <h4>إدارة الحلقات</h4>
+                        <div id="episodes-list">
+                            </div>
+                        <div class="form-group">
+                            <label for="new-episode-title">عنوان الحلقة الجديدة:</label>
+                            <input type="text" id="new-episode-title" placeholder="مثال: الحلقة 1 الموسم الأول" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="new-episode-link">رابط فيديو الحلقة الجديدة:</label>
+                            <input type="url" id="new-episode-link" placeholder="رابط يوتيوب أو رابط مباشر" required>
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="new-episode-is-new" style="width: auto;">
+                            <label for="new-episode-is-new" style="margin-bottom: 0;">ضع علامة "حلقة جديدة"</label>
+                        </div>
+                        <button id="add-episode-to-series-btn" class="add-episode-btn">إضافة الحلقة</button>
+                    </div>
+                </div>
+            </div>
+
+            <h2>جميع المسلسلات</h2>
+            <div class="loading-spinner" id="series-loading-spinner"></div>
+            <div id="series-list">
+                </div>
+        </div>
+    </section>
 
     <script type="module">
+        //<![CDATA[
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+        import { getDatabase, ref, get, set, remove, update } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
-        // Firebase configuration (Ensure this matches your Firebase project)
-        // قم بتصحيح مفتاح API الخاص بك هنا
+        // Firebase configuration (from your provided code)
         const firebaseConfig = {
-            apiKey: "YOUR_ACTUAL_FIREBASE_API_KEY", // <--- استبدل هذا بالمفتاح الفعلي
+            apiKey: "AIzaSyCEaxXR5eqzg0e5JvjWAFjZ5ZeMraMYREn",
             authDomain: "mo-play-b0cb7.firebaseapp.com",
             databaseURL: "https://mo-play-b0cb7-default-rtdb.firebaseio.com",
             projectId: "mo-play-b0cb7",
@@ -317,58 +588,491 @@
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app); 
         const db = getDatabase(app);
+        const seriesRef = ref(db, 'series');
 
         // UI Elements
-        const adminKeyInput = document.getElementById('admin-key');
-        const loginBtn = document.getElementById('login-btn');
-        const authErrorMessage = document.getElementById('auth-error-message');
-        const loadingOverlay = document.getElementById('loading-overlay');
+        const adminPanelSection = document.getElementById('admin-panel-section');
+        const logoutBtn = document.getElementById('logout-btn');
 
-        // --- Helper Function to Display Errors ---
-        const displayError = (message) => {
-            authErrorMessage.textContent = message;
-            authErrorMessage.style.display = 'block';
-            setTimeout(() => {
-                authErrorMessage.style.display = 'none';
-            }, 5000); // Hide after 5 seconds
-        };
+        const newSeriesTitleInput = document.getElementById('new-series-title');
+        const newSeriesImageInput = document.getElementById('new-series-image');
+        const newSeriesCategoryInput = document.getElementById('new-series-category');
+        const addSeriesBtn = document.getElementById('add-series-btn');
 
-        // --- Single Key Login ---
-        loginBtn.addEventListener('click', async () => {
-            const enteredKey = adminKeyInput.value.trim();
-            if (!enteredKey) {
-                displayError('الرجاء إدخال المفتاح السري.');
-                return;
+        const editSeriesSelect = document.getElementById('edit-series-select');
+        const editSeriesForm = document.getElementById('edit-series-form');
+        const editSeriesTitleInput = document.getElementById('edit-series-title');
+        const editSeriesImageInput = document.getElementById('edit-series-image');
+        const editSeriesCategoryInput = document.getElementById('edit-series-category');
+        const updateSeriesBtn = document.getElementById('update-series-btn');
+        const deleteSeriesBtn = document.getElementById('delete-series-btn');
+
+        const episodesListDiv = document.getElementById('episodes-list');
+        const newEpisodeTitleInput = document.getElementById('new-episode-title');
+        const newEpisodeLinkInput = document.getElementById('new-episode-link');
+        const newEpisodeIsNewCheckbox = document.getElementById('new-episode-is-new');
+        const addEpisodeToSeriesBtn = document.getElementById('add-episode-to-series-btn');
+
+        const allSeriesDisplay = document.getElementById('series-list');
+        const seriesLoadingSpinner = document.getElementById('series-loading-spinner');
+
+        let currentSelectedSeriesId = null; // To store the key of the currently selected series for editing
+
+        // Particle Background Generator
+        function createParticles() {
+            const particleBg = document.querySelector('.particle-bg');
+            const numberOfParticles = 30; // Adjust as needed
+
+            for (let i = 0; i < numberOfParticles; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                const size = Math.random() * 4 + 1; // 1px to 5px
+                const duration = Math.random() * 20 + 10; // 10s to 30s
+                const delay = Math.random() * 10; // 0s to 10s
+                const left = Math.random() * 100; // 0% to 100%
+                const direction = Math.random() > 0.5 ? 1 : -1; // -1 or 1 for horizontal movement
+                const scale = Math.random() * 0.5 + 0.5; // 0.5 to 1.0
+
+                particle.style.setProperty('--size', `${size}px`);
+                particle.style.setProperty('--duration', `${duration}s`);
+                particle.style.setProperty('--delay', `${delay}s`);
+                particle.style.left = `${left}%`;
+                particle.style.top = `${Math.random() * 100}%`; // Start from random top
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.animationDelay = `-${delay}s`; // Start at different points in animation
+                particle.style.setProperty('--direction', direction);
+                particle.style.setProperty('--scale', scale);
+
+                particleBg.appendChild(particle);
             }
+        }
+        createParticles();
 
-            loadingOverlay.style.display = 'flex';
-            try {
-                // Fetch the actual admin key from Firebase Realtime Database
-                const keySnapshot = await get(ref(db, 'adminKey'));
-                const actualAdminKey = keySnapshot.val();
 
-                if (actualAdminKey && enteredKey === actualAdminKey) {
-                    // Key matches, "log in" by setting a session flag
-                    sessionStorage.setItem('isAdminLoggedIn', 'true');
-                    window.location.href = 'index.html'; // Redirect to admin panel
-                } else {
-                    displayError('المفتاح السري غير صحيح.');
-                    loadingOverlay.style.display = 'none';
+        // Function to normalize Arabic titles for Firebase keys
+        function normalizeTitleForFirebase(title) {
+            let normalized = title.replace(/^(مسلسل|مسلسلات)\s*/, '');
+            normalized = normalized.replace(/[^a-zA-Z0-9\u0600-\u06FF]+/g, '_');
+            normalized = normalized.replace(/_+/g, '_');
+            return normalized.replace(/^_|_$/g, '').trim();
+        }
+
+        // --- Authentication (simplified for direct admin panel access) ---
+        window.addEventListener('load', loadSeries);
+
+        // Logout functionality
+        logoutBtn.addEventListener('click', async () => {
+            if (confirm('هل أنت متأكد أنك تريد تسجيل الخروج؟')) {
+                try {
+                    await signOut(auth);
+                    alert('تم تسجيل الخروج بنجاح. لن تتمكن من تعديل البيانات بعد الآن.');
+                    adminPanelSection.style.display = 'none';
+                    // Redirect to login or home page if needed
+                    // window.location.href = 'login.html'; 
+                } catch (error) {
+                    console.error("Logout failed:", error);
+                    alert('فشل تسجيل الخروج.');
                 }
-            } catch (error) {
-                loadingOverlay.style.display = 'none';
-                console.error("Login failed:", error);
-                displayError(`فشل تسجيل الدخول: ${error.message}`);
             }
         });
 
-        // Check if already logged in (via sessionStorage) when page loads
-        if (sessionStorage.getItem('isAdminLoggedIn') === 'true') {
-            window.location.href = 'index.html'; // Redirect if already "logged in"
-        } else {
-            loadingOverlay.style.display = 'none'; // Hide loading overlay if not logged in
+        // --- Series Management ---
+
+        // Load and display all series
+        async function loadSeries() {
+            seriesLoadingSpinner.style.display = 'block'; // Show spinner
+            allSeriesDisplay.style.opacity = '0'; // Hide content while loading
+            try {
+                const snapshot = await get(seriesRef);
+                const seriesData = snapshot.val() || {};
+                
+                editSeriesSelect.innerHTML = '<option value="">-- اختر مسلسل --</option>';
+                allSeriesDisplay.innerHTML = '';
+
+                // Store series in an array to sort by 'updatedAt' if desired, or just iterate
+                const seriesArray = Object.keys(seriesData).map(key => ({
+                    id: key,
+                    ...seriesData[key]
+                }));
+
+                // Sort series by update time, newest first, for better UX
+                seriesArray.sort((a, b) => {
+                    const latestEpisodeA = (a.episodes || []).reduce((latest, ep) => (ep.updatedAt && new Date(ep.updatedAt) > latest ? new Date(ep.updatedAt) : latest), new Date(0));
+                    const latestEpisodeB = (b.episodes || []).reduce((latest, ep) => (ep.updatedAt && new Date(ep.updatedAt) > latest ? new Date(ep.updatedAt) : latest), new Date(0));
+                    
+                    const updateTimeA = a.updatedAt ? new Date(a.updatedAt) : latestEpisodeA;
+                    const updateTimeB = b.updatedAt ? new Date(b.updatedAt) : latestEpisodeB;
+
+                    return updateTimeB - updateTimeA; // Newest first
+                });
+
+
+                seriesArray.forEach((series, index) => {
+                    const option = document.createElement('option');
+                    option.value = series.id;
+                    option.textContent = series.title;
+                    editSeriesSelect.appendChild(option);
+
+                    const card = document.createElement('div');
+                    card.className = 'series-item';
+                    card.setAttribute('data-series-id', series.id);
+                    card.style.animationDelay = `${index * 0.1}s`; // Staggered animation
+                    card.innerHTML = `
+                        <img src="${series.image || 'https://via.placeholder.com/200x280?text=No+Image'}" alt="${series.title}">
+                        <div class="series-item-info">
+                            <h4>${series.title}</h4>
+                            <p>التصنيف: ${series.category || 'غير محدد'}</p>
+                            <p>المشاهدات: ${series.views || 0} | اللايكات: ${series.likes || 0}</p>
+                        </div>
+                        <div class="series-item-actions">
+                            <button class="edit-btn" data-series-id="${series.id}">تعديل</button>
+                            <button class="delete-btn" data-series-id="${series.id}">حذف</button>
+                        </div>
+                    `;
+                    allSeriesDisplay.appendChild(card);
+                });
+
+                document.querySelectorAll('#series-list .edit-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const seriesId = e.target.getAttribute('data-series-id');
+                        editSeriesSelect.value = seriesId;
+                        editSeriesSelect.dispatchEvent(new Event('change'));
+                    });
+                });
+                document.querySelectorAll('#series-list .delete-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const seriesId = e.target.getAttribute('data-series-id');
+                        deleteSeries(seriesId);
+                    });
+                });
+
+            } catch (error) {
+                console.error("Error loading series:", error);
+                alert('فشل تحميل المسلسلات.');
+            } finally {
+                seriesLoadingSpinner.style.display = 'none'; // Hide spinner
+                allSeriesDisplay.style.opacity = '1'; // Show content
+            }
         }
+
+        // Add new series
+        addSeriesBtn.addEventListener('click', async () => {
+            const title = newSeriesTitleInput.value.trim();
+            const image = newSeriesImageInput.value.trim();
+            const category = newSeriesCategoryInput.value.trim();
+
+            if (!title || !image) {
+                alert('الرجاء إدخال عنوان المسلسل ورابط الصورة.');
+                return;
+            }
+
+            const safeTitle = normalizeTitleForFirebase(title);
+            if (!safeTitle) {
+                alert('عنوان المسلسل غير صالح لإنشاء مفتاح.');
+                return;
+            }
+
+            try {
+                addSeriesBtn.disabled = true; // Disable button
+                addSeriesBtn.textContent = 'جاري الإضافة...'; // Change text
+
+                const existingSeriesSnapshot = await get(ref(db, `series/${safeTitle}`));
+                if (existingSeriesSnapshot.exists()) {
+                    alert('مسلسل بهذا العنوان موجود بالفعل. الرجاء اختيار عنوان مختلف أو تعديل المسلسل الحالي.');
+                    addSeriesBtn.disabled = false;
+                    addSeriesBtn.textContent = 'إضافة المسلسل';
+                    return;
+                }
+
+                const newSeriesData = {
+                    title: title,
+                    image: image,
+                    category: category || 'عام',
+                    views: 0,
+                    likes: 0,
+                    episodes: [],
+                    createdAt: new Date().toISOString(), // Add creation timestamp
+                    updatedAt: new Date().toISOString()  // Add initial update timestamp
+                };
+
+                await set(ref(db, `series/${safeTitle}`), newSeriesData);
+                alert('تم إضافة المسلسل بنجاح!');
+                newSeriesTitleInput.value = '';
+                newSeriesImageInput.value = '';
+                newSeriesCategoryInput.value = '';
+                loadSeries(); // Reload series to update lists
+            } catch (error) {
+                console.error("Error adding series:", error);
+                alert('فشل إضافة المسلسل. قد يكون هناك مشكلة في الاتصال أو الأذونات.');
+            } finally {
+                addSeriesBtn.disabled = false;
+                addSeriesBtn.textContent = 'إضافة المسلسل';
+            }
+        });
+
+        // When a series is selected for editing
+        editSeriesSelect.addEventListener('change', async () => {
+            currentSelectedSeriesId = editSeriesSelect.value;
+            episodesListDiv.innerHTML = ''; // Clear episode list
+            editSeriesForm.style.display = 'none'; // Hide initially
+
+            if (currentSelectedSeriesId) {
+                try {
+                    const snapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
+                    const series = snapshot.val();
+                    if (series) {
+                        editSeriesTitleInput.value = series.title;
+                        editSeriesImageInput.value = series.image;
+                        editSeriesCategoryInput.value = series.category || '';
+                        loadEpisodes(series.episodes || []); // Load episodes for the selected series
+                        editSeriesForm.style.display = 'block';
+                        editSeriesForm.style.animation = 'fadeIn 0.6s ease-out forwards'; // Animate form in
+                    } else {
+                        alert('المسلسل المحدد غير موجود.');
+                        editSeriesForm.style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error("Error loading series for edit:", error);
+                    alert('فشل تحميل بيانات المسلسل للتعديل.');
+                }
+            } else {
+                editSeriesForm.style.display = 'none';
+            }
+        });
+
+        // Update an existing series
+        updateSeriesBtn.addEventListener('click', async () => {
+            if (!currentSelectedSeriesId) {
+                alert('الرجاء اختيار مسلسل للتعديل.');
+                return;
+            }
+
+            const title = editSeriesTitleInput.value.trim();
+            const image = editSeriesImageInput.value.trim();
+            const category = editSeriesCategoryInput.value.trim();
+
+            if (!title || !image) {
+                alert('الرجاء إدخال عنوان المسلسل ورابط الصورة.');
+                return;
+            }
+
+            try {
+                updateSeriesBtn.disabled = true;
+                updateSeriesBtn.textContent = 'جاري التحديث...';
+
+                await update(ref(db, `series/${currentSelectedSeriesId}`), {
+                    title: title,
+                    image: image,
+                    category: category || 'عام',
+                    updatedAt: new Date().toISOString() // Update timestamp on series
+                });
+                alert('تم تحديث المسلسل بنجاح!');
+                loadSeries();
+                editSeriesSelect.value = currentSelectedSeriesId; 
+                editSeriesSelect.dispatchEvent(new Event('change'));
+            } catch (error) {
+                console.error("Error updating series:", error);
+                alert('فشل تحديث المسلسل.');
+            } finally {
+                updateSeriesBtn.disabled = false;
+                updateSeriesBtn.textContent = 'تحديث المسلسل';
+            }
+        });
+
+        // Delete a series
+        async function deleteSeries(seriesIdToDelete) {
+            if (confirm('هل أنت متأكد أنك تريد حذف هذا المسلسل وجميع حلقاته؟ هذا الإجراء لا يمكن التراجع عنه!')) {
+                try {
+                    deleteSeriesBtn.disabled = true;
+                    deleteSeriesBtn.textContent = 'جاري الحذف...';
+                    await remove(ref(db, `series/${seriesIdToDelete}`));
+                    alert('تم حذف المسلسل بنجاح!');
+                    editSeriesForm.style.display = 'none';
+                    currentSelectedSeriesId = null;
+                    loadSeries();
+                } catch (error) {
+                    console.error("Error deleting series:", error);
+                    alert('فشل حذف المسلسل.');
+                } finally {
+                    deleteSeriesBtn.disabled = false;
+                    deleteSeriesBtn.textContent = 'حذف المسلسل';
+                }
+            }
+        }
+        deleteSeriesBtn.addEventListener('click', () => {
+            if (currentSelectedSeriesId) {
+                deleteSeries(currentSelectedSeriesId);
+            }
+        });
+
+        // --- Episode Management ---
+
+        // Load and display episodes for a given series
+        function loadEpisodes(episodes) {
+            episodesListDiv.innerHTML = '';
+            if (!episodes || episodes.length === 0) {
+                episodesListDiv.innerHTML = '<p style="text-align:center;color:var(--text-muted);">لا توجد حلقات لهذا المسلسل.</p>';
+                return;
+            }
+
+            // Sort episodes by update time (newest first)
+            episodes.sort((a, b) => {
+                const dateA = a.updatedAt ? new Date(a.updatedAt) : new Date(0);
+                const dateB = b.updatedAt ? new Date(b.updatedAt) : new Date(0);
+                return dateB - dateA; // Newest first
+            });
+
+            episodes.forEach((ep, index) => {
+                const episodeItem = document.createElement('div');
+                episodeItem.className = 'episode-item';
+                episodeItem.style.animationDelay = `${index * 0.05}s`; // Staggered animation for episodes
+                episodeItem.innerHTML = `
+                    <span>${ep.title}</span>
+                    <div class="episode-item-actions">
+                        <button class="toggle-new-btn ${ep.isNew ? 'active' : ''}" data-index="${index}">${ep.isNew ? 'إزالة "جديدة"' : 'وضع "جديدة"'}</button>
+                        <button class="edit-episode-btn" data-index="${index}">تعديل</button>
+                        <button class="delete-episode-btn delete-btn" data-index="${index}">حذف</button>
+                    </div>
+                `;
+                episodesListDiv.appendChild(episodeItem);
+            });
+
+            document.querySelectorAll('.toggle-new-btn').forEach(btn => {
+                btn.addEventListener('click', toggleEpisodeNewStatus);
+            });
+            document.querySelectorAll('.edit-episode-btn').forEach(btn => {
+                btn.addEventListener('click', editEpisode);
+            });
+            document.querySelectorAll('.delete-episode-btn').forEach(btn => {
+                btn.addEventListener('click', deleteEpisode);
+            });
+        }
+
+        // Add new episode to a series
+        addEpisodeToSeriesBtn.addEventListener('click', async () => {
+            if (!currentSelectedSeriesId) {
+                alert('الرجاء اختيار مسلسل لإضافة حلقة إليه.');
+                return;
+            }
+
+            const title = newEpisodeTitleInput.value.trim();
+            const link = newEpisodeLinkInput.value.trim();
+            const isNew = newEpisodeIsNewCheckbox.checked;
+
+            if (!title || !link) {
+                alert('الرجاء إدخال عنوان الحلقة ورابط الفيديو.');
+                return;
+            }
+
+            try {
+                addEpisodeToSeriesBtn.disabled = true;
+                addEpisodeToSeriesBtn.textContent = 'جاري الإضافة...';
+
+                const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
+                const series = seriesSnapshot.val();
+                const episodes = series.episodes || [];
+
+                const newEpisode = {
+                    title: title,
+                    link: link,
+                    isNew: isNew,
+                    updatedAt: new Date().toISOString()
+                };
+
+                episodes.push(newEpisode);
+
+                await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes, updatedAt: new Date().toISOString() }); // Update series timestamp too
+                alert('تم إضافة الحلقة بنجاح!');
+                newEpisodeTitleInput.value = '';
+                newEpisodeLinkInput.value = '';
+                newEpisodeIsNewCheckbox.checked = false;
+                loadEpisodes(episodes);
+            } catch (error) {
+                console.error("Error adding episode:", error);
+                alert('فشل إضافة الحلقة.');
+            } finally {
+                addEpisodeToSeriesBtn.disabled = false;
+                addEpisodeToSeriesBtn.textContent = 'إضافة الحلقة';
+            }
+        });
+
+        // Edit an existing episode
+        async function editEpisode(event) {
+            const index = parseInt(event.target.getAttribute('data-index'));
+            
+            try {
+                const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
+                const series = seriesSnapshot.val();
+                const episodes = series.episodes || [];
+                const episodeToEdit = episodes[index];
+
+                const newTitle = prompt('أدخل العنوان الجديد للحلقة:', episodeToEdit.title);
+                const newLink = prompt('أدخل الرابط الجديد للحلقة:', episodeToEdit.link);
+
+                if (newTitle !== null && newLink !== null) {
+                    if (newTitle.trim() === '' || newLink.trim() === '') {
+                        alert('لا يمكن أن يكون العنوان أو الرابط فارغاً.');
+                        return;
+                    }
+                    episodes[index].title = newTitle.trim();
+                    episodes[index].link = newLink.trim();
+                    episodes[index].updatedAt = new Date().toISOString();
+
+                    await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes, updatedAt: new Date().toISOString() });
+                    alert('تم تحديث الحلقة بنجاح!');
+                    loadEpisodes(episodes);
+                }
+            } catch (error) {
+                console.error("Error updating episode:", error);
+                alert('فشل تحديث الحلقة.');
+            }
+        }
+
+        // Delete an episode
+        async function deleteEpisode(event) {
+            const index = parseInt(event.target.getAttribute('data-index'));
+            if (confirm('هل أنت متأكد أنك تريد حذف هذه الحلقة؟')) {
+                try {
+                    const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
+                    const series = seriesSnapshot.val();
+                    const episodes = series.episodes || [];
+
+                    episodes.splice(index, 1);
+
+                    await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes, updatedAt: new Date().toISOString() });
+                    alert('تم حذف الحلقة بنجاح!');
+                    loadEpisodes(episodes);
+                } catch (error) {
+                    console.error("Error deleting episode:", error);
+                    alert('فشل حذف الحلقة.');
+                }
+            }
+        }
+
+        // Toggle "isNew" status for an episode
+        async function toggleEpisodeNewStatus(event) {
+            const index = parseInt(event.target.getAttribute('data-index'));
+            try {
+                const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
+                const series = seriesSnapshot.val();
+                const episodes = series.episodes || [];
+
+                episodes[index].isNew = !episodes[index].isNew;
+                episodes[index].updatedAt = new Date().toISOString();
+
+                await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes, updatedAt: new Date().toISOString() });
+                alert('تم تحديث حالة الحلقة بنجاح!');
+                loadEpisodes(episodes);
+            } catch (error) {
+                console.error("Error toggling new status:", error);
+                alert('فشل تحديث حالة الحلقة.');
+            }
+        }
+        //]]>
     </script>
 </body>
 </html>
