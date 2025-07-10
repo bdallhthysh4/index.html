@@ -932,13 +932,14 @@
                 episodes.push(newEpisode); // Add new episode to the array
 
                 await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
-                alert('تم إضافة الحلقة بنجاح!');
                 
                 // ** Credit System Integration **
                 const currentUser = auth.currentUser;
                 if (currentUser) {
                     await updateBalanceForEpisodeAddition(currentUser.uid);
                     alert(`تمت إضافة الحلقة بنجاح! وزيادة رصيدك بـ ${EPISODE_CREDIT.toFixed(2)}.`);
+                } else {
+                     alert('تم إضافة الحلقة بنجاح!'); // No credit if no user logged in
                 }
                 // End Credit System Integration
 
