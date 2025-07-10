@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حكايتنا - لوحة الإدارة</title>
+    <title>حكايتنا - لوحة الإدارة الأسطورية</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
@@ -100,6 +100,11 @@
         @keyframes slideInUp {
             from { transform: translateY(20px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
         @keyframes pulse {
@@ -356,6 +361,10 @@
             border-color: var(--primary-color);
             box-shadow: 0 0 10px var(--glow-primary);
         }
+        .form-group input[type="checkbox"] {
+            width: auto; /* Override general input width */
+            margin-right: 10px;
+        }
         .form-group button {
             background: var(--primary-color);
             color: white;
@@ -412,10 +421,54 @@
             box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4);
         }
 
+        /* Hero Section for Admin Panel */
+        .hero-section {
+            background: linear-gradient(45deg, #1f0a0a, #0a1f1f);
+            padding: 60px 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        }
+        .hero-section h1 {
+            font-size: 3.5em;
+            color: white;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(255, 59, 59, 0.8);
+            animation: fadeIn 1.5s ease-out forwards;
+        }
+        .hero-section p {
+            font-size: 1.5em;
+            color: var(--text-light);
+            margin-bottom: 30px;
+            animation: slideInUp 1s ease-out forwards 0.3s;
+            opacity: 0;
+        }
+        .hero-section button {
+            background: var(--primary-color);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 5px 20px var(--glow-primary);
+            transition: all 0.3s ease;
+            animation: bounceIn 1s ease-out forwards 0.6s;
+            opacity: 0;
+        }
+        .hero-section button:hover {
+            background: #cc2a2a;
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 59, 59, 0.6);
+        }
+
         /* Series List */
         #series-list {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 25px;
             margin-top: 30px;
         }
@@ -429,22 +482,31 @@
             position: relative;
             transform-style: preserve-3d; /* For 3D hover effect */
             animation: bounceIn 0.8s ease-out forwards;
+            perspective: 1000px; /* For the 3D effect */
         }
         .series-item:hover {
-            transform: translateY(-8px) rotateX(2deg) scale(1.02);
+            transform: translateY(-8px) scale(1.02);
             box-shadow: 0 12px 30px var(--glow-primary);
             border-color: var(--primary-color);
         }
+        .series-item-content {
+            transition: transform 0.3s ease;
+        }
+        .series-item:hover .series-item-content {
+            transform: rotateY(3deg) rotateX(2deg); /* Subtle 3D tilt */
+        }
+
         .series-item img {
             width: 100%;
-            height: 200px;
+            height: 280px; /* Taller images for better visual */
             object-fit: cover;
             display: block;
             border-bottom: 1px solid var(--border-color);
-            transition: transform 0.3s ease;
+            transition: transform 0.4s ease;
         }
         .series-item:hover img {
-            transform: scale(1.05);
+            transform: scale(1.1); /* Zoom image on hover */
+            filter: brightness(0.8);
         }
         .series-item-info {
             padding: 15px;
@@ -454,8 +516,8 @@
             margin-top: 0;
             margin-bottom: 10px;
             color: var(--text-light);
-            font-size: 18px;
-            text-shadow: 0 0 5px rgba(255,255,255,0.2);
+            font-size: 20px; /* Slightly larger title */
+            text-shadow: 0 0 8px rgba(255,255,255,0.3);
         }
         .series-item-info p {
             color: var(--text-muted);
@@ -538,6 +600,17 @@
         }
         .episode-item-actions .toggle-new-btn:hover {
             background: #138496;
+        }
+
+        /* "New" Tag for Episodes */
+        .episode-new-tag {
+            background: var(--primary-color);
+            color: white;
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-left: 10px;
+            animation: pulse 1.5s infinite alternate;
         }
 
         /* Loading Spinner */
@@ -646,11 +719,6 @@
             transform: translateX(-5px) scale(1.02);
         }
 
-        @keyframes slideInRight {
-            from { transform: translateX(50px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
         /* Login Screen Styles */
         .login-container {
             display: flex;
@@ -677,7 +745,7 @@
             width: 90%;
             max-width: 400px;
             animation: bounceIn 0.8s ease-out forwards;
-            position: relative; /* For admin options button */
+            position: relative;
         }
 
         .login-box h2 {
@@ -689,6 +757,19 @@
         .login-box .form-group {
             margin-bottom: 20px;
         }
+        
+        .login-box .remember-me-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: -10px; /* Bring it closer to password field */
+            margin-bottom: 20px;
+        }
+        .login-box .remember-me-group label {
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+
 
         .login-box button {
             width: 100%;
@@ -710,7 +791,6 @@
         }
 
         /* Admin Options Button on Login Screen */
-        /* KEPT this button here as requested "copy" */
         #admin-options-btn-login {
             position: absolute;
             top: 15px;
@@ -916,6 +996,10 @@
                 <label for="login-password">كلمة المرور:</label>
                 <input type="password" id="login-password" placeholder="أدخل كلمة المرور" required>
             </div>
+            <div class="form-group remember-me-group">
+                <input type="checkbox" id="remember-me">
+                <label for="remember-me">تذكرني</label>
+            </div>
             <button id="login-btn">تسجيل الدخول</button>
         </div>
     </div>
@@ -926,12 +1010,21 @@
             <a href="javascript:void(0)" class="close-btn" id="close-sidebar-btn">&times;</a>
         </div>
         <div class="sidebar-content">
-            <div class="form-section"> <h3>إدارة الرصيد والسحب</h3>
+            <div class="form-section" style="animation: none;"> 
+                <h3>إدارة الرصيد والسحب</h3>
                 <div class="form-group">
                     <label for="current-balance">رصيد حسابك (المدير):</label>
                     <span id="current-balance-display">0.00 ريال</span>
                 </div>
                 <button id="request-withdrawal-btn" style="background: #007bff; margin-top: 15px;">طلب سحب الرصيد (عند 20 ريال)</button>
+            </div>
+             <div class="form-section" style="animation: none; display: none;"> 
+                <h3>تغيير رابط JSON للمستخدمين</h3>
+                <div class="form-group">
+                    <label for="admin-json-url">رابط ملف JSON للمستخدمين:</label>
+                    <input type="url" id="admin-json-url" placeholder="مثال: https://example.com/users.json">
+                </div>
+                <button id="save-json-url-btn" style="background: #28a745;">حفظ رابط JSON</button>
             </div>
         </div>
     </div>
@@ -950,6 +1043,12 @@
         </div>
 
         <div class="container">
+            <div class="hero-section">
+                <h1>اكتشف وأدر محتواك السينمائي الأسطوري!</h1>
+                <p>كل الأفلام والمسلسلات في متناول يدك لتبدع في إدارتها.</p>
+                <button id="add-new-series-hero-btn">أضف مسلسل جديد الآن</button>
+            </div>
+
             <div class="form-section">
                 <h3>إضافة مسلسل جديد</h3>
                 <div class="form-group">
@@ -1021,7 +1120,7 @@
 
     <div class="genie-menu-container">
         <div class="genie-menu" id="genieMenu">
-            <div class="genie-menu-item" data-target="add-series-btn">إضافة مسلسل جديد</div>
+            <div class="genie-menu-item" data-target="new-series-title">إضافة مسلسل جديد</div>
             <div class="genie-menu-item" data-target="edit-series-select">تعديل / حذف مسلسل</div>
             <div class="genie-menu-item" data-target="series-list-section">عرض كل المسلسلات</div>
             <div class="genie-menu-item" data-target="logout-btn">تسجيل الخروج</div>
@@ -1057,32 +1156,24 @@
         const seriesRef = ref(db, 'series');
         // Define new Firebase refs for JSON URL and User Balance
         const jsonUrlRef = ref(db, 'settings/usersJsonUrl'); 
-        // NOTE: The `userBalance/currentBalance` will be the *admin's* balance earned by adding episodes.
-        // For individual user balances who work *for* the admin, you'd need a separate structure.
-        // For this specific request, we'll assume the balance being tracked here is for the logged-in admin.
         const adminBalanceRef = ref(db, 'adminBalance/balance'); // Changed to explicitly be admin's balance
 
         // UI Elements - Login
         const loginScreen = document.getElementById('login-screen');
         const loginEmailInput = document.getElementById('login-email');
         const loginPasswordInput = document.getElementById('login-password');
+        const rememberMeCheckbox = document.getElementById('remember-me'); // New checkbox
         const loginBtn = document.getElementById('login-btn');
-        // Renamed for clarity, this is the button on the login screen
         const adminOptionsBtnLogin = document.getElementById('admin-options-btn-login'); 
 
         // UI Elements - Admin Sidebar (Main Sidebar)
         const adminSidebar = document.getElementById('admin-sidebar');
         const closeSidebarBtn = document.getElementById('close-sidebar-btn');
-        // adminJsonUrlInput and saveJsonUrlBtn are still used if you uncomment the "Change JSON link for users" section in login-screen's sidebar logic or if you have another settings modal for it.
-        // For the *main* sidebar, these are no longer directly referenced for display/editing as the UI is removed.
-        const adminJsonUrlInput = document.getElementById('admin-json-url'); // Still needed for logic from login sidebar
-        const saveJsonUrlBtn = document.getElementById('save-json-url-btn'); // Still needed for logic from login sidebar
-
+        const adminJsonUrlInput = document.getElementById('admin-json-url'); 
+        const saveJsonUrlBtn = document.getElementById('save-json-url-btn'); 
 
         // New UI Elements - Balance & Telegram (Telegram input is now readonly)
         const currentBalanceDisplay = document.getElementById('current-balance-display');
-        // Removed telegramChannelLinkInput as it's no longer present in the main sidebar UI
-        // Removed saveTelegramLinkBtn as it's no longer needed
         const requestWithdrawalBtn = document.getElementById('request-withdrawal-btn');
 
         // UI Elements - Admin Panel Header
@@ -1090,7 +1181,6 @@
         const logoutBtn = document.getElementById('logout-btn');
         const userPhoto = document.getElementById('user-photo');
         const userName = document.getElementById('user-name');
-        // New: Admin Options Button in Main Header
         const openAdminSidebarMainBtn = document.getElementById('open-admin-sidebar-main-btn');
 
         // UI Elements - Series Management
@@ -1098,6 +1188,7 @@
         const newSeriesImageInput = document.getElementById('new-series-image');
         const newSeriesCategoryInput = document.getElementById('new-series-category');
         const addSeriesBtn = document.getElementById('add-series-btn');
+        const addNewSeriesHeroBtn = document.getElementById('add-new-series-hero-btn'); // New hero button
 
         const editSeriesSelect = document.getElementById('edit-series-select');
         const editSeriesForm = document.getElementById('edit-series-form');
@@ -1119,14 +1210,10 @@
         const seriesLoadingSpinner = document.getElementById('series-loading-spinner');
 
         let currentSelectedSeriesId = null; 
-        let currentLoggedInUser = null; // To store information of the logged-in user
-        let currentUsersJsonUrl = ''; // To store the JSON URL fetched from Firebase
-        // Hardcoded Telegram link as per request
+        let currentLoggedInUser = null; 
+        let currentUsersJsonUrl = ''; 
         const currentTelegramLink = "https://t.me/loguxj"; 
-        let currentAdminBalance = 0; // To store the current admin's balance
-
-        // OFFLINE_ADMIN_PASSWORD is no longer needed as the password prompt is removed
-        // const OFFLINE_ADMIN_PASSWORD = 'eswaq123'; 
+        let currentAdminBalance = 0; 
 
         // Sound Effects
         const clickSound = document.getElementById('clickSound');
@@ -1178,31 +1265,29 @@
                 const snapshot = await get(jsonUrlRef);
                 const url = snapshot.val();
                 if (url) {
-                    // adminJsonUrlInput.value = url; // This element is hidden in main sidebar but still exists for login sidebar
                     currentUsersJsonUrl = url;
                 } else {
                     const defaultUrl = "https://raw.githubusercontent.com/bdallhthysh4/users/main/data.json";
                     await set(jsonUrlRef, defaultUrl);
-                    // adminJsonUrlInput.value = defaultUrl; // This element is hidden in main sidebar but still exists for login sidebar
                     currentUsersJsonUrl = defaultUrl;
+                }
+                if (adminJsonUrlInput) { // Check if the element exists (it's hidden by default now)
+                    adminJsonUrlInput.value = currentUsersJsonUrl;
                 }
                 console.log("JSON URL loaded/set from Firebase:", currentUsersJsonUrl);
             } catch (error) {
                 console.error("Error loading/setting JSON URL from Firebase:", error);
                 alert('فشل جلب رابط JSON للمستخدمين من Firebase. الرجاء التحقق من اتصالك وأذونات Firebase.');
                 playSound(errorSound);
-                // Fallback to a hardcoded URL if Firebase fails
-                // adminJsonUrlInput.value = "https://raw.githubusercontent.com/bdallhthysh4/users/main/data.json"; // This element is hidden in main sidebar but still exists for login sidebar
                 currentUsersJsonUrl = "https://raw.githubusercontent.com/bdallhthysh4/users/main/data.json";
+                if (adminJsonUrlInput) {
+                    adminJsonUrlInput.value = currentUsersJsonUrl;
+                }
             }
         }
 
-        // Save JSON URL to Firebase (This is still present for the login sidebar's admin options)
-        // Note: The UI element for this input (adminJsonUrlInput) is commented out/removed from the HTML
-        // as per previous instructions to simplify the main sidebar. If you still need to change
-        // this URL, you would need to add a UI element for it somewhere else.
-        // For now, this part of the code remains, assuming you might reintroduce a way to set this.
-        if (saveJsonUrlBtn) { // Check if the button exists (it might be removed if related input is removed)
+        // Save JSON URL to Firebase (This is for the hidden input in the sidebar)
+        if (saveJsonUrlBtn) { 
             saveJsonUrlBtn.addEventListener('click', async () => {
                 playSound(clickSound);
                 const newJsonUrl = adminJsonUrlInput.value.trim(); 
@@ -1231,16 +1316,16 @@
                 const snapshot = await get(adminBalanceRef);
                 const balance = snapshot.val();
                 if (typeof balance === 'number') {
-                    currentAdminBalance = parseFloat(balance.toFixed(2)); // Ensure 2 decimal places
+                    currentAdminBalance = parseFloat(balance.toFixed(2)); 
                 } else {
-                    currentAdminBalance = 0.00; // Default to 0 if not found or invalid
-                    await set(adminBalanceRef, currentAdminBalance); // Initialize in Firebase if not exists
+                    currentAdminBalance = 0.00; 
+                    await set(adminBalanceRef, currentAdminBalance); 
                 }
                 currentBalanceDisplay.textContent = `${currentAdminBalance.toFixed(2)} ريال`;
                 console.log("Admin balance loaded:", currentAdminBalance);
             } catch (error) {
                 console.error("Error loading admin balance from Firebase:", error);
-                currentAdminBalance = 0.00; // Fallback
+                currentAdminBalance = 0.00; 
                 currentBalanceDisplay.textContent = `${currentAdminBalance.toFixed(2)} ريال`;
                 alert('فشل جلب الرصيد من Firebase. الرجاء التحقق من اتصالك وأذونات Firebase.');
                 playSound(errorSound);
@@ -1250,18 +1335,15 @@
         // Update Admin Balance in Firebase
         async function updateAdminBalance(amount) {
             try {
-                // Fetch current balance to ensure we're adding to the latest value
                 const snapshot = await get(adminBalanceRef);
                 let balanceBeforeUpdate = snapshot.val() || 0;
-                balanceBeforeUpdate = parseFloat(balanceBeforeUpdate.toFixed(2)); // Ensure 2 decimal places
+                balanceBeforeUpdate = parseFloat(balanceBeforeUpdate.toFixed(2)); 
 
                 const newBalance = parseFloat((balanceBeforeUpdate + amount).toFixed(2));
                 await set(adminBalanceRef, newBalance);
                 currentAdminBalance = newBalance;
                 currentBalanceDisplay.textContent = `${currentAdminBalance.toFixed(2)} ريال`;
                 console.log(`Balance updated by ${amount}. New balance: ${newBalance}`);
-                // Only play success sound if the update was successful and not part of a larger operation
-                // (e.g., adding episode already plays sound)
             } catch (error) {
                 console.error("Error updating admin balance:", error);
                 alert('فشل تحديث الرصيد في Firebase.');
@@ -1272,12 +1354,11 @@
         // Handle Request Withdrawal
         requestWithdrawalBtn.addEventListener('click', () => {
             playSound(clickSound);
-            const WITHDRAWAL_THRESHOLD = 20; // 20 ريال كحد أدنى للسحب
+            const WITHDRAWAL_THRESHOLD = 20; 
 
             if (currentAdminBalance >= WITHDRAWAL_THRESHOLD) {
-                // Use the hardcoded currentTelegramLink directly
                 if (currentTelegramLink) {
-                    const managerName = currentLoggedInUser ? currentLoggedInUser.name : 'المدير'; // Get manager's name if logged in
+                    const managerName = currentLoggedInUser ? currentLoggedInUser.name : 'المدير'; 
                     const message = `طلب سحب رصيد:\nالرصيد الحالي: ${currentAdminBalance.toFixed(2)} ريال\nاسم المستخدم: ${managerName}\n\nالرجاء تحويل المبلغ إلى حساب PayPal الخاص بي.`;
                     
                     const telegramUrl = `${currentTelegramLink}?text=${encodeURIComponent(message)}`;
@@ -1288,7 +1369,6 @@
                         playSound(successSound);
                     }
                 } else {
-                    // This case should ideally not be hit since it's hardcoded now, but good for fallback
                     alert('رابط تليجرام المدير غير متوفر. يرجى التأكد من أن الكود يحتوي على الرابط الصحيح.');
                     playSound(errorSound);
                 }
@@ -1303,9 +1383,18 @@
         // Page Entrance Animation and Initial Load
         window.addEventListener('load', async () => {
             document.body.classList.add('loaded');
-            await loadJsonUrlFromFirebase(); // Load JSON URL when page loads
-            // telegramChannelLinkInput is removed from the main sidebar, so no need to set its value here for the main sidebar.
-            await loadAdminBalanceFromFirebase(); // Load Admin Balance
+            await loadJsonUrlFromFirebase(); 
+            await loadAdminBalanceFromFirebase(); 
+            // Check for saved credentials
+            const savedEmail = localStorage.getItem('rememberedEmail');
+            const savedPassword = localStorage.getItem('rememberedPassword');
+            if (savedEmail && savedPassword) {
+                loginEmailInput.value = savedEmail;
+                loginPasswordInput.value = savedPassword;
+                rememberMeCheckbox.checked = true;
+                // Optionally auto-login here, but for security, it's often better to make them click "Login"
+                // loginBtn.click(); // Uncomment to enable auto-login
+            }
         });
 
         // --- Authentication (with JSON users list) ---
@@ -1318,7 +1407,7 @@
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json();
-                return data; // This will be an array of user objects
+                return data; 
             } catch (error) {
                 console.error("Error fetching user data:", error);
                 alert('فشل جلب بيانات المستخدمين. تأكد من صحة رابط ملف JSON.');
@@ -1332,8 +1421,8 @@
             playSound(clickSound);
             const email = loginEmailInput.value.trim();
             const password = loginPasswordInput.value.trim();
+            const rememberMe = rememberMeCheckbox.checked;
             
-            // Use the JSON URL fetched from Firebase
             const jsonUrl = currentUsersJsonUrl; 
 
             if (!email || !password || !jsonUrl) {
@@ -1350,15 +1439,23 @@
                 if (foundUser) {
                     alert(`أهلاً بك, ${foundUser.name}! تم تسجيل الدخول بنجاح.`);
                     playSound(successSound);
-                    currentLoggedInUser = foundUser; // Store logged-in user info
+                    currentLoggedInUser = foundUser; 
 
-                    // Update header with user info
-                    userPhoto.src = currentLoggedInUser.photo || 'https://via.placeholder.com/50'; // Default photo if none
+                    // Save credentials if "Remember Me" is checked
+                    if (rememberMe) {
+                        localStorage.setItem('rememberedEmail', email);
+                        localStorage.setItem('rememberedPassword', password);
+                    } else {
+                        localStorage.removeItem('rememberedEmail');
+                        localStorage.removeItem('rememberedPassword');
+                    }
+
+                    userPhoto.src = currentLoggedInUser.photo || 'https://via.placeholder.com/50'; 
                     userName.textContent = currentLoggedInUser.name;
 
-                    loginScreen.style.display = 'none'; // Hide login screen
-                    adminPanelSection.style.display = 'flex'; // Show admin panel
-                    loadSeries(); // Load data after successful login
+                    loginScreen.style.display = 'none'; 
+                    adminPanelSection.style.display = 'flex'; 
+                    loadSeries(); 
                 } else {
                     alert('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
                     playSound(errorSound);
@@ -1374,15 +1471,18 @@
             playSound(clickSound);
             if (confirm('هل أنت متأكد أنك تريد تسجيل الخروج؟')) {
                 try {
-                    currentLoggedInUser = null; // Clear user info
-                    userPhoto.src = ''; // Clear photo
-                    userName.textContent = ''; // Clear name
+                    currentLoggedInUser = null; 
+                    userPhoto.src = ''; 
+                    userName.textContent = ''; 
                     alert('تم تسجيل الخروج بنجاح.');
                     playSound(successSound);
-                    adminPanelSection.style.display = 'none'; // Hide admin panel
-                    loginScreen.style.display = 'flex'; // Show login screen again
-                    loginPasswordInput.value = ''; // Clear password field
-                    loginEmailInput.value = ''; // Clear email field
+                    adminPanelSection.style.display = 'none'; 
+                    loginScreen.style.display = 'flex'; 
+                    loginPasswordInput.value = ''; 
+                    // Do not clear email if "Remember Me" is checked, just password
+                    if (!rememberMeCheckbox.checked) {
+                        loginEmailInput.value = '';
+                    }
                 } catch (error) {
                     console.error("Logout failed:", error);
                     alert('فشل تسجيل الخروج.');
@@ -1393,21 +1493,15 @@
 
         // --- Admin Sidebar Functionality ---
 
-        // Function to open sidebar (password prompt removed)
         function openAdminSidebar() {
             playSound(clickSound);
             adminSidebar.classList.add('open');
-            loadAdminBalanceFromFirebase(); // Refresh admin's balance when opening sidebar
+            loadAdminBalanceFromFirebase(); 
         }
 
-        // Event listener for the Admin Options button on the Login Screen
         adminOptionsBtnLogin.addEventListener('click', openAdminSidebar);
-
-        // Event listener for the NEW Admin Options button on the Main Header
         openAdminSidebarMainBtn.addEventListener('click', openAdminSidebar);
 
-
-        // Close Sidebar
         closeSidebarBtn.addEventListener('click', () => {
             playSound(clickSound);
             adminSidebar.classList.remove('open');
@@ -1456,11 +1550,13 @@
                     card.setAttribute('data-series-id', series.id);
                     card.style.animationDelay = `${index * 0.1}s`; 
                     card.innerHTML = `
-                        <img src="${series.image || 'https://via.placeholder.com/200x280?text=No+Image'}" alt="${series.title}">
-                        <div class="series-item-info">
-                            <h4>${series.title}</h4>
-                            <p>التصنيف: ${series.category || 'غير محدد'}</p>
-                            <p>المشاهدات: ${series.views || 0} | اللايكات: ${series.likes || 0}</p>
+                        <div class="series-item-content">
+                            <img src="${series.image || 'https://via.placeholder.com/200x280?text=No+Image'}" alt="${series.title}">
+                            <div class="series-item-info">
+                                <h4>${series.title}</h4>
+                                <p>التصنيف: ${series.category || 'غير محدد'}</p>
+                                <p>المشاهدات: ${series.views || 0} | اللايكات: ${series.likes || 0}</p>
+                            </div>
                         </div>
                         <div class="series-item-actions">
                             <button class="edit-btn" data-series-id="${series.id}">تعديل</button>
@@ -1562,6 +1658,15 @@
                 addSeriesBtn.textContent = 'إضافة المسلسل';
             }
         });
+
+        // Add new series button in Hero section
+        addNewSeriesHeroBtn.addEventListener('click', () => {
+            playSound(clickSound);
+            // Scroll to the "Add New Series" form
+            newSeriesTitleInput.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            newSeriesTitleInput.focus();
+        });
+
 
         // When a series is selected for editing
         editSeriesSelect.addEventListener('change', async () => {
@@ -1690,7 +1795,10 @@
                 episodeItem.className = 'episode-item';
                 episodeItem.style.animationDelay = `${index * 0.05}s`; 
                 episodeItem.innerHTML = `
-                    <span>${ep.title}</span>
+                    <span>
+                        ${ep.title}
+                        ${ep.isNew ? '<span class="episode-new-tag">جديدة</span>' : ''}
+                    </span>
                     <div class="episode-item-actions">
                         <button class="toggle-new-btn ${ep.isNew ? 'active' : ''}" data-index="${index}">${ep.isNew ? 'إزالة "جديدة"' : 'وضع "جديدة"'}</button>
                         <button class="edit-episode-btn" data-index="${index}">تعديل</button>
@@ -1751,7 +1859,6 @@
                 alert('تم إضافة الحلقة بنجاح!');
                 playSound(successSound);
 
-                // Add 0.01 to admin's balance for each new episode added
                 await updateAdminBalance(0.01); 
 
                 newEpisodeTitleInput.value = '';
@@ -1858,7 +1965,7 @@
         genieButton.addEventListener('click', () => {
             playSound(clickSound);
             genieMenu.classList.toggle('open');
-            genieButton.querySelector('.material-icons').textContent = genieMenu.classList.contains('open') ? 'X' : '✨';
+            genieButton.querySelector('.material-icons').textContent = genieMenu.classList.contains('open') ? 'close' : '✨'; // Change icon to 'close' when open
         });
 
         document.querySelectorAll('.genie-menu-item').forEach(item => {
@@ -1868,10 +1975,19 @@
                 let targetElement;
 
                 if (targetId === 'series-list-section') {
-                    targetElement = document.querySelector('h2');
-                } else if (targetId === 'open-admin-sidebar-main-btn') { // Corrected target for sidebar
-                    openAdminSidebar(); // Call the function to open the sidebar
-                    return; // Don't scroll to a non-existent element
+                    targetElement = document.querySelector('h2'); // Target the "جميع المسلسلات" heading
+                } else if (targetId === 'open-admin-sidebar-main-btn') { 
+                    openAdminSidebar(); 
+                    genieMenu.classList.remove('open'); 
+                    genieButton.querySelector('.material-icons').textContent = '✨';
+                    return; 
+                } else if (targetId === 'logout-btn') {
+                    logoutBtn.click(); // Trigger the logout button's click handler
+                    genieMenu.classList.remove('open'); 
+                    genieButton.querySelector('.material-icons').textContent = '✨';
+                    return;
+                } else if (targetId === 'new-series-title') {
+                    targetElement = document.getElementById(targetId); // Target the input field for focus
                 }
                 else {
                     targetElement = document.getElementById(targetId);
@@ -1890,9 +2006,7 @@
 
         // Add event listeners for general button clicks to play sound
         document.querySelectorAll('button').forEach(button => {
-            // Exclude specific buttons if their click logic already plays sound or needs custom handling
-            // Added the new main sidebar button to the excluded list
-            if (!['genieButton', 'login-btn', 'logout-btn', 'admin-options-btn-login', 'open-admin-sidebar-main-btn', 'save-json-url-btn', 'request-withdrawal-btn'].includes(button.id)) { 
+            if (!['genieButton', 'login-btn', 'logout-btn', 'admin-options-btn-login', 'open-admin-sidebar-main-btn', 'save-json-url-btn', 'request-withdrawal-btn', 'add-new-series-hero-btn'].includes(button.id)) { 
                 button.addEventListener('click', () => playSound(clickSound));
             }
         });
