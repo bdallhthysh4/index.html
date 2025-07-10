@@ -245,7 +245,30 @@
             text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
         }
 
-        .admin-header button {
+        /* New button for admin options in main header */
+        .admin-header button.material-icons-button {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            width: 40px; /* Make it a square/circle button */
+            height: 40px; /* Make it a square/circle button */
+            border-radius: 50%; /* Make it circular */
+            cursor: pointer;
+            font-size: 24px; /* Icon size */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background var(--transition-speed) ease, transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+        }
+
+        .admin-header button.material-icons-button:hover {
+            background: #ff6a00;
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 140, 0, 0.5);
+        }
+
+
+        .admin-header button { /* General button style in header, keep original logout styling */
             background: var(--secondary-color);
             color: white;
             border: none;
@@ -260,6 +283,7 @@
             transform: scale(1.05) translateY(-2px);
             box-shadow: 0 5px 20px rgba(255, 140, 0, 0.5);
         }
+
 
         /* Forms */
         .form-section {
@@ -686,7 +710,8 @@
         }
 
         /* Admin Options Button on Login Screen */
-        #admin-options-btn {
+        /* KEPT this button here as requested "copy" */
+        #admin-options-btn-login {
             position: absolute;
             top: 15px;
             left: 15px;
@@ -705,7 +730,7 @@
             transition: background 0.3s ease, transform 0.3s ease;
             z-index: 10;
         }
-        #admin-options-btn:hover {
+        #admin-options-btn-login:hover {
             background: #666;
             transform: scale(1.1);
         }
@@ -881,7 +906,7 @@
 
     <div class="login-container" id="login-screen">
         <div class="login-box">
-            <button id="admin-options-btn" title="خيارات المدير"><span class="material-icons">settings</span></button>
+            <button id="admin-options-btn-login" title="خيارات المدير"><span class="material-icons">settings</span></button>
             <h2>تسجيل الدخول إلى لوحة الإدارة</h2>
             <div class="form-group">
                 <label for="login-email">البريد الإلكتروني:</label>
@@ -916,10 +941,9 @@
                 <span id="current-balance-display">0.00 ريال</span>
             </div>
             <div class="form-group">
-                <label for="telegram-channel-link">رابط تليجرام المدير (لتحويل السحب):</label>
-                <input type="url" id="telegram-channel-link" placeholder="الصق رابط تليجرام لتحويل السحب" required>
+                <label for="telegram-channel-link">رابط تليجرام لتحويل السحب (ثابت):</label>
+                <input type="url" id="telegram-channel-link" value="https://t.me/loguxj" readonly title="هذا الرابط ثابت ولا يمكن تغييره من هنا">
             </div>
-            <button id="save-telegram-link-btn">حفظ رابط تليجرام</button>
             <button id="request-withdrawal-btn" style="background: #007bff; margin-top: 15px;">طلب سحب الرصيد (عند 20 ريال)</button>
         </div>
     </div>
@@ -931,7 +955,10 @@
                 <span id="user-name"></span>
             </div>
             <span>لوحة إدارة حكايتنا</span>
-            <button id="logout-btn">تسجيل الخروج</button>
+            <div>
+                <button id="open-admin-sidebar-main-btn" class="material-icons-button" title="خيارات المدير"><span class="material-icons">settings</span></button>
+                <button id="logout-btn">تسجيل الخروج</button>
+            </div>
         </div>
 
         <div class="container">
@@ -1010,7 +1037,8 @@
             <div class="genie-menu-item" data-target="edit-series-select">تعديل / حذف مسلسل</div>
             <div class="genie-menu-item" data-target="series-list-section">عرض كل المسلسلات</div>
             <div class="genie-menu-item" data-target="logout-btn">تسجيل الخروج</div>
-            <div class="genie-menu-item" data-target="admin-sidebar-options">خيارات المدير والرصيد</div> </div>
+            <div class="genie-menu-item" data-target="open-admin-sidebar-main-btn">خيارات المدير والرصيد</div>
+        </div>
         <div class="genie-button" id="genieButton">
             <span class="material-icons">✨</span>
         </div>
@@ -1041,7 +1069,7 @@
         const seriesRef = ref(db, 'series');
         // Define new Firebase refs for JSON URL, Telegram Link, and User Balance
         const jsonUrlRef = ref(db, 'settings/usersJsonUrl'); 
-        const telegramLinkRef = ref(db, 'settings/telegramChannelLink'); // New Firebase ref for Telegram Link
+        // Removed telegramLinkRef as it's now hardcoded
         // NOTE: The `userBalance/currentBalance` will be the *admin's* balance earned by adding episodes.
         // For individual user balances who work *for* the admin, you'd need a separate structure.
         // For this specific request, we'll assume the balance being tracked here is for the logged-in admin.
@@ -1052,7 +1080,8 @@
         const loginEmailInput = document.getElementById('login-email');
         const loginPasswordInput = document.getElementById('login-password');
         const loginBtn = document.getElementById('login-btn');
-        const adminOptionsBtn = document.getElementById('admin-options-btn');
+        // Renamed for clarity, this is the button on the login screen
+        const adminOptionsBtnLogin = document.getElementById('admin-options-btn-login'); 
 
         // UI Elements - Admin Sidebar
         const adminSidebar = document.getElementById('admin-sidebar');
@@ -1060,10 +1089,10 @@
         const adminJsonUrlInput = document.getElementById('admin-json-url');
         const saveJsonUrlBtn = document.getElementById('save-json-url-btn');
 
-        // New UI Elements - Balance & Telegram
+        // New UI Elements - Balance & Telegram (Telegram input is now readonly)
         const currentBalanceDisplay = document.getElementById('current-balance-display');
         const telegramChannelLinkInput = document.getElementById('telegram-channel-link');
-        const saveTelegramLinkBtn = document.getElementById('save-telegram-link-btn');
+        // Removed saveTelegramLinkBtn as it's no longer needed
         const requestWithdrawalBtn = document.getElementById('request-withdrawal-btn');
 
         // UI Elements - Admin Panel Header
@@ -1071,6 +1100,8 @@
         const logoutBtn = document.getElementById('logout-btn');
         const userPhoto = document.getElementById('user-photo');
         const userName = document.getElementById('user-name');
+        // New: Admin Options Button in Main Header
+        const openAdminSidebarMainBtn = document.getElementById('open-admin-sidebar-main-btn');
 
         // UI Elements - Series Management
         const newSeriesTitleInput = document.getElementById('new-series-title');
@@ -1100,7 +1131,8 @@
         let currentSelectedSeriesId = null; 
         let currentLoggedInUser = null; // To store information of the logged-in user
         let currentUsersJsonUrl = ''; // To store the JSON URL fetched from Firebase
-        let currentTelegramLink = ''; // To store the Telegram link fetched from Firebase
+        // Hardcoded Telegram link as per request
+        const currentTelegramLink = "https://t.me/loguxj"; 
         let currentAdminBalance = 0; // To store the current admin's balance
 
         // Offline password for admin options (for the sidebar settings)
@@ -1148,7 +1180,7 @@
         }
         createParticles();
 
-        // --- Firebase JSON URL, Telegram Link, and Balance Management ---
+        // --- Firebase JSON URL and Balance Management ---
 
         // Load JSON URL from Firebase
         async function loadJsonUrlFromFirebase() {
@@ -1197,52 +1229,8 @@
             }
         });
 
-        // Load Telegram Link from Firebase
-        async function loadTelegramLinkFromFirebase() {
-            try {
-                const snapshot = await get(telegramLinkRef);
-                const link = snapshot.val();
-                if (link) {
-                    telegramChannelLinkInput.value = link;
-                    currentTelegramLink = link;
-                } else {
-                    // Set a default link if not found in Firebase (optional)
-                    // This is the link you provided: https://t.me/loguxj
-                    const defaultTelegram = "https://t.me/loguxj";
-                    await set(telegramLinkRef, defaultTelegram);
-                    telegramChannelLinkInput.value = defaultTelegram;
-                    currentTelegramLink = defaultTelegram;
-                    console.warn("Telegram channel link not found in Firebase. Default set.");
-                }
-                console.log("Telegram Link loaded from Firebase:", currentTelegramLink);
-            } catch (error) {
-                console.error("Error loading Telegram Link from Firebase:", error);
-                alert('فشل جلب رابط قناة التليجرام من Firebase. الرجاء التحقق من اتصالك وأذونات Firebase.');
-                playSound(errorSound);
-            }
-        }
-
-        // Save Telegram Link to Firebase
-        saveTelegramLinkBtn.addEventListener('click', async () => {
-            playSound(clickSound);
-            const newTelegramLink = telegramChannelLinkInput.value.trim();
-            if (newTelegramLink) {
-                try {
-                    await set(telegramLinkRef, newTelegramLink);
-                    currentTelegramLink = newTelegramLink;
-                    alert('تم حفظ رابط تليجرام في Firebase بنجاح!');
-                    playSound(successSound);
-                    // No need to close sidebar here, user might want to adjust balance too
-                } catch (error) {
-                    console.error("Error saving Telegram Link to Firebase:", error);
-                    alert('فشل حفظ رابط تليجرام في Firebase. الرجاء المحاولة مرة أخرى.');
-                    playSound(errorSound);
-                }
-            } else {
-                alert('الرجاء إدخال رابط تليجرام صحيح.');
-                playSound(errorSound);
-            }
-        });
+        // Removed loadTelegramLinkFromFirebase and saveTelegramLinkBtn as per request (hardcoded now)
+        // The telegramChannelLinkInput will be initialized directly with the hardcoded value
 
         // Load Admin Balance from Firebase
         async function loadAdminBalanceFromFirebase() {
@@ -1294,12 +1282,11 @@
             const WITHDRAWAL_THRESHOLD = 20; // 20 ريال كحد أدنى للسحب
 
             if (currentAdminBalance >= WITHDRAWAL_THRESHOLD) {
+                // Use the hardcoded currentTelegramLink directly
                 if (currentTelegramLink) {
                     const managerName = currentLoggedInUser ? currentLoggedInUser.name : 'المدير'; // Get manager's name if logged in
                     const message = `طلب سحب رصيد:\nالرصيد الحالي: ${currentAdminBalance.toFixed(2)} ريال\nاسم المستخدم: ${managerName}\n\nالرجاء تحويل المبلغ إلى حساب PayPal الخاص بي.`;
                     
-                    // The link is for the manager's Telegram. If this is the *manager* requesting, it's for them to initiate payout.
-                    // If this were for *workers*, you'd need to send them to the manager's Telegram directly.
                     const telegramUrl = `${currentTelegramLink}?text=${encodeURIComponent(message)}`;
                     
                     if (confirm(`رصيدك ${currentAdminBalance.toFixed(2)} ريال. هل أنت متأكد من أنك تريد طلب سحب الرصيد؟ سيتم فتح التليجرام برسالة جاهزة للمدير لتحويل المبلغ إلى PayPal.`)) {
@@ -1308,7 +1295,8 @@
                         playSound(successSound);
                     }
                 } else {
-                    alert('لم يتم تحديد رابط تليجرام المدير لتحويل السحب بعد. الرجاء إضافته في "خيارات المدير والرصيد".');
+                    // This case should ideally not be hit since it's hardcoded now, but good for fallback
+                    alert('رابط تليجرام المدير غير متوفر. يرجى التأكد من أن الكود يحتوي على الرابط الصحيح.');
                     playSound(errorSound);
                 }
             } else {
@@ -1322,7 +1310,8 @@
         window.addEventListener('load', async () => {
             document.body.classList.add('loaded');
             await loadJsonUrlFromFirebase(); // Load JSON URL when page loads
-            await loadTelegramLinkFromFirebase(); // Load Telegram Link
+            // Removed loadTelegramLinkFromFirebase() because it's hardcoded
+            telegramChannelLinkInput.value = currentTelegramLink; // Set hardcoded value to input field
             await loadAdminBalanceFromFirebase(); // Load Admin Balance
         });
 
@@ -1411,22 +1400,29 @@
 
         // --- Admin Sidebar Functionality ---
 
-        // Open Sidebar
-        adminOptionsBtn.addEventListener('click', () => {
+        // Function to open sidebar with password prompt
+        function openAdminSidebar() {
             playSound(clickSound);
             const adminPass = prompt('أدخل كلمة سر المدير لفتح الخيارات:');
             if (adminPass === OFFLINE_ADMIN_PASSWORD) {
                 adminSidebar.classList.add('open');
                 // Ensure the current JSON URL from Firebase is displayed in the input
                 adminJsonUrlInput.value = currentUsersJsonUrl; 
-                telegramChannelLinkInput.value = currentTelegramLink; // Display current Telegram link
+                telegramChannelLinkInput.value = currentTelegramLink; // Display hardcoded Telegram link
                 loadAdminBalanceFromFirebase(); // Refresh admin's balance when opening sidebar
             } else if (adminPass !== null) { // User entered something but it was wrong
                 alert('كلمة سر المدير غير صحيحة.');
                 playSound(errorSound);
             }
             // If adminPass is null, user cancelled, do nothing
-        });
+        }
+
+        // Event listener for the Admin Options button on the Login Screen
+        adminOptionsBtnLogin.addEventListener('click', openAdminSidebar);
+
+        // Event listener for the NEW Admin Options button on the Main Header
+        openAdminSidebarMainBtn.addEventListener('click', openAdminSidebar);
+
 
         // Close Sidebar
         closeSidebarBtn.addEventListener('click', () => {
@@ -1677,7 +1673,7 @@
                 } catch (error) {
                     console.error("Error deleting series:", error);
                     alert('فشل حذف المسلسل.');
-                    playSound(errorSound); // Corrected typo here
+                    playSound(errorSound); 
                 } finally {
                     deleteSeriesBtn.disabled = false;
                     deleteSeriesBtn.textContent = 'حذف المسلسل';
@@ -1844,7 +1840,7 @@
                 } catch (error) {
                     console.error("Error deleting episode:", error);
                     alert('فشل حذف الحلقة.');
-                    playSound(errorSound); // Corrected typo here
+                    playSound(errorSound); 
                 }
             }
         }
@@ -1890,8 +1886,8 @@
 
                 if (targetId === 'series-list-section') {
                     targetElement = document.querySelector('h2');
-                } else if (targetId === 'admin-sidebar-options') { // New target for sidebar
-                    adminOptionsBtn.click(); // Simulate click on admin options button
+                } else if (targetId === 'open-admin-sidebar-main-btn') { // Corrected target for sidebar
+                    openAdminSidebar(); // Call the function to open the sidebar
                     return; // Don't scroll to a non-existent element
                 }
                 else {
@@ -1912,7 +1908,8 @@
         // Add event listeners for general button clicks to play sound
         document.querySelectorAll('button').forEach(button => {
             // Exclude specific buttons if their click logic already plays sound or needs custom handling
-            if (!['genieButton', 'login-btn', 'logout-btn', 'admin-options-btn', 'save-json-url-btn', 'save-telegram-link-btn', 'request-withdrawal-btn'].includes(button.id)) { 
+            // Added the new main sidebar button to the excluded list
+            if (!['genieButton', 'login-btn', 'logout-btn', 'admin-options-btn-login', 'open-admin-sidebar-main-btn', 'save-json-url-btn', 'request-withdrawal-btn'].includes(button.id)) { 
                 button.addEventListener('click', () => playSound(clickSound));
             }
         });
