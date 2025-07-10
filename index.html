@@ -163,27 +163,6 @@
             text-shadow: 0 0 12px var(--glow-primary);
         }
 
-        /* Removed social login buttons section */
-
-        .separator {
-            margin: 25px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-muted);
-            font-size: 14px;
-            /* Hide if no social buttons */
-            display: none; 
-        }
-        .separator::before,
-        .separator::after {
-            content: '';
-            flex-grow: 1;
-            height: 1px;
-            background-color: var(--border-color);
-            margin: 0 10px;
-        }
-
         .form-group {
             margin-bottom: 20px;
             text-align: start;
@@ -232,28 +211,6 @@
         .auth-buttons #login-btn:hover {
             background-color: #cc2a2a;
             transform: translateY(-2px);
-        }
-
-        .auth-buttons #register-btn {
-            background-color: var(--secondary-color);
-            margin-bottom: 15px;
-        }
-        .auth-buttons #register-btn:hover {
-            background-color: #cc7400;
-            transform: translateY(-2px);
-        }
-
-        .toggle-form-link {
-            display: block;
-            margin-top: 20px;
-            color: var(--secondary-color);
-            text-decoration: none;
-            font-size: 14px;
-            transition: color 0.3s ease;
-        }
-        .toggle-form-link:hover {
-            color: #ff6a00;
-            text-decoration: underline;
         }
 
         #loading-overlay {
@@ -324,81 +281,49 @@
     <div class="login-container">
         <h1>تسجيل الدخول إلى حكايتنا</h1>
 
-        <div id="email-password-form">
+        <div id="single-key-form">
             <div class="form-group">
-                <label for="email">البريد الإلكتروني:</label>
-                <input type="email" id="email" placeholder="أدخل بريدك الإلكتروني" required>
-            </div>
-            <div class="form-group">
-                <label for="password">كلمة المرور:</label>
-                <input type="password" id="password" placeholder="أدخل كلمة المرور" required>
+                <label for="admin-key">المفتاح السري:</label>
+                <input type="password" id="admin-key" placeholder="أدخل المفتاح السري" required>
             </div>
             <div class="auth-buttons">
                 <button id="login-btn">تسجيل الدخول</button>
-                <button id="register-btn" style="display: none;">إنشاء حساب</button>
             </div>
-            <a href="#" id="toggle-register-login" class="toggle-form-link">ليس لديك حساب؟ إنشاء حساب جديد</a>
             <div id="auth-error-message" class="error-message" style="display: none;"></div>
         </div>
     </div>
 
     <div id="loading-overlay" style="display: none;">
         <div class="loader"></div>
-        <p>جاري التحقق من تسجيل الدخول...</p>
+        <p>جاري التحقق من المفتاح...</p>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-        import { 
-            getAuth, 
-            signInWithEmailAndPassword, 
-            createUserWithEmailAndPassword, 
-            onAuthStateChanged 
-        } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
         import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
-
         // Firebase configuration (Ensure this matches your Firebase project)
+        // قم بتصحيح مفتاح API الخاص بك هنا
         const firebaseConfig = {
-            apiKey: "AIzaSyCEaxXR5eqzg0e5JvjWAFjZ5ZeMraMYREn", // REPLACE WITH YOUR ACTUAL API KEY
-            authDomain: "mo-play-b0cb7.firebaseapp.com", // REPLACE WITH YOUR ACTUAL AUTH DOMAIN
-            databaseURL: "https://mo-play-b0cb7-default-rtdb.firebaseio.com", // REPLACE WITH YOUR ACTUAL DATABASE URL
-            projectId: "mo-play-b0cb7", // REPLACE WITH YOUR ACTUAL PROJECT ID
-            storageBucket: "mo-play-b0cb7.firebasestorage.app", // REPLACE WITH YOUR ACTUAL STORAGE BUCKET
-            messagingSenderId: "575424024738", // REPLACE WITH YOUR ACTUAL MESSAGING SENDER ID
-            appId: "1:575424024738:web:0b1736c0c2e496adf607fb", // REPLACE WITH YOUR ACTUAL APP ID
-            measurementId: "G-33QRGFTW30" // REPLACE WITH YOUR ACTUAL MEASUREMENT ID (optional)
+            apiKey: "YOUR_ACTUAL_FIREBASE_API_KEY", // <--- استبدل هذا بالمفتاح الفعلي
+            authDomain: "mo-play-b0cb7.firebaseapp.com",
+            databaseURL: "https://mo-play-b0cb7-default-rtdb.firebaseio.com",
+            projectId: "mo-play-b0cb7",
+            storageBucket: "mo-play-b0cb7.firebasestorage.app",
+            messagingSenderId: "575424024738",
+            appId: "1:575424024738:web:0b1736c0c2e496adf607fb",
+            measurementId: "G-33QRGFTW30"
         };
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app); // Initialize Realtime Database
+        const db = getDatabase(app);
 
         // UI Elements
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
+        const adminKeyInput = document.getElementById('admin-key');
         const loginBtn = document.getElementById('login-btn');
-        const registerBtn = document.getElementById('register-btn');
-        const toggleFormLink = document.getElementById('toggle-register-login');
         const authErrorMessage = document.getElementById('auth-error-message');
         const loadingOverlay = document.getElementById('loading-overlay');
-
-        let isRegisterMode = false; // To toggle between login and register forms
-
-        // --- Authentication State Listener ---
-        // This listens for any change in the user's sign-in state.
-        // If a user logs in successfully, it redirects them.
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // User is signed in, redirect to admin panel
-                console.log("User is signed in:", user.uid);
-                window.location.href = 'index.html'; // Redirect to your admin panel
-            } else {
-                // No user is signed in. Keep the login page visible.
-                loadingOverlay.style.display = 'none'; // Hide loading overlay once state is determined
-            }
-        });
 
         // --- Helper Function to Display Errors ---
         const displayError = (message) => {
@@ -409,105 +334,41 @@
             }, 5000); // Hide after 5 seconds
         };
 
-        // Helper to sanitize email for Firebase Realtime Database keys
-        const sanitizeEmailForFirebaseKey = (email) => {
-            return email.replace(/\./g, '_').replace(/@/g, '__');
-        };
-
-        // --- Email/Password Login ---
+        // --- Single Key Login ---
         loginBtn.addEventListener('click', async () => {
-            const email = emailInput.value;
-            const password = passwordInput.value;
-            if (!email || !password) {
-                displayError('الرجاء إدخال البريد الإلكتروني وكلمة المرور.');
+            const enteredKey = adminKeyInput.value.trim();
+            if (!enteredKey) {
+                displayError('الرجاء إدخال المفتاح السري.');
                 return;
             }
 
             loadingOverlay.style.display = 'flex';
             try {
-                await signInWithEmailAndPassword(auth, email, password);
-                // Redirect handled by onAuthStateChanged
-            } catch (error) {
-                loadingOverlay.style.display = 'none';
-                console.error("Login failed:", error.code, error.message);
-                if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                    displayError('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
-                } else if (error.code === 'auth/too-many-requests') {
-                    displayError('لقد قمت بمحاولات عديدة لتسجيل الدخول. الرجاء المحاولة مرة أخرى لاحقًا.');
+                // Fetch the actual admin key from Firebase Realtime Database
+                const keySnapshot = await get(ref(db, 'adminKey'));
+                const actualAdminKey = keySnapshot.val();
+
+                if (actualAdminKey && enteredKey === actualAdminKey) {
+                    // Key matches, "log in" by setting a session flag
+                    sessionStorage.setItem('isAdminLoggedIn', 'true');
+                    window.location.href = 'index.html'; // Redirect to admin panel
                 } else {
-                    displayError(`فشل تسجيل الدخول: ${error.message}`);
-                }
-            }
-        });
-
-        // --- Email/Password Registration (with Realtime DB Whitelist) ---
-        registerBtn.addEventListener('click', async () => {
-            const email = emailInput.value;
-            const password = passwordInput.value;
-            if (!email || !password) {
-                displayError('الرجاء إدخال البريد الإلكتروني وكلمة المرور.');
-                return;
-            }
-            if (password.length < 6) {
-                displayError('كلمة المرور يجب أن تتكون من 6 أحرف على الأقل.');
-                return;
-            }
-
-            loadingOverlay.style.display = 'flex';
-            try {
-                // 1. Check if the email is allowed to register in Realtime Database
-                const sanitizedEmailKey = sanitizeEmailForFirebaseKey(email);
-                const allowedUserSnapshot = await get(ref(db, `allowedUsers/${sanitizedEmailKey}`));
-                
-                if (!allowedUserSnapshot.exists()) {
-                    displayError('هذا البريد الإلكتروني غير مسموح له بإنشاء حساب. الرجاء الاتصال بالمسؤول.');
+                    displayError('المفتاح السري غير صحيح.');
                     loadingOverlay.style.display = 'none';
-                    return;
                 }
-                
-                // If it exists, proceed with Firebase Authentication registration
-                await createUserWithEmailAndPassword(auth, email, password);
-                
-                // Optional: If you want to prevent the same email from being used again from the allowedUsers list
-                // You could delete the entry or set a flag like 'registered: true'
-                // await remove(ref(db, `allowedUsers/${sanitizedEmailKey}`)); 
-                
-                // Redirect handled by onAuthStateChanged
             } catch (error) {
                 loadingOverlay.style.display = 'none';
-                console.error("Registration failed:", error.code, error.message);
-                if (error.code === 'auth/email-already-in-use') {
-                    displayError('هذا البريد الإلكتروني مسجل بالفعل. الرجاء تسجيل الدخول أو استخدام بريد إلكتروني آخر.');
-                } else if (error.code === 'auth/invalid-email') {
-                    displayError('صيغة البريد الإلكتروني غير صحيحة.');
-                } else if (error.code === 'auth/weak-password') {
-                    displayError('كلمة المرور ضعيفة جدًا. الرجاء استخدام كلمة مرور أقوى.');
-                } else {
-                    displayError(`فشل إنشاء الحساب: ${error.message}`);
-                }
+                console.error("Login failed:", error);
+                displayError(`فشل تسجيل الدخول: ${error.message}`);
             }
         });
 
-        // --- Toggle between Login and Register Forms ---
-        toggleFormLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            isRegisterMode = !isRegisterMode;
-            if (isRegisterMode) {
-                loginBtn.style.display = 'none';
-                registerBtn.style.display = 'block';
-                toggleFormLink.textContent = 'لديك حساب بالفعل؟ تسجيل الدخول';
-                document.querySelector('.login-container h1').textContent = 'إنشاء حساب جديد';
-            } else {
-                loginBtn.style.display = 'block';
-                registerBtn.style.display = 'none';
-                toggleFormLink.textContent = 'ليس لديك حساب؟ إنشاء حساب جديد';
-                document.querySelector('.login-container h1').textContent = 'تسجيل الدخول إلى حكايتنا';
-            }
-            authErrorMessage.style.display = 'none'; // Clear error message on toggle
-        });
-
-        // Initially show loading overlay until Firebase auth state is determined
-        loadingOverlay.style.display = 'flex';
+        // Check if already logged in (via sessionStorage) when page loads
+        if (sessionStorage.getItem('isAdminLoggedIn') === 'true') {
+            window.location.href = 'index.html'; // Redirect if already "logged in"
+        } else {
+            loadingOverlay.style.display = 'none'; // Hide loading overlay if not logged in
+        }
     </script>
 </body>
 </html>
