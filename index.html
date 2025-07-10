@@ -163,52 +163,7 @@
             text-shadow: 0 0 12px var(--glow-primary);
         }
 
-        .social-login-buttons button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: white;
-            font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-
-        .social-login-buttons button img {
-            width: 24px;
-            height: 24px;
-            margin-inline-end: 15px;
-        }
-
-        .social-login-buttons .google-btn {
-            background-color: #4285F4;
-        }
-        .social-login-buttons .google-btn:hover {
-            background-color: #357ae8;
-            transform: translateY(-2px);
-        }
-
-        .social-login-buttons .facebook-btn {
-            background-color: #1877F2;
-        }
-        .social-login-buttons .facebook-btn:hover {
-            background-color: #1a6dcc;
-            transform: translateY(-2px);
-        }
-
-        .social-login-buttons .twitter-btn {
-            background-color: #1DA1F2;
-        }
-        .social-login-buttons .twitter-btn:hover {
-            background-color: #1a94da;
-            transform: translateY(-2px);
-        }
+        /* Removed social login buttons section */
 
         .separator {
             margin: 25px 0;
@@ -217,6 +172,8 @@
             justify-content: center;
             color: var(--text-muted);
             font-size: 14px;
+            /* Hide if no social buttons */
+            display: none; 
         }
         .separator::before,
         .separator::after {
@@ -367,23 +324,6 @@
     <div class="login-container">
         <h1>تسجيل الدخول إلى حكايتنا</h1>
 
-        <div class="social-login-buttons">
-            <button id="google-login-btn" class="google-btn">
-                <img src="https://img.icons8.com/color/48/000000/google-logo.png" alt="Google">
-                تسجيل الدخول عبر جوجل
-            </button>
-            <button id="facebook-login-btn" class="facebook-btn">
-                <img src="https://img.icons8.com/color/48/000000/facebook-new.png" alt="Facebook">
-                تسجيل الدخول عبر فيسبوك
-            </button>
-            <button id="twitter-login-btn" class="twitter-btn">
-                <img src="https://img.icons8.com/color/48/000000/twitterx--v1.png" alt="X (Twitter)">
-                تسجيل الدخول عبر X (تويتر)
-            </button>
-        </div>
-
-        <div class="separator">أو</div>
-
         <div id="email-password-form">
             <div class="form-group">
                 <label for="email">البريد الإلكتروني:</label>
@@ -413,12 +353,10 @@
             getAuth, 
             signInWithEmailAndPassword, 
             createUserWithEmailAndPassword, 
-            GoogleAuthProvider, 
-            FacebookAuthProvider, 
-            TwitterAuthProvider, 
-            signInWithPopup, 
             onAuthStateChanged 
         } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+
 
         // Firebase configuration (Ensure this matches your Firebase project)
         const firebaseConfig = {
@@ -435,6 +373,7 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getDatabase(app); // Initialize Realtime Database
 
         // UI Elements
         const emailInput = document.getElementById('email');
@@ -442,9 +381,6 @@
         const loginBtn = document.getElementById('login-btn');
         const registerBtn = document.getElementById('register-btn');
         const toggleFormLink = document.getElementById('toggle-register-login');
-        const googleLoginBtn = document.getElementById('google-login-btn');
-        const facebookLoginBtn = document.getElementById('facebook-login-btn');
-        const twitterLoginBtn = document.getElementById('twitter-login-btn');
         const authErrorMessage = document.getElementById('auth-error-message');
         const loadingOverlay = document.getElementById('loading-overlay');
 
@@ -473,6 +409,11 @@
             }, 5000); // Hide after 5 seconds
         };
 
+        // Helper to sanitize email for Firebase Realtime Database keys
+        const sanitizeEmailForFirebaseKey = (email) => {
+            return email.replace(/\./g, '_').replace(/@/g, '__');
+        };
+
         // --- Email/Password Login ---
         loginBtn.addEventListener('click', async () => {
             const email = emailInput.value;
@@ -499,7 +440,7 @@
             }
         });
 
-        // --- Email/Password Registration ---
+        // --- Email/Password Registration (with Realtime DB Whitelist) ---
         registerBtn.addEventListener('click', async () => {
             const email = emailInput.value;
             const password = passwordInput.value;
@@ -514,7 +455,23 @@
 
             loadingOverlay.style.display = 'flex';
             try {
+                // 1. Check if the email is allowed to register in Realtime Database
+                const sanitizedEmailKey = sanitizeEmailForFirebaseKey(email);
+                const allowedUserSnapshot = await get(ref(db, `allowedUsers/${sanitizedEmailKey}`));
+                
+                if (!allowedUserSnapshot.exists()) {
+                    displayError('هذا البريد الإلكتروني غير مسموح له بإنشاء حساب. الرجاء الاتصال بالمسؤول.');
+                    loadingOverlay.style.display = 'none';
+                    return;
+                }
+                
+                // If it exists, proceed with Firebase Authentication registration
                 await createUserWithEmailAndPassword(auth, email, password);
+                
+                // Optional: If you want to prevent the same email from being used again from the allowedUsers list
+                // You could delete the entry or set a flag like 'registered: true'
+                // await remove(ref(db, `allowedUsers/${sanitizedEmailKey}`)); 
+                
                 // Redirect handled by onAuthStateChanged
             } catch (error) {
                 loadingOverlay.style.display = 'none';
@@ -547,78 +504,6 @@
                 document.querySelector('.login-container h1').textContent = 'تسجيل الدخول إلى حكايتنا';
             }
             authErrorMessage.style.display = 'none'; // Clear error message on toggle
-        });
-
-        // --- Social Login Handlers ---
-        googleLoginBtn.addEventListener('click', async () => {
-            const provider = new GoogleAuthProvider();
-            loadingOverlay.style.display = 'flex';
-            try {
-                await signInWithPopup(auth, provider);
-                // Redirect handled by onAuthStateChanged
-            } catch (error) {
-                loadingOverlay.style.display = 'none';
-                console.error("Google login failed:", error.code, error.message);
-                if (error.code === 'auth/popup-closed-by-user') {
-                    displayError('تم إغلاق نافذة تسجيل الدخول.');
-                } else if (error.code === 'auth/cancelled-popup-request') {
-                    displayError('تم إلغاء طلب تسجيل الدخول.');
-                } else if (error.code === 'auth/auth-domain-config-required') {
-                    displayError('خطأ في إعدادات المجال (Domain). الرجاء التحقق من إعدادات Firebase.');
-                } else {
-                    displayError(`فشل تسجيل الدخول عبر جوجل: ${error.message}`);
-                }
-            }
-        });
-
-        facebookLoginBtn.addEventListener('click', async () => {
-            const provider = new FacebookAuthProvider();
-            loadingOverlay.style.display = 'flex';
-            try {
-                // Request additional permissions if needed (e.g., 'public_profile', 'email')
-                // provider.addScope('public_profile');
-                // provider.addScope('email');
-                await signInWithPopup(auth, provider);
-                // Redirect handled by onAuthStateChanged
-            } catch (error) {
-                loadingOverlay.style.display = 'none';
-                console.error("Facebook login failed:", error.code, error.message);
-                if (error.code === 'auth/popup-closed-by-user') {
-                    displayError('تم إغلاق نافذة تسجيل الدخول.');
-                } else if (error.code === 'auth/cancelled-popup-request') {
-                    displayError('تم إلغاء طلب تسجيل الدخول.');
-                } else if (error.code === 'auth/auth-domain-config-required') {
-                    displayError('خطأ في إعدادات المجال (Domain). الرجاء التحقق من إعدادات Firebase.');
-                } else if (error.code === 'auth/account-exists-with-different-credential') {
-                    displayError('هذا البريد الإلكتروني مسجل بالفعل بطريقة أخرى. الرجاء تسجيل الدخول بالطريقة الأصلية.');
-                }
-                else {
-                    displayError(`فشل تسجيل الدخول عبر فيسبوك: ${error.message}`);
-                }
-            }
-        });
-
-        twitterLoginBtn.addEventListener('click', async () => {
-            const provider = new TwitterAuthProvider();
-            loadingOverlay.style.display = 'flex';
-            try {
-                await signInWithPopup(auth, provider);
-                // Redirect handled by onAuthStateChanged
-            } catch (error) {
-                loadingOverlay.style.display = 'none';
-                console.error("Twitter login failed:", error.code, error.message);
-                if (error.code === 'auth/popup-closed-by-user') {
-                    displayError('تم إغلاق نافذة تسجيل الدخول.');
-                } else if (error.code === 'auth/cancelled-popup-request') {
-                    displayError('تم إلغاء طلب تسجيل الدخول.');
-                } else if (error.code === 'auth/auth-domain-config-required') {
-                    displayError('خطأ في إعدادات المجال (Domain). الرجاء التحقق من إعدادات Firebase.');
-                } else if (error.code === 'auth/account-exists-with-different-credential') {
-                    displayError('هذا البريد الإلكتروني مسجل بالفعل بطريقة أخرى. الرجاء تسجيل الدخول بالطريقة الأصلية.');
-                } else {
-                    displayError(`فشل تسجيل الدخول عبر X (تويتر): ${error.message}`);
-                }
-            }
         });
 
         // Initially show loading overlay until Firebase auth state is determined
