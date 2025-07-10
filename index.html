@@ -22,6 +22,14 @@
             --glow-secondary: rgba(255, 140, 0, 0.7);
             --transition-speed: 0.4s;
             --bounce-height: 5px;
+
+            /* Genie Menu Variables */
+            --genie-size: 60px;
+            --genie-bg: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            --genie-text-color: white;
+            --genie-shadow: 0 0 20px rgba(255, 59, 59, 0.6);
+            --genie-item-bg: #333;
+            --genie-item-hover: var(--primary-color);
         }
 
         /* Base Styles */
@@ -37,6 +45,12 @@
             direction: rtl;
             overflow-x: hidden; /* Prevent horizontal scroll from animations */
             position: relative; /* For particle background */
+            opacity: 0; /* Hidden by default for entrance animation */
+            transition: opacity 1s ease-in-out;
+        }
+
+        body.loaded {
+            opacity: 1;
         }
 
         /* Particle Background */
@@ -116,6 +130,20 @@
         @keyframes shimmer {
             0% { background-position: -200% 0; }
             100% { background-position: 200% 0; }
+        }
+
+        /* Entrance Animation */
+        @keyframes pageEntrance {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+                filter: blur(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                filter: blur(0);
+            }
         }
 
         /* Global Animations */
@@ -466,6 +494,101 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Genie Menu */
+        .genie-menu-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .genie-button {
+            width: var(--genie-size);
+            height: var(--genie-size);
+            border-radius: 50%;
+            background: var(--genie-bg);
+            color: var(--genie-text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            cursor: pointer;
+            box-shadow: var(--genie-shadow);
+            transition: all var(--transition-speed) ease;
+            animation: pulse-genie 2s infinite alternate;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .genie-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 0 0 15px var(--glow-secondary);
+            opacity: 0;
+            animation: genie-glow 3s infinite ease-in-out;
+        }
+
+        .genie-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(255, 59, 59, 0.8);
+        }
+
+        @keyframes pulse-genie {
+            0% { transform: scale(1); box-shadow: var(--genie-shadow); }
+            100% { transform: scale(1.05); box-shadow: 0 0 30px rgba(255, 140, 0, 0.8); }
+        }
+
+        @keyframes genie-glow {
+            0% { opacity: 0; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 0; transform: scale(0.8); }
+        }
+
+        .genie-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+        }
+
+        .genie-menu.open {
+            max-height: 300px; /* Adjust based on number of items */
+        }
+
+        .genie-menu-item {
+            background: var(--genie-item-bg);
+            color: var(--genie-text-color);
+            padding: 10px 15px;
+            border-radius: 30px;
+            cursor: pointer;
+            text-align: center;
+            white-space: nowrap;
+            transition: background var(--transition-speed) ease, transform 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            animation: slideInRight 0.5s ease-out backwards; /* Each item animates in */
+        }
+
+        .genie-menu-item:hover {
+            background: var(--genie-item-hover);
+            transform: translateX(-5px) scale(1.02);
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .container {
@@ -488,11 +611,36 @@
             .form-group select {
                 width: calc(100% - 20px); /* Adjust for smaller screens */
             }
+
+            .genie-menu-container {
+                bottom: 15px;
+                right: 15px;
+                align-items: center;
+            }
+            .genie-button {
+                width: 50px;
+                height: 50px;
+                font-size: 25px;
+            }
+            .genie-menu {
+                width: 100%;
+                align-items: flex-end;
+            }
+            .genie-menu-item {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="particle-bg"></div> <section id="admin-panel-section">
+    <audio id="clickSound" src="https://www.soundjay.com/buttons/button-1.mp3" preload="auto"></audio>
+    <audio id="successSound" src="https://www.soundjay.com/misc/small-bell-ring-01.mp3" preload="auto"></audio>
+    <audio id="errorSound" src="https://www.soundjay.com/misc/fail-buzzer-02.mp3" preload="auto"></audio>
+
+    <div class="particle-bg"></div> 
+    
+    <section id="admin-panel-section">
         <div class="admin-header">
             <span>لوحة إدارة حكايتنا</span>
             <button id="logout-btn">تسجيل الخروج</button>
@@ -543,7 +691,7 @@
                     <div class="episodes-management">
                         <h4>إدارة الحلقات</h4>
                         <div id="episodes-list">
-                            </div>
+                        </div>
                         <div class="form-group">
                             <label for="new-episode-title">عنوان الحلقة الجديدة:</label>
                             <input type="text" id="new-episode-title" placeholder="مثال: الحلقة 1 الموسم الأول" required>
@@ -564,9 +712,21 @@
             <h2>جميع المسلسلات</h2>
             <div class="loading-spinner" id="series-loading-spinner"></div>
             <div id="series-list">
-                </div>
+            </div>
         </div>
     </section>
+
+    <div class="genie-menu-container">
+        <div class="genie-menu" id="genieMenu">
+            <div class="genie-menu-item" data-target="add-series-btn">إضافة مسلسل جديد</div>
+            <div class="genie-menu-item" data-target="edit-series-select">تعديل / حذف مسلسل</div>
+            <div class="genie-menu-item" data-target="series-list-section">عرض كل المسلسلات</div>
+            <div class="genie-menu-item" data-target="logout-btn">تسجيل الخروج</div>
+        </div>
+        <div class="genie-button" id="genieButton">
+            <span class="material-icons">✨</span>
+        </div>
+    </div>
 
     <script type="module">
         //<![CDATA[
@@ -620,6 +780,16 @@
 
         let currentSelectedSeriesId = null; // To store the key of the currently selected series for editing
 
+        // Sound Effects
+        const clickSound = document.getElementById('clickSound');
+        const successSound = document.getElementById('successSound');
+        const errorSound = document.getElementById('errorSound');
+
+        function playSound(sound) {
+            sound.currentTime = 0; // Rewind to the beginning
+            sound.play().catch(e => console.error("Error playing sound:", e));
+        }
+
         // Particle Background Generator
         function createParticles() {
             const particleBg = document.querySelector('.particle-bg');
@@ -652,6 +822,13 @@
         }
         createParticles();
 
+        // Page Entrance Animation
+        window.addEventListener('load', () => {
+            document.body.classList.add('loaded');
+            // Play a subtle entrance sound if desired
+            // playSound(successSound); 
+        });
+
 
         // Function to normalize Arabic titles for Firebase keys
         function normalizeTitleForFirebase(title) {
@@ -666,16 +843,19 @@
 
         // Logout functionality
         logoutBtn.addEventListener('click', async () => {
+            playSound(clickSound);
             if (confirm('هل أنت متأكد أنك تريد تسجيل الخروج؟')) {
                 try {
                     await signOut(auth);
                     alert('تم تسجيل الخروج بنجاح. لن تتمكن من تعديل البيانات بعد الآن.');
+                    playSound(successSound);
                     adminPanelSection.style.display = 'none';
                     // Redirect to login or home page if needed
                     // window.location.href = 'login.html'; 
                 } catch (error) {
                     console.error("Logout failed:", error);
                     alert('فشل تسجيل الخروج.');
+                    playSound(errorSound);
                 }
             }
         });
@@ -738,6 +918,7 @@
 
                 document.querySelectorAll('#series-list .edit-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
+                        playSound(clickSound);
                         const seriesId = e.target.getAttribute('data-series-id');
                         editSeriesSelect.value = seriesId;
                         editSeriesSelect.dispatchEvent(new Event('change'));
@@ -745,6 +926,7 @@
                 });
                 document.querySelectorAll('#series-list .delete-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
+                        playSound(clickSound);
                         const seriesId = e.target.getAttribute('data-series-id');
                         deleteSeries(seriesId);
                     });
@@ -753,6 +935,7 @@
             } catch (error) {
                 console.error("Error loading series:", error);
                 alert('فشل تحميل المسلسلات.');
+                playSound(errorSound);
             } finally {
                 seriesLoadingSpinner.style.display = 'none'; // Hide spinner
                 allSeriesDisplay.style.opacity = '1'; // Show content
@@ -761,18 +944,21 @@
 
         // Add new series
         addSeriesBtn.addEventListener('click', async () => {
+            playSound(clickSound);
             const title = newSeriesTitleInput.value.trim();
             const image = newSeriesImageInput.value.trim();
             const category = newSeriesCategoryInput.value.trim();
 
             if (!title || !image) {
                 alert('الرجاء إدخال عنوان المسلسل ورابط الصورة.');
+                playSound(errorSound);
                 return;
             }
 
             const safeTitle = normalizeTitleForFirebase(title);
             if (!safeTitle) {
                 alert('عنوان المسلسل غير صالح لإنشاء مفتاح.');
+                playSound(errorSound);
                 return;
             }
 
@@ -783,6 +969,7 @@
                 const existingSeriesSnapshot = await get(ref(db, `series/${safeTitle}`));
                 if (existingSeriesSnapshot.exists()) {
                     alert('مسلسل بهذا العنوان موجود بالفعل. الرجاء اختيار عنوان مختلف أو تعديل المسلسل الحالي.');
+                    playSound(errorSound);
                     addSeriesBtn.disabled = false;
                     addSeriesBtn.textContent = 'إضافة المسلسل';
                     return;
@@ -801,6 +988,7 @@
 
                 await set(ref(db, `series/${safeTitle}`), newSeriesData);
                 alert('تم إضافة المسلسل بنجاح!');
+                playSound(successSound);
                 newSeriesTitleInput.value = '';
                 newSeriesImageInput.value = '';
                 newSeriesCategoryInput.value = '';
@@ -808,6 +996,7 @@
             } catch (error) {
                 console.error("Error adding series:", error);
                 alert('فشل إضافة المسلسل. قد يكون هناك مشكلة في الاتصال أو الأذونات.');
+                playSound(errorSound);
             } finally {
                 addSeriesBtn.disabled = false;
                 addSeriesBtn.textContent = 'إضافة المسلسل';
@@ -816,6 +1005,7 @@
 
         // When a series is selected for editing
         editSeriesSelect.addEventListener('change', async () => {
+            playSound(clickSound);
             currentSelectedSeriesId = editSeriesSelect.value;
             episodesListDiv.innerHTML = ''; // Clear episode list
             editSeriesForm.style.display = 'none'; // Hide initially
@@ -833,11 +1023,13 @@
                         editSeriesForm.style.animation = 'fadeIn 0.6s ease-out forwards'; // Animate form in
                     } else {
                         alert('المسلسل المحدد غير موجود.');
+                        playSound(errorSound);
                         editSeriesForm.style.display = 'none';
                     }
                 } catch (error) {
                     console.error("Error loading series for edit:", error);
                     alert('فشل تحميل بيانات المسلسل للتعديل.');
+                    playSound(errorSound);
                 }
             } else {
                 editSeriesForm.style.display = 'none';
@@ -846,8 +1038,10 @@
 
         // Update an existing series
         updateSeriesBtn.addEventListener('click', async () => {
+            playSound(clickSound);
             if (!currentSelectedSeriesId) {
                 alert('الرجاء اختيار مسلسل للتعديل.');
+                playSound(errorSound);
                 return;
             }
 
@@ -857,6 +1051,7 @@
 
             if (!title || !image) {
                 alert('الرجاء إدخال عنوان المسلسل ورابط الصورة.');
+                playSound(errorSound);
                 return;
             }
 
@@ -871,12 +1066,14 @@
                     updatedAt: new Date().toISOString() // Update timestamp on series
                 });
                 alert('تم تحديث المسلسل بنجاح!');
+                playSound(successSound);
                 loadSeries();
                 editSeriesSelect.value = currentSelectedSeriesId; 
                 editSeriesSelect.dispatchEvent(new Event('change'));
             } catch (error) {
                 console.error("Error updating series:", error);
                 alert('فشل تحديث المسلسل.');
+                playSound(errorSound);
             } finally {
                 updateSeriesBtn.disabled = false;
                 updateSeriesBtn.textContent = 'تحديث المسلسل';
@@ -885,18 +1082,21 @@
 
         // Delete a series
         async function deleteSeries(seriesIdToDelete) {
+            playSound(clickSound);
             if (confirm('هل أنت متأكد أنك تريد حذف هذا المسلسل وجميع حلقاته؟ هذا الإجراء لا يمكن التراجع عنه!')) {
                 try {
                     deleteSeriesBtn.disabled = true;
                     deleteSeriesBtn.textContent = 'جاري الحذف...';
                     await remove(ref(db, `series/${seriesIdToDelete}`));
                     alert('تم حذف المسلسل بنجاح!');
+                    playSound(successSound);
                     editSeriesForm.style.display = 'none';
                     currentSelectedSeriesId = null;
                     loadSeries();
                 } catch (error) {
                     console.error("Error deleting series:", error);
                     alert('فشل حذف المسلسل.');
+                    playSound(errorSound);
                 } finally {
                     deleteSeriesBtn.disabled = false;
                     deleteSeriesBtn.textContent = 'حذف المسلسل';
@@ -954,8 +1154,10 @@
 
         // Add new episode to a series
         addEpisodeToSeriesBtn.addEventListener('click', async () => {
+            playSound(clickSound);
             if (!currentSelectedSeriesId) {
                 alert('الرجاء اختيار مسلسل لإضافة حلقة إليه.');
+                playSound(errorSound);
                 return;
             }
 
@@ -965,6 +1167,7 @@
 
             if (!title || !link) {
                 alert('الرجاء إدخال عنوان الحلقة ورابط الفيديو.');
+                playSound(errorSound);
                 return;
             }
 
@@ -987,6 +1190,7 @@
 
                 await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes, updatedAt: new Date().toISOString() }); // Update series timestamp too
                 alert('تم إضافة الحلقة بنجاح!');
+                playSound(successSound);
                 newEpisodeTitleInput.value = '';
                 newEpisodeLinkInput.value = '';
                 newEpisodeIsNewCheckbox.checked = false;
@@ -994,6 +1198,7 @@
             } catch (error) {
                 console.error("Error adding episode:", error);
                 alert('فشل إضافة الحلقة.');
+                playSound(errorSound);
             } finally {
                 addEpisodeToSeriesBtn.disabled = false;
                 addEpisodeToSeriesBtn.textContent = 'إضافة الحلقة';
@@ -1002,6 +1207,7 @@
 
         // Edit an existing episode
         async function editEpisode(event) {
+            playSound(clickSound);
             const index = parseInt(event.target.getAttribute('data-index'));
             
             try {
@@ -1016,6 +1222,7 @@
                 if (newTitle !== null && newLink !== null) {
                     if (newTitle.trim() === '' || newLink.trim() === '') {
                         alert('لا يمكن أن يكون العنوان أو الرابط فارغاً.');
+                        playSound(errorSound);
                         return;
                     }
                     episodes[index].title = newTitle.trim();
@@ -1024,16 +1231,19 @@
 
                     await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes, updatedAt: new Date().toISOString() });
                     alert('تم تحديث الحلقة بنجاح!');
+                    playSound(successSound);
                     loadEpisodes(episodes);
                 }
             } catch (error) {
                 console.error("Error updating episode:", error);
                 alert('فشل تحديث الحلقة.');
+                playSound(errorSound);
             }
         }
 
         // Delete an episode
         async function deleteEpisode(event) {
+            playSound(clickSound);
             const index = parseInt(event.target.getAttribute('data-index'));
             if (confirm('هل أنت متأكد أنك تريد حذف هذه الحلقة؟')) {
                 try {
@@ -1045,16 +1255,19 @@
 
                     await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes, updatedAt: new Date().toISOString() });
                     alert('تم حذف الحلقة بنجاح!');
+                    playSound(successSound);
                     loadEpisodes(episodes);
                 } catch (error) {
                     console.error("Error deleting episode:", error);
                     alert('فشل حذف الحلقة.');
+                    playSound(errorSound);
                 }
             }
         }
 
         // Toggle "isNew" status for an episode
         async function toggleEpisodeNewStatus(event) {
+            playSound(clickSound);
             const index = parseInt(event.target.getAttribute('data-index'));
             try {
                 const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
@@ -1066,12 +1279,62 @@
 
                 await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes, updatedAt: new Date().toISOString() });
                 alert('تم تحديث حالة الحلقة بنجاح!');
+                playSound(successSound);
                 loadEpisodes(episodes);
             } catch (error) {
                 console.error("Error toggling new status:", error);
                 alert('فشل تحديث حالة الحلقة.');
+                playSound(errorSound);
             }
         }
+
+        // --- Genie Menu Functionality ---
+        const genieButton = document.getElementById('genieButton');
+        const genieMenu = document.getElementById('genieMenu');
+
+        genieButton.addEventListener('click', () => {
+            playSound(clickSound);
+            genieMenu.classList.toggle('open');
+            genieButton.querySelector('.material-icons').textContent = genieMenu.classList.contains('open') ? 'X' : '✨';
+        });
+
+        document.querySelectorAll('.genie-menu-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                playSound(clickSound);
+                const targetId = e.target.getAttribute('data-target');
+                let targetElement;
+
+                if (targetId === 'series-list-section') {
+                    // Scroll to the "All Series" heading
+                    targetElement = document.querySelector('h2');
+                } else {
+                    targetElement = document.getElementById(targetId);
+                }
+
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // If it's a select element, open it programmatically if possible (browser dependent)
+                    if (targetElement.tagName === 'SELECT') {
+                        targetElement.focus();
+                    }
+                }
+                genieMenu.classList.remove('open'); // Close menu after selection
+                genieButton.querySelector('.material-icons').textContent = '✨';
+            });
+        });
+
+        // Add event listeners for general button clicks to play sound
+        document.querySelectorAll('button').forEach(button => {
+            if (button.id !== 'genieButton') { // Exclude genie button itself as it has its own handler
+                button.addEventListener('click', () => playSound(clickSound));
+            }
+        });
+
+        // Add event listeners for select changes to play sound
+        document.querySelectorAll('select').forEach(select => {
+            select.addEventListener('change', () => playSound(clickSound));
+        });
+
         //]]>
     </script>
 </body>
