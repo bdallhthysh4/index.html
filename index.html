@@ -784,6 +784,17 @@
         .sidebar .form-group {
             margin-bottom: 20px;
         }
+        /* Style for balance display */
+        #current-balance-display {
+            display: block;
+            margin-top: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #4CAF50; /* Green for balance */
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
 
         /* Responsive adjustments */
         @media (max-width: 768px) {
@@ -896,6 +907,20 @@
                 <input type="url" id="admin-json-url" placeholder="الصق رابط ملف JSON هنا" required>
             </div>
             <button id="save-json-url-btn">حفظ الرابط</button>
+
+            <hr style="border-color: #333; margin: 30px 0;">
+
+            <h3>إدارة الرصيد والتليجرام</h3>
+            <div class="form-group">
+                <label for="current-balance">رصيدك الحالي:</label>
+                <span id="current-balance-display">0.00 ريال</span>
+            </div>
+            <div class="form-group">
+                <label for="telegram-channel-link">رابط قناة التليجرام:</label>
+                <input type="url" id="telegram-channel-link" placeholder="الصق رابط قناة التليجرام هنا" required>
+            </div>
+            <button id="save-telegram-link-btn">حفظ رابط التليجرام</button>
+            <button id="request-withdrawal-btn" style="background: #007bff; margin-top: 15px;">طلب سحب الرصيد</button>
         </div>
     </div>
 
@@ -985,7 +1010,7 @@
             <div class="genie-menu-item" data-target="edit-series-select">تعديل / حذف مسلسل</div>
             <div class="genie-menu-item" data-target="series-list-section">عرض كل المسلسلات</div>
             <div class="genie-menu-item" data-target="logout-btn">تسجيل الخروج</div>
-        </div>
+            <div class="genie-menu-item" data-target="admin-sidebar-options">خيارات المدير والرصيد</div> </div>
         <div class="genie-button" id="genieButton">
             <span class="material-icons">✨</span>
         </div>
@@ -1014,8 +1039,10 @@
         const auth = getAuth(app); 
         const db = getDatabase(app);
         const seriesRef = ref(db, 'series');
-        // Define a new Firebase ref for the JSON URL
-        const jsonUrlRef = ref(db, 'settings/usersJsonUrl'); // Path to store JSON URL
+        // Define new Firebase refs for JSON URL, Telegram Link, and User Balance
+        const jsonUrlRef = ref(db, 'settings/usersJsonUrl'); 
+        const telegramLinkRef = ref(db, 'settings/telegramChannelLink'); // New Firebase ref for Telegram Link
+        const userBalanceRef = ref(db, 'userBalance/currentBalance'); // New Firebase ref for User Balance
 
         // UI Elements - Login
         const loginScreen = document.getElementById('login-screen');
@@ -1029,6 +1056,12 @@
         const closeSidebarBtn = document.getElementById('close-sidebar-btn');
         const adminJsonUrlInput = document.getElementById('admin-json-url');
         const saveJsonUrlBtn = document.getElementById('save-json-url-btn');
+
+        // New UI Elements - Balance & Telegram
+        const currentBalanceDisplay = document.getElementById('current-balance-display');
+        const telegramChannelLinkInput = document.getElementById('telegram-channel-link');
+        const saveTelegramLinkBtn = document.getElementById('save-telegram-link-btn');
+        const requestWithdrawalBtn = document.getElementById('request-withdrawal-btn');
 
         // UI Elements - Admin Panel Header
         const adminPanelSection = document.getElementById('admin-panel-section');
@@ -1064,6 +1097,8 @@
         let currentSelectedSeriesId = null; 
         let currentLoggedInUser = null; // To store information of the logged-in user
         let currentUsersJsonUrl = ''; // To store the JSON URL fetched from Firebase
+        let currentTelegramLink = ''; // To store the Telegram link fetched from Firebase
+        let currentUserBalance = 0; // To store the current user balance
 
         // Offline password for admin options
         const OFFLINE_ADMIN_PASSWORD = 'eswaq123'; 
@@ -1110,7 +1145,7 @@
         }
         createParticles();
 
-        // --- Firebase JSON URL Management ---
+        // --- Firebase JSON URL, Telegram Link, and Balance Management ---
 
         // Load JSON URL from Firebase
         async function loadJsonUrlFromFirebase() {
@@ -1119,21 +1154,19 @@
                 const url = snapshot.val();
                 if (url) {
                     adminJsonUrlInput.value = url;
-                    currentUsersJsonUrl = url; // Store it for use in login
-                    console.log("JSON URL loaded from Firebase:", url);
+                    currentUsersJsonUrl = url;
                 } else {
-                    // Set a default URL if not found in Firebase (only once)
                     const defaultUrl = "https://raw.githubusercontent.com/bdallhthysh4/users/main/data.json";
                     await set(jsonUrlRef, defaultUrl);
                     adminJsonUrlInput.value = defaultUrl;
                     currentUsersJsonUrl = defaultUrl;
-                    console.log("JSON URL not found in Firebase, set to default:", defaultUrl);
                 }
+                console.log("JSON URL loaded/set from Firebase:", currentUsersJsonUrl);
             } catch (error) {
-                console.error("Error loading JSON URL from Firebase:", error);
+                console.error("Error loading/setting JSON URL from Firebase:", error);
                 alert('فشل جلب رابط JSON للمستخدمين من Firebase. الرجاء التحقق من اتصالك وأذونات Firebase.');
                 playSound(errorSound);
-                // Fallback to a hardcoded URL if Firebase fails, or handle as critical error
+                // Fallback to a hardcoded URL if Firebase fails
                 adminJsonUrlInput.value = "https://raw.githubusercontent.com/bdallhthysh4/users/main/data.json";
                 currentUsersJsonUrl = "https://raw.githubusercontent.com/bdallhthysh4/users/main/data.json";
             }
@@ -1146,10 +1179,10 @@
             if (newJsonUrl) {
                 try {
                     await set(jsonUrlRef, newJsonUrl);
-                    currentUsersJsonUrl = newJsonUrl; // Update the current URL
+                    currentUsersJsonUrl = newJsonUrl;
                     alert('تم حفظ رابط JSON للمستخدمين في Firebase بنجاح!');
                     playSound(successSound);
-                    adminSidebar.classList.remove('open'); // Close sidebar after saving
+                    adminSidebar.classList.remove('open');
                 } catch (error) {
                     console.error("Error saving JSON URL to Firebase:", error);
                     alert('فشل حفظ رابط JSON للمستخدمين في Firebase. الرجاء المحاولة مرة أخرى.');
@@ -1161,10 +1194,124 @@
             }
         });
 
+        // Load Telegram Link from Firebase
+        async function loadTelegramLinkFromFirebase() {
+            try {
+                const snapshot = await get(telegramLinkRef);
+                const link = snapshot.val();
+                if (link) {
+                    telegramChannelLinkInput.value = link;
+                    currentTelegramLink = link;
+                } else {
+                    // Set a default link if not found in Firebase (optional)
+                    // await set(telegramLinkRef, "https://t.me/yourchannel"); 
+                    // telegramChannelLinkInput.value = "https://t.me/yourchannel";
+                    // currentTelegramLink = "https://t.me/yourchannel";
+                    console.warn("Telegram channel link not found in Firebase.");
+                }
+                console.log("Telegram Link loaded from Firebase:", currentTelegramLink);
+            } catch (error) {
+                console.error("Error loading Telegram Link from Firebase:", error);
+                alert('فشل جلب رابط قناة التليجرام من Firebase. الرجاء التحقق من اتصالك وأذونات Firebase.');
+                playSound(errorSound);
+            }
+        }
+
+        // Save Telegram Link to Firebase
+        saveTelegramLinkBtn.addEventListener('click', async () => {
+            playSound(clickSound);
+            const newTelegramLink = telegramChannelLinkInput.value.trim();
+            if (newTelegramLink) {
+                try {
+                    await set(telegramLinkRef, newTelegramLink);
+                    currentTelegramLink = newTelegramLink;
+                    alert('تم حفظ رابط قناة التليجرام في Firebase بنجاح!');
+                    playSound(successSound);
+                    // No need to close sidebar here, user might want to adjust balance too
+                } catch (error) {
+                    console.error("Error saving Telegram Link to Firebase:", error);
+                    alert('فشل حفظ رابط قناة التليجرام في Firebase. الرجاء المحاولة مرة أخرى.');
+                    playSound(errorSound);
+                }
+            } else {
+                alert('الرجاء إدخال رابط قناة تليجرام صحيح.');
+                playSound(errorSound);
+            }
+        });
+
+        // Load User Balance from Firebase
+        async function loadUserBalanceFromFirebase() {
+            try {
+                const snapshot = await get(userBalanceRef);
+                const balance = snapshot.val();
+                if (typeof balance === 'number') {
+                    currentUserBalance = parseFloat(balance.toFixed(2)); // Ensure 2 decimal places
+                } else {
+                    currentUserBalance = 0.00; // Default to 0 if not found or invalid
+                    await set(userBalanceRef, currentUserBalance); // Initialize in Firebase
+                }
+                currentBalanceDisplay.textContent = `${currentUserBalance.toFixed(2)} ريال`;
+                console.log("User balance loaded:", currentUserBalance);
+            } catch (error) {
+                console.error("Error loading user balance from Firebase:", error);
+                currentUserBalance = 0.00; // Fallback
+                currentBalanceDisplay.textContent = `${currentUserBalance.toFixed(2)} ريال`;
+                alert('فشل جلب الرصيد من Firebase. الرجاء التحقق من اتصالك وأذونات Firebase.');
+                playSound(errorSound);
+            }
+        }
+
+        // Update User Balance in Firebase
+        async function updateUserBalance(amount) {
+            try {
+                // Fetch current balance to ensure we're adding to the latest value
+                const snapshot = await get(userBalanceRef);
+                let currentBalance = snapshot.val() || 0;
+                currentBalance = parseFloat(currentBalance.toFixed(2));
+
+                const newBalance = parseFloat((currentBalance + amount).toFixed(2));
+                await set(userBalanceRef, newBalance);
+                currentUserBalance = newBalance;
+                currentBalanceDisplay.textContent = `${currentUserBalance.toFixed(2)} ريال`;
+                console.log(`Balance updated by ${amount}. New balance: ${newBalance}`);
+                playSound(successSound); // Play success sound for balance update
+            } catch (error) {
+                console.error("Error updating user balance:", error);
+                alert('فشل تحديث الرصيد في Firebase.');
+                playSound(errorSound);
+            }
+        }
+
+        // Handle Request Withdrawal
+        requestWithdrawalBtn.addEventListener('click', () => {
+            playSound(clickSound);
+            if (currentUserBalance >= 20) {
+                if (currentTelegramLink) {
+                    const message = `طلب سحب رصيد:\nالرصيد الحالي: ${currentUserBalance.toFixed(2)} ريال\nاسم المدير: ${currentLoggedInUser ? currentLoggedInUser.name : 'غير معروف'}`;
+                    const telegramUrl = `${currentTelegramLink}?text=${encodeURIComponent(message)}`;
+                    
+                    if (confirm(`رصيدك ${currentUserBalance.toFixed(2)} ريال. هل أنت متأكد من أنك تريد طلب سحب الرصيد؟ سيتم فتح التليجرام برسالة جاهزة.`)) {
+                        window.open(telegramUrl, '_blank');
+                        alert('تم فتح التليجرام برسالة طلب السحب. الرجاء إرسالها للمدير.');
+                        playSound(successSound);
+                    }
+                } else {
+                    alert('لم يتم تحديد رابط قناة التليجرام بعد. الرجاء إضافته في خيارات المدير.');
+                    playSound(errorSound);
+                }
+            } else {
+                alert(`يجب أن يكون رصيدك 20 ريال أو أكثر لطلب السحب. رصيدك الحالي: ${currentUserBalance.toFixed(2)} ريال.`);
+                playSound(errorSound);
+            }
+        });
+
+
         // Page Entrance Animation and Initial Load
         window.addEventListener('load', async () => {
             document.body.classList.add('loaded');
             await loadJsonUrlFromFirebase(); // Load JSON URL when page loads
+            await loadTelegramLinkFromFirebase(); // Load Telegram Link
+            await loadUserBalanceFromFirebase(); // Load User Balance
         });
 
         // --- Authentication (with JSON users list) ---
@@ -1260,6 +1407,8 @@
                 adminSidebar.classList.add('open');
                 // Ensure the current JSON URL from Firebase is displayed in the input
                 adminJsonUrlInput.value = currentUsersJsonUrl; 
+                telegramChannelLinkInput.value = currentTelegramLink; // Display current Telegram link
+                loadUserBalanceFromFirebase(); // Refresh balance when opening sidebar
             } else if (adminPass !== null) { // User entered something but it was wrong
                 alert('كلمة سر المدير غير صحيحة.');
                 playSound(errorSound);
@@ -1351,7 +1500,8 @@
                     });
                 });
 
-            } catch (error) {
+            }
+            catch (error) {
                 console.error("Error loading series:", error);
                 alert('فشل تحميل المسلسلات.');
                 playSound(errorSound);
@@ -1606,9 +1756,13 @@
 
                 episodes.push(newEpisode);
 
-                await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes, updatedAt: new Date().toISOString() }); 
+                await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes, updatedAt: new Date().toISOString() });
                 alert('تم إضافة الحلقة بنجاح!');
                 playSound(successSound);
+
+                // Add 0.01 to balance for each new episode added
+                await updateUserBalance(0.01); 
+
                 newEpisodeTitleInput.value = '';
                 newEpisodeLinkInput.value = '';
                 newEpisodeIsNewCheckbox.checked = false;
@@ -1678,7 +1832,7 @@
                 } catch (error) {
                     console.error("Error deleting episode:", error);
                     alert('فشل حذف الحلقة.');
-                    playSound(errorSound);
+                    playSound(errorError);
                 }
             }
         }
@@ -1724,13 +1878,17 @@
 
                 if (targetId === 'series-list-section') {
                     targetElement = document.querySelector('h2');
-                } else {
+                } else if (targetId === 'admin-sidebar-options') { // New target for sidebar
+                    adminOptionsBtn.click(); // Simulate click on admin options button
+                    return; // Don't scroll to a non-existent element
+                }
+                else {
                     targetElement = document.getElementById(targetId);
                 }
 
                 if (targetElement) {
                     targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    if (targetElement.tagName === 'SELECT') {
+                    if (targetElement.tagName === 'SELECT' || targetElement.tagName === 'INPUT') {
                         targetElement.focus();
                     }
                 }
@@ -1741,7 +1899,8 @@
 
         // Add event listeners for general button clicks to play sound
         document.querySelectorAll('button').forEach(button => {
-            if (button.id !== 'genieButton' && button.id !== 'login-btn' && button.id !== 'logout-btn' && button.id !== 'admin-options-btn' && button.id !== 'save-json-url-btn') { 
+            // Exclude specific buttons if their click logic already plays sound or needs custom handling
+            if (!['genieButton', 'login-btn', 'logout-btn', 'admin-options-btn', 'save-json-url-btn', 'save-telegram-link-btn', 'request-withdrawal-btn'].includes(button.id)) { 
                 button.addEventListener('click', () => playSound(clickSound));
             }
         });
@@ -1750,7 +1909,6 @@
         document.querySelectorAll('select').forEach(select => {
             select.addEventListener('change', () => playSound(clickSound));
         });
-
         //]]>
     </script>
 </body>
