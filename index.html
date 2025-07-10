@@ -600,6 +600,8 @@
                     return 'كلمة المرور ضعيفة جداً، يجب أن تكون 6 أحرف على الأقل.';
                 case 'auth/network-request-failed':
                     return 'فشل الاتصال بالشبكة. الرجاء التحقق من اتصالك بالإنترنت.';
+                case 'auth/operation-not-allowed': // This is the error you were likely getting
+                    return 'هذه العملية غير مسموح بها. الرجاء التأكد من تمكين تسجيل الدخول بالبريد الإلكتروني/كلمة المرور في إعدادات Firebase.';
                 default:
                     return 'حدث خطأ غير معروف. الرجاء المحاولة مرة أخرى.';
             }
