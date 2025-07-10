@@ -893,7 +893,7 @@
             <h3>تغيير رابط JSON للمستخدمين</h3>
             <div class="form-group">
                 <label for="admin-json-url">رابط ملف JSON للمستخدمين:</label>
-                <input type="url" id="admin-json-url" value="https://raw.githubusercontent.com/bdallhthysh4/users/main/data.json" placeholder="الصق رابط ملف JSON هنا" required>
+                <input type="url" id="admin-json-url" placeholder="الصق رابط ملف JSON هنا" required>
             </div>
             <button id="save-json-url-btn">حفظ الرابط</button>
         </div>
@@ -1014,6 +1014,8 @@
         const auth = getAuth(app); 
         const db = getDatabase(app);
         const seriesRef = ref(db, 'series');
+        // Define a new Firebase ref for the JSON URL
+        const jsonUrlRef = ref(db, 'settings/usersJsonUrl'); // Path to store JSON URL
 
         // UI Elements - Login
         const loginScreen = document.getElementById('login-screen');
@@ -1061,10 +1063,10 @@
 
         let currentSelectedSeriesId = null; 
         let currentLoggedInUser = null; // To store information of the logged-in user
+        let currentUsersJsonUrl = ''; // To store the JSON URL fetched from Firebase
 
-        // Local Storage Key for JSON URL
-        const JSON_URL_STORAGE_KEY = 'adminJsonUrl';
-        const OFFLINE_ADMIN_PASSWORD = 'eswaq123'; // Offline password for admin options
+        // Offline password for admin options
+        const OFFLINE_ADMIN_PASSWORD = 'eswaq123'; 
 
         // Sound Effects
         const clickSound = document.getElementById('clickSound');
@@ -1108,14 +1110,61 @@
         }
         createParticles();
 
-        // Page Entrance Animation
-        window.addEventListener('load', () => {
-            document.body.classList.add('loaded');
-            // Load JSON URL from local storage on page load
-            const storedUrl = localStorage.getItem(JSON_URL_STORAGE_KEY);
-            if (storedUrl) {
-                adminJsonUrlInput.value = storedUrl;
+        // --- Firebase JSON URL Management ---
+
+        // Load JSON URL from Firebase
+        async function loadJsonUrlFromFirebase() {
+            try {
+                const snapshot = await get(jsonUrlRef);
+                const url = snapshot.val();
+                if (url) {
+                    adminJsonUrlInput.value = url;
+                    currentUsersJsonUrl = url; // Store it for use in login
+                    console.log("JSON URL loaded from Firebase:", url);
+                } else {
+                    // Set a default URL if not found in Firebase (only once)
+                    const defaultUrl = "https://raw.githubusercontent.com/bdallhthysh4/users/main/data.json";
+                    await set(jsonUrlRef, defaultUrl);
+                    adminJsonUrlInput.value = defaultUrl;
+                    currentUsersJsonUrl = defaultUrl;
+                    console.log("JSON URL not found in Firebase, set to default:", defaultUrl);
+                }
+            } catch (error) {
+                console.error("Error loading JSON URL from Firebase:", error);
+                alert('فشل جلب رابط JSON للمستخدمين من Firebase. الرجاء التحقق من اتصالك وأذونات Firebase.');
+                playSound(errorSound);
+                // Fallback to a hardcoded URL if Firebase fails, or handle as critical error
+                adminJsonUrlInput.value = "https://raw.githubusercontent.com/bdallhthysh4/users/main/data.json";
+                currentUsersJsonUrl = "https://raw.githubusercontent.com/bdallhthysh4/users/main/data.json";
             }
+        }
+
+        // Save JSON URL to Firebase
+        saveJsonUrlBtn.addEventListener('click', async () => {
+            playSound(clickSound);
+            const newJsonUrl = adminJsonUrlInput.value.trim();
+            if (newJsonUrl) {
+                try {
+                    await set(jsonUrlRef, newJsonUrl);
+                    currentUsersJsonUrl = newJsonUrl; // Update the current URL
+                    alert('تم حفظ رابط JSON للمستخدمين في Firebase بنجاح!');
+                    playSound(successSound);
+                    adminSidebar.classList.remove('open'); // Close sidebar after saving
+                } catch (error) {
+                    console.error("Error saving JSON URL to Firebase:", error);
+                    alert('فشل حفظ رابط JSON للمستخدمين في Firebase. الرجاء المحاولة مرة أخرى.');
+                    playSound(errorSound);
+                }
+            } else {
+                alert('الرجاء إدخال رابط JSON صحيح.');
+                playSound(errorSound);
+            }
+        });
+
+        // Page Entrance Animation and Initial Load
+        window.addEventListener('load', async () => {
+            document.body.classList.add('loaded');
+            await loadJsonUrlFromFirebase(); // Load JSON URL when page loads
         });
 
         // --- Authentication (with JSON users list) ---
@@ -1142,10 +1191,12 @@
             playSound(clickSound);
             const email = loginEmailInput.value.trim();
             const password = loginPasswordInput.value.trim();
-            const jsonUrl = adminJsonUrlInput.value.trim(); // Get URL from the admin settings input
+            
+            // Use the JSON URL fetched from Firebase
+            const jsonUrl = currentUsersJsonUrl; 
 
             if (!email || !password || !jsonUrl) {
-                alert('الرجاء إدخال البريد الإلكتروني وكلمة المرور ورابط ملف JSON (إذا لم يكن معدلاً).');
+                alert('الرجاء إدخال البريد الإلكتروني وكلمة المرور. تأكد من إعداد رابط JSON للمستخدمين أولاً.');
                 playSound(errorSound);
                 return;
             }
@@ -1207,6 +1258,8 @@
             const adminPass = prompt('أدخل كلمة سر المدير لفتح الخيارات:');
             if (adminPass === OFFLINE_ADMIN_PASSWORD) {
                 adminSidebar.classList.add('open');
+                // Ensure the current JSON URL from Firebase is displayed in the input
+                adminJsonUrlInput.value = currentUsersJsonUrl; 
             } else if (adminPass !== null) { // User entered something but it was wrong
                 alert('كلمة سر المدير غير صحيحة.');
                 playSound(errorSound);
@@ -1218,21 +1271,6 @@
         closeSidebarBtn.addEventListener('click', () => {
             playSound(clickSound);
             adminSidebar.classList.remove('open');
-        });
-
-        // Save JSON URL
-        saveJsonUrlBtn.addEventListener('click', () => {
-            playSound(clickSound);
-            const newJsonUrl = adminJsonUrlInput.value.trim();
-            if (newJsonUrl) {
-                localStorage.setItem(JSON_URL_STORAGE_KEY, newJsonUrl);
-                alert('تم حفظ رابط JSON للمستخدمين بنجاح!');
-                playSound(successSound);
-                adminSidebar.classList.remove('open'); // Close sidebar after saving
-            } else {
-                alert('الرجاء إدخال رابط JSON صحيح.');
-                playSound(errorSound);
-            }
         });
 
         // Function to normalize Arabic titles for Firebase keys
