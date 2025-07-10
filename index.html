@@ -23,14 +23,6 @@
             --glow-secondary: rgba(255, 105, 180, 0.7);
             --transition-speed: 0.4s;
 
-            /* Genie Menu Variables */
-            --genie-size: 55px;
-            --genie-bg: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            --genie-text-color: white;
-            --genie-shadow: 0 0 20px rgba(102, 51, 153, 0.6);
-            --genie-item-bg: #3a3a3a;
-            --genie-item-hover: var(--primary-color);
-
             /* Sidebar Variables */
             --sidebar-width: 280px;
             --sidebar-bg: #1a1a1a;
@@ -611,96 +603,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Genie Menu */
-        .genie-menu-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 10px;
-        }
-
-        .genie-button {
-            width: var(--genie-size);
-            height: var(--genie-size);
-            border-radius: 50%;
-            background: var(--genie-bg);
-            color: var(--genie-text-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 30px;
-            cursor: pointer;
-            box-shadow: var(--genie-shadow);
-            transition: all var(--transition-speed) ease;
-            animation: pulse-genie 2s infinite alternate;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .genie-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            box-shadow: 0 0 15px var(--glow-secondary);
-            opacity: 0;
-            animation: genie-glow 3s infinite ease-in-out;
-        }
-
-        .genie-button:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 30px rgba(102, 51, 153, 0.8);
-        }
-
-        @keyframes pulse-genie {
-            0% { transform: scale(1); box-shadow: var(--genie-shadow); }
-            100% { transform: scale(1.05); box-shadow: 0 0 30px rgba(255, 105, 180, 0.8); }
-        }
-
-        @keyframes genie-glow {
-            0% { opacity: 0; transform: scale(0.8); }
-            50% { opacity: 1; transform: scale(1.1); }
-            100% { opacity: 0; transform: scale(0.8); }
-        }
-
-        .genie-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.5s ease-out;
-        }
-
-        .genie-menu.open {
-            max-height: 300px;
-        }
-
-        .genie-menu-item {
-            background: var(--genie-item-bg);
-            color: var(--genie-text-color);
-            padding: 10px 15px;
-            border-radius: 30px;
-            cursor: pointer;
-            text-align: center;
-            white-space: nowrap;
-            transition: background var(--transition-speed) ease, transform 0.3s ease;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
-            animation: slideInRight 0.5s ease-out backwards;
-        }
-
-        .genie-menu-item:hover {
-            background: var(--genie-item-hover);
-            transform: translateX(-5px) scale(1.02);
-        }
-
         /* Login Screen Styles */
         .login-container {
             display: flex;
@@ -919,25 +821,6 @@
                 width: calc(100% - 20px);
             }
 
-            .genie-menu-container {
-                bottom: 15px;
-                right: 15px;
-                align-items: center;
-            }
-            .genie-button {
-                width: 50px;
-                height: 50px;
-                font-size: 25px;
-            }
-            .genie-menu {
-                width: 100%;
-                align-items: flex-end;
-            }
-            .genie-menu-item {
-                padding: 8px 12px;
-                font-size: 14px;
-            }
-
             .login-box {
                 padding: 30px 20px;
             }
@@ -983,6 +866,31 @@
                 <label for="remember-me">تذكرني</label>
             </div>
             <button id="login-btn">تسجيل الدخول</button>
+        </div>
+    </div>
+
+    <div id="admin-sidebar" class="sidebar">
+        <div class="sidebar-header">
+            خيارات المدير
+            <a href="javascript:void(0)" class="close-btn" id="close-sidebar-btn">&times;</a>
+        </div>
+        <div class="sidebar-content">
+            <div class="form-section" style="animation: none; margin-bottom: 20px;"> 
+                <h3>إدارة الرصيد والسحب</h3>
+                <div class="form-group">
+                    <label for="current-balance">رصيد حسابك (المدير):</label>
+                    <span id="current-balance-display">0.00 ريال</span>
+                </div>
+                <button id="request-withdrawal-btn" style="background: #007bff; margin-top: 15px;">طلب سحب الرصيد (عند 20 ريال)</button>
+            </div>
+             <div class="form-section" style="animation: none; "> 
+                <h3>تغيير رابط JSON للمستخدمين</h3>
+                <div class="form-group">
+                    <label for="admin-json-url">رابط ملف JSON للمستخدمين:</label>
+                    <input type="url" id="admin-json-url" placeholder="مثال: https://example.com/users.json">
+                </div>
+                <button id="save-json-url-btn" style="background: #28a745;">حفظ رابط JSON</button>
+            </div>
         </div>
     </div>
 
@@ -1074,19 +982,6 @@
             </div>
         </div>
     </section>
-
-    <div class="genie-menu-container">
-        <div class="genie-menu" id="genieMenu">
-            <div class="genie-menu-item" data-target="new-series-title">إضافة مسلسل جديد</div>
-            <div class="genie-menu-item" data-target="edit-series-select">تعديل / حذف مسلسل</div>
-            <div class="genie-menu-item" data-target="series-list-section">عرض كل المسلسلات</div>
-            <div class="genie-menu-item" data-target="logout-btn">تسجيل الخروج</div>
-            <div class="genie-menu-item" data-target="open-admin-sidebar-main-btn">خيارات المدير والرصيد</div>
-        </div>
-        <div class="genie-button" id="genieButton">
-            <span class="material-icons">✨</span>
-        </div>
-    </div>
 
     <script type="module">
         //<![CDATA[
@@ -1907,59 +1802,13 @@
             } catch (error) {
                 console.error("Error toggling new status:", error);
                 alert('فشل تحديث حالة الحلقة.');
-                playSound(errorSound);
+                playSound(errorError);
             }
         }
-
-        // --- Genie Menu Functionality ---
-        const genieButton = document.getElementById('genieButton');
-        const genieMenu = document.getElementById('genieMenu');
-
-        genieButton.addEventListener('click', () => {
-            playSound(clickSound);
-            genieMenu.classList.toggle('open');
-            genieButton.querySelector('.material-icons').textContent = genieMenu.classList.contains('open') ? 'close' : '✨';
-        });
-
-        document.querySelectorAll('.genie-menu-item').forEach(item => {
-            item.addEventListener('click', (e) => {
-                playSound(clickSound);
-                const targetId = e.target.getAttribute('data-target');
-                let targetElement;
-
-                if (targetId === 'series-list-section') {
-                    targetElement = document.querySelector('h2');
-                } else if (targetId === 'open-admin-sidebar-main-btn') { 
-                    openAdminSidebar(); 
-                    genieMenu.classList.remove('open'); 
-                    genieButton.querySelector('.material-icons').textContent = '✨';
-                    return; 
-                } else if (targetId === 'logout-btn') {
-                    logoutBtn.click();
-                    genieMenu.classList.remove('open'); 
-                    genieButton.querySelector('.material-icons').textContent = '✨';
-                    return;
-                } else if (targetId === 'new-series-title') {
-                    targetElement = document.getElementById(targetId);
-                }
-                else {
-                    targetElement = document.getElementById(targetId);
-                }
-
-                if (targetElement) {
-                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    if (targetElement.tagName === 'SELECT' || targetElement.tagName === 'INPUT') {
-                        targetElement.focus();
-                    }
-                }
-                genieMenu.classList.remove('open'); 
-                genieButton.querySelector('.material-icons').textContent = '✨';
-            });
-        });
-
+        
         // Add event listeners for general button clicks to play sound
         document.querySelectorAll('button').forEach(button => {
-            if (!['genieButton', 'login-btn', 'logout-btn', 'admin-options-btn-login', 'open-admin-sidebar-main-btn', 'save-json-url-btn', 'request-withdrawal-btn', 'add-new-series-hero-btn'].includes(button.id)) { 
+            if (!['login-btn', 'logout-btn', 'admin-options-btn-login', 'open-admin-sidebar-main-btn', 'save-json-url-btn', 'request-withdrawal-btn', 'add-new-series-hero-btn'].includes(button.id)) { 
                 button.addEventListener('click', () => playSound(clickSound));
             }
         });
