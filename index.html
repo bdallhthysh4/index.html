@@ -76,6 +76,20 @@
             background: #ff6a00;
             transform: scale(1.05);
         }
+        .admin-header .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 18px;
+        }
+        .admin-header .user-info span {
+            color: var(--text-light);
+        }
+        .admin-header .user-info strong {
+            color: var(--secondary-color);
+            font-size: 20px;
+        }
+
 
         /* Forms */
         .form-section {
@@ -105,6 +119,8 @@
         }
         .form-group input[type="text"],
         .form-group input[type="url"],
+        .form-group input[type="email"], /* Added for email input */
+        .form-group input[type="password"], /* Added for password input */
         .form-group select {
             width: calc(100% - 22px); /* Adjust for padding and border */
             padding: 10px;
@@ -162,7 +178,6 @@
             overflow: hidden;
             border: 1px solid var(--border-color);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            /* cursor: pointer; */ /* Removed as buttons handle interaction */
         }
         .series-item:hover {
             transform: translateY(-5px);
@@ -248,6 +263,67 @@
             background: #138496;
         }
 
+        /* Login & Register Specific Styles */
+        .auth-container {
+            max-width: 500px;
+            margin: 80px auto;
+            padding: 40px;
+            background: var(--dark-bg-secondary);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px var(--shadow-dark);
+            text-align: center;
+        }
+        .auth-container h2 {
+            margin-bottom: 30px;
+            color: var(--primary-color);
+        }
+        .auth-container .form-group input {
+            width: calc(100% - 22px);
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: #222;
+            color: var(--text-light);
+            font-size: 16px;
+        }
+        .auth-container button {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+        .auth-container button:hover {
+            background: #cc2a2a;
+            transform: translateY(-2px);
+        }
+        .auth-container p {
+            margin-top: 20px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        .auth-container p a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+        .auth-container p a:hover {
+            color: #ff6a00;
+        }
+        .auth-message {
+            color: var(--primary-color);
+            margin-top: 15px;
+            font-weight: bold;
+            display: none; /* Hidden by default */
+        }
+
+
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .container {
@@ -265,12 +341,37 @@
             #series-list {
                 grid-template-columns: 1fr;
             }
+            .auth-container {
+                margin: 40px auto;
+                padding: 25px;
+            }
         }
     </style>
 </head>
 <body>
-    <section id="admin-panel-section">
+    <section id="auth-section" class="auth-container">
+        <h2 id="auth-title">تسجيل الدخول</h2>
+        <div class="form-group">
+            <label for="auth-email">البريد الإلكتروني:</label>
+            <input type="email" id="auth-email" placeholder="example@example.com" required>
+        </div>
+        <div class="form-group">
+            <label for="auth-password">كلمة المرور:</label>
+            <input type="password" id="auth-password" placeholder="********" required>
+        </div>
+        <button id="auth-submit-btn">تسجيل الدخول</button>
+        <p id="toggle-auth-mode">
+            ليس لديك حساب؟ <a href="#" id="show-register-link">سجل الآن</a>
+        </p>
+        <p class="auth-message" id="auth-error-message"></p>
+    </section>
+
+    <section id="admin-panel-section" style="display: none;">
         <div class="admin-header">
+            <div class="user-info">
+                <span>مرحباً، <strong id="current-user-email"></strong></span>
+                <span>رصيدك: <strong id="user-balance">0.00</strong></span>
+            </div>
             <span>لوحة إدارة حكايتنا</span>
             <button id="logout-btn">تسجيل الخروج</button>
         </div>
@@ -320,7 +421,7 @@
                     <div class="episodes-management">
                         <h4>إدارة الحلقات</h4>
                         <div id="episodes-list">
-                            </div>
+                        </div>
                         <div class="form-group">
                             <label for="new-episode-title">عنوان الحلقة الجديدة:</label>
                             <input type="text" id="new-episode-title" placeholder="مثال: الحلقة 1 الموسم الأول" required>
@@ -340,15 +441,14 @@
 
             <h2>جميع المسلسلات</h2>
             <div id="series-list">
-                </div>
+            </div>
         </div>
     </section>
 
     <script type="module">
-        //<![CDATA[
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
-        import { getDatabase, ref, get, set, remove, update } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+        import { getDatabase, ref, get, set, remove, update, runTransaction } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
         // Firebase configuration (from your provided code)
         const firebaseConfig = {
@@ -367,10 +467,23 @@
         const auth = getAuth(app); 
         const db = getDatabase(app);
         const seriesRef = ref(db, 'series');
+        const usersRef = ref(db, 'users'); // New reference for user data
 
-        // UI Elements
+        // UI Elements - Authentication
+        const authSection = document.getElementById('auth-section');
+        const authTitle = document.getElementById('auth-title');
+        const authEmailInput = document.getElementById('auth-email');
+        const authPasswordInput = document.getElementById('auth-password');
+        const authSubmitBtn = document.getElementById('auth-submit-btn');
+        const toggleAuthModeLink = document.getElementById('toggle-auth-mode');
+        const showRegisterLink = document.getElementById('show-register-link');
+        const authErrorMessage = document.getElementById('auth-error-message');
+
+        // UI Elements - Admin Panel
         const adminPanelSection = document.getElementById('admin-panel-section');
         const logoutBtn = document.getElementById('logout-btn');
+        const currentUserEmailSpan = document.getElementById('current-user-email');
+        const userBalanceSpan = document.getElementById('user-balance');
 
         const newSeriesTitleInput = document.getElementById('new-series-title');
         const newSeriesImageInput = document.getElementById('new-series-image');
@@ -383,7 +496,7 @@
         const editSeriesImageInput = document.getElementById('edit-series-image');
         const editSeriesCategoryInput = document.getElementById('edit-series-category');
         const updateSeriesBtn = document.getElementById('update-series-btn');
-        const deleteSeriesBtn = document.getElementById('delete-series-btn'); // Corrected typo here
+        const deleteSeriesBtn = document.getElementById('delete-series-btn');
 
         const episodesListDiv = document.getElementById('episodes-list');
         const newEpisodeTitleInput = document.getElementById('new-episode-title');
@@ -394,44 +507,168 @@
         const allSeriesDisplay = document.getElementById('series-list');
 
         let currentSelectedSeriesId = null; // To store the key of the currently selected series for editing
+        let authMode = 'login'; // 'login' or 'register'
 
         // Function to normalize Arabic titles for Firebase keys
         function normalizeTitleForFirebase(title) {
-            // Remove common Arabic series prefixes (e.g., "مسلسل ", "مسلسلات ")
             let normalized = title.replace(/^(مسلسل|مسلسلات)\s*/, '');
-            // Replace non-alphanumeric/non-Arabic characters with underscores
             normalized = normalized.replace(/[^a-zA-Z0-9\u0600-\u06FF]+/g, '_');
-            // Replace multiple underscores with a single underscore
             normalized = normalized.replace(/_+/g, '_');
-            // Remove leading/trailing underscores
-            normalized = normalized.replace(/^_|_$/g, '');
-            // Trim whitespace and convert to lowercase for consistency
-            return normalized.trim();
+            return normalized.replace(/^_|_$/g, '').trim();
         }
 
-        // --- Authentication (simplified for direct admin panel access) ---
-        // Since there's no login page, we directly load the admin panel.
-        // onAuthStateChanged is no longer strictly necessary for initial display.
-        // However, getAuth and signOut are still useful if you want to allow users
-        // to explicitly log out from previous sessions or handle authentication states.
+        // --- Authentication ---
 
-        // Load series directly when the page loads
-        window.addEventListener('load', loadSeries);
+        // Toggle between login and registration forms
+        toggleAuthModeLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            authErrorMessage.style.display = 'none'; // Hide any previous error messages
+            if (authMode === 'login') {
+                authMode = 'register';
+                authTitle.textContent = 'إنشاء حساب جديد';
+                authSubmitBtn.textContent = 'إنشاء حساب';
+                toggleAuthModeLink.innerHTML = 'لديك حساب بالفعل؟ <a href="#" id="show-login-link">سجل الدخول</a>';
+                document.getElementById('show-login-link').addEventListener('click', (ev) => {
+                    ev.preventDefault();
+                    authErrorMessage.style.display = 'none';
+                    authMode = 'login';
+                    authTitle.textContent = 'تسجيل الدخول';
+                    authSubmitBtn.textContent = 'تسجيل الدخول';
+                    toggleAuthModeLink.innerHTML = 'ليس لديك حساب؟ <a href="#" id="show-register-link">سجل الآن</a>';
+                    // Re-attach listener for the new "show-register-link" if needed, though it's already done by the main listener
+                });
+            } else {
+                authMode = 'login';
+                authTitle.textContent = 'تسجيل الدخول';
+                authSubmitBtn.textContent = 'تسجيل الدخول';
+                toggleAuthModeLink.innerHTML = 'ليس لديك حساب؟ <a href="#" id="show-register-link">سجل الآن</a>';
+            }
+        });
+
+        // Handle login/registration submission
+        authSubmitBtn.addEventListener('click', async () => {
+            const email = authEmailInput.value.trim();
+            const password = authPasswordInput.value.trim();
+
+            if (!email || !password) {
+                displayAuthError('الرجاء إدخال البريد الإلكتروني وكلمة المرور.');
+                return;
+            }
+
+            authErrorMessage.style.display = 'none'; // Clear previous errors
+
+            if (authMode === 'login') {
+                try {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    // onAuthStateChanged will handle UI update
+                } catch (error) {
+                    displayAuthError(getAuthErrorMessage(error.code));
+                }
+            } else { // Register mode
+                try {
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    const userId = userCredential.user.uid;
+                    // Initialize user balance in Realtime Database
+                    await set(ref(db, `users/${userId}/balance`), 0);
+                    // onAuthStateChanged will handle UI update
+                } catch (error) {
+                    displayAuthError(getAuthErrorMessage(error.code));
+                }
+            }
+        });
+
+        // Display authentication error messages
+        function displayAuthError(message) {
+            authErrorMessage.textContent = message;
+            authErrorMessage.style.display = 'block';
+        }
+
+        // Map Firebase auth error codes to user-friendly messages
+        function getAuthErrorMessage(errorCode) {
+            switch (errorCode) {
+                case 'auth/invalid-email':
+                    return 'صيغة البريد الإلكتروني غير صحيحة.';
+                case 'auth/user-disabled':
+                    return 'تم تعطيل هذا الحساب.';
+                case 'auth/user-not-found':
+                    return 'لا يوجد مستخدم بهذا البريد الإلكتروني.';
+                case 'auth/wrong-password':
+                    return 'كلمة المرور غير صحيحة.';
+                case 'auth/email-already-in-use':
+                    return 'هذا البريد الإلكتروني مستخدم بالفعل.';
+                case 'auth/weak-password':
+                    return 'كلمة المرور ضعيفة جداً، يجب أن تكون 6 أحرف على الأقل.';
+                case 'auth/network-request-failed':
+                    return 'فشل الاتصال بالشبكة. الرجاء التحقق من اتصالك بالإنترنت.';
+                default:
+                    return 'حدث خطأ غير معروف. الرجاء المحاولة مرة أخرى.';
+            }
+        }
+
+        // Listen for authentication state changes
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // User is signed in, show admin panel
+                authSection.style.display = 'none';
+                adminPanelSection.style.display = 'flex';
+                currentUserEmailSpan.textContent = user.email;
+                await loadUserBalance(user.uid); // Load user's balance
+                loadSeries(); // Load series data
+            } else {
+                // User is signed out, show login/register form
+                authSection.style.display = 'block';
+                adminPanelSection.style.display = 'none';
+                authEmailInput.value = '';
+                authPasswordInput.value = '';
+                authErrorMessage.style.display = 'none';
+                authTitle.textContent = 'تسجيل الدخول';
+                authSubmitBtn.textContent = 'تسجيل الدخول';
+                toggleAuthModeLink.innerHTML = 'ليس لديك حساب؟ <a href="#" id="show-register-link">سجل الآن</a>';
+                authMode = 'login'; // Reset auth mode to login
+            }
+        });
 
         // Logout functionality
         logoutBtn.addEventListener('click', async () => {
             if (confirm('هل أنت متأكد أنك تريد تسجيل الخروج؟')) {
                 try {
-                    await signOut(auth); // Sign out any current user
-                    alert('تم تسجيل الخروج بنجاح. لن تتمكن من تعديل البيانات بعد الآن.');
-                    adminPanelSection.style.display = 'none'; // Hide the panel
-                    // You might redirect to a login page or display a message here
+                    await signOut(auth);
                 } catch (error) {
                     console.error("Logout failed:", error);
                     alert('فشل تسجيل الخروج.');
                 }
             }
         });
+
+        // --- User Balance Management ---
+        const EPISODE_CREDIT = 0.01;
+
+        async function loadUserBalance(userId) {
+            try {
+                const snapshot = await get(ref(db, `users/${userId}/balance`));
+                const balance = snapshot.val() || 0;
+                userBalanceSpan.textContent = balance.toFixed(2); // Display with 2 decimal places
+            } catch (error) {
+                console.error("Error loading user balance:", error);
+                userBalanceSpan.textContent = 'خطأ';
+            }
+        }
+
+        async function updateBalanceForEpisodeAddition(userId) {
+            const userBalanceRef = ref(db, `users/${userId}/balance`);
+            try {
+                await runTransaction(userBalanceRef, (currentBalance) => {
+                    // If currentBalance is null (user not found or balance not set), initialize to 0
+                    const newBalance = (currentBalance || 0) + EPISODE_CREDIT;
+                    return parseFloat(newBalance.toFixed(2)); // Ensure proper floating point math and precision
+                });
+                // After successful transaction, reload balance for display
+                await loadUserBalance(userId);
+            } catch (error) {
+                console.error("Error updating user balance:", error);
+                alert('فشل تحديث رصيد المستخدم بعد إضافة الحلقة.');
+            }
+        }
 
         // --- Series Management ---
 
@@ -586,7 +823,6 @@
             }
 
             try {
-                // No need to normalize title if we are just updating existing fields of the currentSelectedSeriesId
                 await update(ref(db, `series/${currentSelectedSeriesId}`), {
                     title: title,
                     image: image,
@@ -692,6 +928,15 @@
 
                 await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
                 alert('تم إضافة الحلقة بنجاح!');
+                
+                // ** Credit System Integration **
+                const currentUser = auth.currentUser;
+                if (currentUser) {
+                    await updateBalanceForEpisodeAddition(currentUser.uid);
+                    alert(`تمت إضافة الحلقة بنجاح! وزيادة رصيدك بـ ${EPISODE_CREDIT.toFixed(2)}.`);
+                }
+                // End Credit System Integration
+
                 // Clear episode input fields
                 newEpisodeTitleInput.value = '';
                 newEpisodeLinkInput.value = '';
@@ -775,7 +1020,6 @@
                 alert('فشل تحديث حالة الحلقة.');
             }
         }
-        //]]>
     </script>
 </body>
 </html>
