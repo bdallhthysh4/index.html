@@ -211,6 +211,8 @@
         }
         .form-group input[type="text"],
         .form-group input[type="url"],
+        .form-group input[type="email"],
+        .form-group input[type="password"],
         .form-group select {
             width: calc(100% - 24px); /* Adjust for padding and border */
             padding: 12px;
@@ -224,6 +226,8 @@
         }
         .form-group input[type="text"]:focus,
         .form-group input[type="url"]:focus,
+        .form-group input[type="email"]:focus,
+        .form-group input[type="password"]:focus,
         .form-group select:focus {
             outline: none;
             border-color: var(--primary-color);
@@ -279,12 +283,26 @@
         .form-group button.edit-btn:hover {
             background: #2980b9;
         }
-        .form-group button.add-episode-btn {
+        .form-group button.add-episode-btn,
+        .form-group button.add-user-btn { /* Style for add user button */
             background: var(--success-color);
         }
-        .form-group button.add-episode-btn:hover {
+        .form-group button.add-episode-btn:hover,
+        .form-group button.add-user-btn:hover { /* Style for add user button */
             background: #229954;
         }
+        .form-group button.login-btn {
+            background: var(--primary-color);
+            color: white;
+            width: 100%;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .form-group button.login-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
 
         /* Series List */
         #series-list {
@@ -478,6 +496,91 @@
             color: var(--success-color);
         }
 
+        /* Login Page Styles */
+        #login-page-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: var(--gradient-main);
+            position: relative;
+            z-index: 2; /* Ensure it's above potential body pseudo-elements */
+        }
+        #login-page-section .login-container {
+            background: var(--dark-bg-secondary);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px var(--shadow-dark);
+            width: 400px;
+            max-width: 90%;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+        #login-page-section .login-container::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, var(--primary-color) 0%, transparent 70%);
+            opacity: 0.08;
+            filter: blur(40px);
+            z-index: 0;
+        }
+        #login-page-section .login-container::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            right: -20px;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, var(--secondary-color) 0%, transparent 70%);
+            opacity: 0.08;
+            filter: blur(40px);
+            z-index: 0;
+        }
+        #login-page-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            position: relative;
+            z-index: 1;
+        }
+        #login-page-section .form-group {
+            margin-bottom: 25px;
+            text-align: right; /* Align labels to the right */
+        }
+        #login-page-section .form-group input {
+            width: calc(100% - 24px);
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 18px;
+        }
+        #login-page-section .form-group label {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+        #login-page-section .remember-me-group {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        #login-page-section .remember-me-group label {
+            margin-bottom: 0;
+            font-size: 16px;
+        }
+        #login-page-section .remember-me-group input[type="checkbox"] {
+            width: auto;
+            transform: scale(1.2);
+            accent-color: var(--secondary-color);
+            cursor: pointer;
+        }
+
         /* Responsive adjustments */
         @media (max-width: 992px) {
             .container {
@@ -529,6 +632,19 @@
             .episode-item-actions button {
                 font-size: 12px;
                 padding: 7px 10px;
+            }
+            #login-page-section .login-container {
+                padding: 30px;
+            }
+            #login-page-section h2 {
+                font-size: 2em;
+            }
+            #login-page-section .form-group input {
+                padding: 12px;
+                font-size: 16px;
+            }
+            #login-page-section .form-group label {
+                font-size: 16px;
             }
         }
 
@@ -600,7 +716,31 @@
     </style>
 </head>
 <body>
-    <section id="admin-panel-section">
+    <section id="login-page-section" style="display: none;">
+        <div class="login-container">
+            <h2><i class="fas fa-lock"></i> تسجيل الدخول</h2>
+            <div class="form-group">
+                <label for="login-email">البريد الإلكتروني:</label>
+                <input type="email" id="login-email" placeholder="example@domain.com" required>
+            </div>
+            <div class="form-group">
+                <label for="login-password">كلمة المرور:</label>
+                <input type="password" id="login-password" placeholder="********" required>
+            </div>
+            <div class="form-group remember-me-group">
+                <input type="checkbox" id="remember-me">
+                <label for="remember-me">تذكرني</label>
+            </div>
+            <div class="form-group">
+                <button id="login-btn" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    تسجيل الدخول
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section id="admin-panel-section" style="display: none;">
         <div class="admin-header">
             <div class="logo">
                 <i class="fas fa-film"></i>
@@ -613,6 +753,28 @@
         </div>
 
         <div class="container">
+            <div class="form-section">
+                <h3><i class="fas fa-user-plus"></i> إضافة مستخدم جديد (للمدير فقط)</h3>
+                <div class="form-group">
+                    <label for="new-user-name">اسم المستخدم:</label>
+                    <input type="text" id="new-user-name" placeholder="مثال: محمد علي" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-user-email">بريد المستخدم الإلكتروني:</label>
+                    <input type="email" id="new-user-email" placeholder="مثال: user@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-user-password">كلمة مرور المستخدم (6 أحرف على الأقل):</label>
+                    <input type="password" id="new-user-password" placeholder="أدخل كلمة مرور قوية" required>
+                </div>
+                <div class="action-buttons">
+                    <button id="add-user-btn" class="add-user-btn">
+                        <i class="fas fa-user-plus"></i>
+                        إنشاء حساب مستخدم
+                    </button>
+                </div>
+            </div>
+
             <div class="form-section">
                 <h3><i class="fas fa-plus-circle"></i> إضافة مسلسل جديد</h3>
                 <div class="form-group">
@@ -704,7 +866,7 @@
     <script type="module">
         //<![CDATA[
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserSessionPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
         import { getDatabase, ref, get, set, remove, update } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
         // Firebase configuration (from your provided code)
@@ -724,10 +886,23 @@
         const auth = getAuth(app); 
         const db = getDatabase(app);
         const seriesRef = ref(db, 'series');
+        const usersRef = ref(db, 'users'); // Reference to store user data
 
-        // UI Elements
+        // UI Elements - Login Page
+        const loginPageSection = document.getElementById('login-page-section');
+        const loginEmailInput = document.getElementById('login-email');
+        const loginPasswordInput = document.getElementById('login-password');
+        const rememberMeCheckbox = document.getElementById('remember-me');
+        const loginBtn = document.getElementById('login-btn');
+
+        // UI Elements - Admin Panel
         const adminPanelSection = document.getElementById('admin-panel-section');
         const logoutBtn = document.getElementById('logout-btn');
+
+        const newUserNameInput = document.getElementById('new-user-name');
+        const newUserEmailInput = document.getElementById('new-user-email');
+        const newUserPasswordInput = document.getElementById('new-user-password');
+        const addUserBtn = document.getElementById('add-user-btn');
 
         const newSeriesTitleInput = document.getElementById('new-series-title');
         const newSeriesImageInput = document.getElementById('new-series-image');
@@ -740,7 +915,7 @@
         const editSeriesImageInput = document.getElementById('edit-series-image');
         const editSeriesCategoryInput = document.getElementById('edit-series-category');
         const updateSeriesBtn = document.getElementById('update-series-btn');
-        const deleteSeriesBtn = document.getElementById('delete-series-btn'); // Corrected typo here
+        const deleteSeriesBtn = document.getElementById('delete-series-btn');
 
         const episodesListDiv = document.getElementById('episodes-list');
         const newEpisodeTitleInput = document.getElementById('new-episode-title');
@@ -750,39 +925,79 @@
 
         const allSeriesDisplay = document.getElementById('series-list');
 
-        let currentSelectedSeriesId = null; // To store the key of the currently selected series for editing
+        let currentSelectedSeriesId = null; 
 
         // Function to normalize Arabic titles for Firebase keys
         function normalizeTitleForFirebase(title) {
-            // Remove common Arabic series prefixes (e.g., "مسلسل ", "مسلسلات ")
             let normalized = title.replace(/^(مسلسل|مسلسلات)\s*/, '');
-            // Replace non-alphanumeric/non-Arabic characters with underscores
             normalized = normalized.replace(/[^a-zA-Z0-9\u0600-\u06FF]+/g, '_');
-            // Replace multiple underscores with a single underscore
             normalized = normalized.replace(/_+/g, '_');
-            // Remove leading/trailing underscores
             normalized = normalized.replace(/^_|_$/g, '');
-            // Trim whitespace and convert to lowercase for consistency
             return normalized.trim();
         }
 
-        // --- Authentication (simplified for direct admin panel access) ---
-        // Since there's no login page, we directly load the admin panel.
-        // onAuthStateChanged is no longer strictly necessary for initial display.
-        // However, getAuth and signOut are still useful if you want to allow users
-        // to explicitly log out from previous sessions or handle authentication states.
+        // --- Authentication Logic ---
 
-        // Load series directly when the page loads
-        window.addEventListener('load', loadSeries);
+        // Check auth state on load
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in, show admin panel
+                loginPageSection.style.display = 'none';
+                adminPanelSection.style.display = 'flex';
+                loadSeries(); // Load series data
+            } else {
+                // No user is signed in, show login page
+                loginPageSection.style.display = 'flex';
+                adminPanelSection.style.display = 'none';
+            }
+        });
+
+        // Login button event listener
+        loginBtn.addEventListener('click', async () => {
+            const email = loginEmailInput.value;
+            const password = loginPasswordInput.value;
+            const rememberMe = rememberMeCheckbox.checked;
+
+            if (!email || !password) {
+                alert('الرجاء إدخال البريد الإلكتروني وكلمة المرور.');
+                return;
+            }
+
+            try {
+                // Set persistence based on "remember me" checkbox
+                await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
+                await signInWithEmailAndPassword(auth, email, password);
+                // The onAuthStateChanged listener will handle UI update
+            } catch (error) {
+                let errorMessage = 'فشل تسجيل الدخول. ';
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage += 'المستخدم غير موجود.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage += 'كلمة المرور غير صحيحة.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage += 'صيغة البريد الإلكتروني غير صحيحة.';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage += 'تم حظر هذا الحساب مؤقتًا بسبب محاولات تسجيل دخول فاشلة متعددة. الرجاء المحاولة لاحقًا.';
+                        break;
+                    default:
+                        errorMessage += 'خطأ غير معروف: ' + error.message;
+                }
+                alert(errorMessage);
+                console.error("Login error:", error);
+            }
+        });
 
         // Logout functionality
         logoutBtn.addEventListener('click', async () => {
             if (confirm('هل أنت متأكد أنك تريد تسجيل الخروج؟')) {
                 try {
-                    await signOut(auth); // Sign out any current user
-                    alert('تم تسجيل الخروج بنجاح. لن تتمكن من تعديل البيانات بعد الآن.');
-                    adminPanelSection.style.display = 'none'; // Hide the panel
-                    // You might redirect to a login page or display a message here
+                    await signOut(auth);
+                    alert('تم تسجيل الخروج بنجاح.');
+                    // onAuthStateChanged will handle displaying the login page
                 } catch (error) {
                     console.error("Logout failed:", error);
                     alert('فشل تسجيل الخروج.');
@@ -790,7 +1005,59 @@
             }
         });
 
-        // --- Series Management ---
+        // --- User Management (Admin Only) ---
+        addUserBtn.addEventListener('click', async () => {
+            const email = newUserEmailInput.value.trim();
+            const password = newUserPasswordInput.value.trim();
+            const name = newUserNameInput.value.trim();
+
+            if (!email || !password || !name) {
+                alert('الرجاء إدخال اسم المستخدم والبريد الإلكتروني وكلمة المرور.');
+                return;
+            }
+
+            if (password.length < 6) {
+                alert('يجب أن تكون كلمة المرور 6 أحرف على الأقل.');
+                return;
+            }
+
+            try {
+                // Create user in Firebase Authentication
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Save user data to Realtime Database
+                await set(ref(db, `users/${user.uid}`), {
+                    email: email,
+                    name: name,
+                    createdAt: new Date().toISOString()
+                });
+
+                alert(`تم إنشاء حساب للمستخدم ${name} بنجاح!`);
+                newUserNameInput.value = '';
+                newUserEmailInput.value = '';
+                newUserPasswordInput.value = '';
+            } catch (error) {
+                let errorMessage = 'فشل إنشاء حساب المستخدم. ';
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage += 'هذا البريد الإلكتروني مستخدم بالفعل.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage += 'صيغة البريد الإلكتروني غير صحيحة.';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage += 'كلمة المرور ضعيفة جدًا.';
+                        break;
+                    default:
+                        errorMessage += 'خطأ غير معروف: ' + error.message;
+                }
+                alert(errorMessage);
+                console.error("Add user error:", error);
+            }
+        });
+
+        // --- Series Management (Remains largely the same) ---
 
         // Load and display all series
         async function loadSeries() {
@@ -798,23 +1065,19 @@
                 const snapshot = await get(seriesRef);
                 const seriesData = snapshot.val() || {};
                 
-                // Clear existing lists
                 editSeriesSelect.innerHTML = '<option value="">-- اختر مسلسل --</option>';
                 allSeriesDisplay.innerHTML = '';
 
                 let hasSeries = false;
-                // Populate select list and display all series cards
                 for (const key in seriesData) {
                     hasSeries = true;
                     const series = seriesData[key];
                     
-                    // Add to dropdown for editing
                     const option = document.createElement('option');
                     option.value = key;
                     option.textContent = series.title;
                     editSeriesSelect.appendChild(option);
 
-                    // Display as a card in "All Series" section
                     const card = document.createElement('div');
                     card.className = 'series-item';
                     card.setAttribute('data-series-id', key);
@@ -838,12 +1101,11 @@
                 }
 
 
-                // Add event listeners for edit and delete buttons on series cards
                 document.querySelectorAll('#series-list .edit-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const seriesId = e.target.getAttribute('data-series-id');
                         editSeriesSelect.value = seriesId;
-                        editSeriesSelect.dispatchEvent(new Event('change')); // Trigger change event
+                        editSeriesSelect.dispatchEvent(new Event('change'));
                     });
                 });
                 document.querySelectorAll('#series-list .delete-btn').forEach(btn => {
@@ -882,11 +1144,10 @@
                 category: category || 'عام',
                 views: 0,
                 likes: 0,
-                episodes: [] // Start with no episodes
+                episodes: [] 
             };
 
             try {
-                // Check if a series with this normalized title already exists
                 const existingSeriesSnapshot = await get(ref(db, `series/${safeTitle}`));
                 if (existingSeriesSnapshot.exists()) {
                     alert('مسلسل بهذا العنوان موجود بالفعل. الرجاء اختيار عنوان مختلف أو تعديل المسلسل الحالي.');
@@ -898,7 +1159,7 @@
                 newSeriesTitleInput.value = '';
                 newSeriesImageInput.value = '';
                 newSeriesCategoryInput.value = '';
-                loadSeries(); // Reload series to update lists
+                loadSeries();
             } catch (error) {
                 console.error("Error adding series:", error);
                 alert('فشل إضافة المسلسل. قد يكون هناك مشكلة في الاتصال أو الأذونات.');
@@ -908,7 +1169,7 @@
         // When a series is selected for editing
         editSeriesSelect.addEventListener('change', async () => {
             currentSelectedSeriesId = editSeriesSelect.value;
-            episodesListDiv.innerHTML = ''; // Clear episode list
+            episodesListDiv.innerHTML = ''; 
 
             if (currentSelectedSeriesId) {
                 editSeriesForm.style.display = 'block';
@@ -919,7 +1180,7 @@
                         editSeriesTitleInput.value = series.title;
                         editSeriesImageInput.value = series.image;
                         editSeriesCategoryInput.value = series.category || '';
-                        loadEpisodes(series.episodes || []); // Load episodes for the selected series
+                        loadEpisodes(series.episodes || []); 
                     } else {
                         alert('المسلسل المحدد غير موجود.');
                         editSeriesForm.style.display = 'none';
@@ -950,17 +1211,15 @@
             }
 
             try {
-                // No need to normalize title if we are just updating existing fields of the currentSelectedSeriesId
                 await update(ref(db, `series/${currentSelectedSeriesId}`), {
                     title: title,
                     image: image,
                     category: category || 'عام'
                 });
                 alert('تم تحديث المسلسل بنجاح!');
-                loadSeries(); // Reload series to update dropdown and cards
-                // Keep the same series selected in the dropdown
+                loadSeries(); 
                 editSeriesSelect.value = currentSelectedSeriesId; 
-                editSeriesSelect.dispatchEvent(new Event('change')); // Trigger change to refresh edit form
+                editSeriesSelect.dispatchEvent(new Event('change'));
             } catch (error) {
                 console.error("Error updating series:", error);
                 alert('فشل تحديث المسلسل.');
@@ -973,9 +1232,9 @@
                 try {
                     await remove(ref(db, `series/${seriesIdToDelete}`));
                     alert('تم حذف المسلسل بنجاح!');
-                    editSeriesForm.style.display = 'none'; // Hide edit form
-                    currentSelectedSeriesId = null; // Clear selected ID
-                    loadSeries(); // Reload series to update lists
+                    editSeriesForm.style.display = 'none'; 
+                    currentSelectedSeriesId = null; 
+                    loadSeries(); 
                 } catch (error) {
                     console.error("Error deleting series:", error);
                     alert('فشل حذف المسلسل.');
@@ -1043,24 +1302,23 @@
             try {
                 const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
                 const series = seriesSnapshot.val();
-                const episodes = series.episodes || []; // Ensure episodes is an array
+                const episodes = series.episodes || []; 
 
                 const newEpisode = {
                     title: title,
                     link: link,
                     isNew: isNew,
-                    updatedAt: new Date().toISOString() // Record current time
+                    updatedAt: new Date().toISOString() 
                 };
 
-                episodes.push(newEpisode); // Add new episode to the array
+                episodes.push(newEpisode); 
 
                 await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
                 alert('تم إضافة الحلقة بنجاح!');
-                // Clear episode input fields
                 newEpisodeTitleInput.value = '';
                 newEpisodeLinkInput.value = '';
                 newEpisodeIsNewCheckbox.checked = false;
-                loadEpisodes(episodes); // Reload episode list to show the new episode
+                loadEpisodes(episodes); 
             } catch (error) {
                 console.error("Error adding episode:", error);
                 alert('فشل إضافة الحلقة.');
@@ -1079,19 +1337,19 @@
             const newTitle = prompt('أدخل العنوان الجديد للحلقة:', episodeToEdit.title);
             const newLink = prompt('أدخل الرابط الجديد للحلقة:', episodeToEdit.link);
 
-            if (newTitle !== null && newLink !== null) { // If user didn't click Cancel
+            if (newTitle !== null && newLink !== null) { 
                 if (newTitle.trim() === '' || newLink.trim() === '') {
                     alert('لا يمكن أن يكون العنوان أو الرابط فارغاً.');
                     return;
                 }
                 episodes[index].title = newTitle.trim();
                 episodes[index].link = newLink.trim();
-                episodes[index].updatedAt = new Date().toISOString(); // Update modification time
+                episodes[index].updatedAt = new Date().toISOString(); 
 
                 try {
                     await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
                     alert('تم تحديث الحلقة بنجاح!');
-                    loadEpisodes(episodes); // Refresh episode list
+                    loadEpisodes(episodes); 
                 } catch (error) {
                     console.error("Error updating episode:", error);
                     alert('فشل تحديث الحلقة.');
@@ -1108,11 +1366,11 @@
                     const series = seriesSnapshot.val();
                     const episodes = series.episodes || [];
 
-                    episodes.splice(index, 1); // Remove the episode from the array
+                    episodes.splice(index, 1); 
 
                     await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
                     alert('تم حذف الحلقة بنجاح!');
-                    loadEpisodes(episodes); // Refresh episode list
+                    loadEpisodes(episodes); 
                 } catch (error) {
                     console.error("Error deleting episode:", error);
                     alert('فشل حذف الحلقة.');
@@ -1128,12 +1386,12 @@
                 const series = seriesSnapshot.val();
                 const episodes = series.episodes || [];
 
-                episodes[index].isNew = !episodes[index].isNew; // Toggle the status
-                episodes[index].updatedAt = new Date().toISOString(); // Update modification time
+                episodes[index].isNew = !episodes[index].isNew; 
+                episodes[index].updatedAt = new Date().toISOString(); 
 
                 await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
                 alert('تم تحديث حالة الحلقة بنجاح!');
-                loadEpisodes(episodes); // Refresh episode list to reflect change
+                loadEpisodes(episodes); 
             } catch (error) {
                 console.error("Error toggling new status:", error);
                 alert('فشل تحديث حالة الحلقة.');
