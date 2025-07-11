@@ -638,6 +638,10 @@
             <div class="form-section">
                 <h3><i class="fas fa-edit"></i> تعديل / حذف مسلسل</h3>
                 <div class="form-group">
+                    <label for="search-series-input">البحث عن مسلسل:</label>
+                    <input type="text" id="search-series-input" placeholder="ادخل اسم المسلسل للبحث..." >
+                </div>
+                <div class="form-group">
                     <label for="edit-series-select">اختر مسلسلاً للتعديل أو الحذف:</label>
                     <select id="edit-series-select">
                         <option value="">-- اختر مسلسل --</option>
@@ -734,13 +738,16 @@
         const newSeriesCategoryInput = document.getElementById('new-series-category');
         const addSeriesBtn = document.getElementById('add-series-btn');
 
+        // Search input
+        const searchSeriesInput = document.getElementById('search-series-input'); 
+
         const editSeriesSelect = document.getElementById('edit-series-select');
         const editSeriesForm = document.getElementById('edit-series-form');
         const editSeriesTitleInput = document.getElementById('edit-series-title');
         const editSeriesImageInput = document.getElementById('edit-series-image');
         const editSeriesCategoryInput = document.getElementById('edit-series-category');
         const updateSeriesBtn = document.getElementById('update-series-btn');
-        const deleteSeriesBtn = document.getElementById('delete-series-btn'); // Corrected typo here
+        const deleteSeriesBtn = document.getElementById('delete-series-btn');
 
         const episodesListDiv = document.getElementById('episodes-list');
         const newEpisodeTitleInput = document.getElementById('new-episode-title');
@@ -751,6 +758,7 @@
         const allSeriesDisplay = document.getElementById('series-list');
 
         let currentSelectedSeriesId = null; // To store the key of the currently selected series for editing
+        let allSeriesData = {}; // Store all series data to filter locally
 
         // Function to normalize Arabic titles for Firebase keys
         function normalizeTitleForFirebase(title) {
@@ -796,68 +804,97 @@
         async function loadSeries() {
             try {
                 const snapshot = await get(seriesRef);
-                const seriesData = snapshot.val() || {};
+                allSeriesData = snapshot.val() || {}; // Store all data
                 
-                // Clear existing lists
-                editSeriesSelect.innerHTML = '<option value="">-- اختر مسلسل --</option>';
-                allSeriesDisplay.innerHTML = '';
-
-                let hasSeries = false;
-                // Populate select list and display all series cards
-                for (const key in seriesData) {
-                    hasSeries = true;
-                    const series = seriesData[key];
-                    
-                    // Add to dropdown for editing
-                    const option = document.createElement('option');
-                    option.value = key;
-                    option.textContent = series.title;
-                    editSeriesSelect.appendChild(option);
-
-                    // Display as a card in "All Series" section
-                    const card = document.createElement('div');
-                    card.className = 'series-item';
-                    card.setAttribute('data-series-id', key);
-                    card.innerHTML = `
-                        <img src="${series.image || 'https://via.placeholder.com/200x280?text=No+Image'}" alt="${series.title}">
-                        <div class="series-item-info">
-                            <h4>${series.title}</h4>
-                            <p>التصنيف: ${series.category || 'غير محدد'}</p>
-                            <p>المشاهدات: ${series.views || 0} | اللايكات: ${series.likes || 0}</p>
-                        </div>
-                        <div class="series-item-actions">
-                            <button class="edit-btn" data-series-id="${key}"><i class="fas fa-edit"></i> تعديل</button>
-                            <button class="delete-btn" data-series-id="${key}"><i class="fas fa-trash-alt"></i> حذف</button>
-                        </div>
-                    `;
-                    allSeriesDisplay.appendChild(card);
-                }
-
-                if (!hasSeries) {
-                    allSeriesDisplay.innerHTML = '<p style="text-align:center;color:var(--text-muted); padding: 20px;">لا توجد مسلسلات لعرضها حاليًا. الرجاء إضافة مسلسل جديد.</p>';
-                }
-
-
-                // Add event listeners for edit and delete buttons on series cards
-                document.querySelectorAll('#series-list .edit-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const seriesId = e.target.getAttribute('data-series-id');
-                        editSeriesSelect.value = seriesId;
-                        editSeriesSelect.dispatchEvent(new Event('change')); // Trigger change event
-                    });
-                });
-                document.querySelectorAll('#series-list .delete-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const seriesId = e.target.getAttribute('data-series-id');
-                        deleteSeries(seriesId);
-                    });
-                });
-
+                populateSeriesSelect(allSeriesData); // Populate select with all data initially
+                displayAllSeriesCards(allSeriesData); // Display all series cards
+                
             } catch (error) {
                 console.error("Error loading series:", error);
                 alert('فشل تحميل المسلسلات.');
             }
         }
+
+        // Populate the series select dropdown
+        function populateSeriesSelect(seriesObj) {
+            editSeriesSelect.innerHTML = '<option value="">-- اختر مسلسل --</option>';
+            let hasSeries = false;
+            for (const key in seriesObj) {
+                hasSeries = true;
+                const series = seriesObj[key];
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = series.title;
+                editSeriesSelect.appendChild(option);
+            }
+            if (!hasSeries) {
+                editSeriesSelect.innerHTML = '<option value="">-- لا توجد مسلسلات --</option>';
+            }
+            // Reset selected value and hide form when list is repopulated
+            editSeriesSelect.value = "";
+            editSeriesForm.style.display = 'none';
+            currentSelectedSeriesId = null;
+        }
+
+        // Display series as cards
+        function displayAllSeriesCards(seriesObj) {
+            allSeriesDisplay.innerHTML = '';
+            let hasSeries = false;
+            for (const key in seriesObj) {
+                hasSeries = true;
+                const series = seriesObj[key];
+                
+                const card = document.createElement('div');
+                card.className = 'series-item';
+                card.setAttribute('data-series-id', key);
+                card.innerHTML = `
+                    <img src="${series.image || 'https://via.placeholder.com/200x280?text=No+Image'}" alt="${series.title}">
+                    <div class="series-item-info">
+                        <h4>${series.title}</h4>
+                        <p>التصنيف: ${series.category || 'غير محدد'}</p>
+                        <p>المشاهدات: ${series.views || 0} | اللايكات: ${series.likes || 0}</p>
+                    </div>
+                    <div class="series-item-actions">
+                        <button class="edit-btn" data-series-id="${key}"><i class="fas fa-edit"></i> تعديل</button>
+                        <button class="delete-btn" data-series-id="${key}"><i class="fas fa-trash-alt"></i> حذف</button>
+                    </div>
+                `;
+                allSeriesDisplay.appendChild(card);
+            }
+
+            if (!hasSeries) {
+                allSeriesDisplay.innerHTML = '<p style="text-align:center;color:var(--text-muted); padding: 20px;">لا توجد مسلسلات لعرضها حاليًا. الرجاء إضافة مسلسل جديد.</p>';
+            }
+
+            // Add event listeners for edit and delete buttons on series cards
+            document.querySelectorAll('#series-list .edit-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const seriesId = e.target.getAttribute('data-series-id');
+                    editSeriesSelect.value = seriesId;
+                    editSeriesSelect.dispatchEvent(new Event('change')); // Trigger change event
+                });
+            });
+            document.querySelectorAll('#series-list .delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const seriesId = e.target.getAttribute('data-series-id');
+                    deleteSeries(seriesId);
+                });
+            });
+        }
+
+        // Filter series based on search input
+        searchSeriesInput.addEventListener('input', () => {
+            const searchTerm = searchSeriesInput.value.toLowerCase().trim();
+            const filteredSeries = {};
+            for (const key in allSeriesData) {
+                const series = allSeriesData[key];
+                if (series.title.toLowerCase().includes(searchTerm)) {
+                    filteredSeries[key] = series;
+                }
+            }
+            populateSeriesSelect(filteredSeries); // Repopulate select with filtered data
+        });
+
 
         // Add new series
         addSeriesBtn.addEventListener('click', async () => {
@@ -960,7 +997,8 @@
                 loadSeries(); // Reload series to update dropdown and cards
                 // Keep the same series selected in the dropdown
                 editSeriesSelect.value = currentSelectedSeriesId; 
-                editSeriesSelect.dispatchEvent(new Event('change')); // Trigger change to refresh edit form
+                // No need to dispatch change event here, as loadSeries will repopulate and reset, then we re-select.
+                // The form will be correctly displayed if currentSelectedSeriesId is set.
             } catch (error) {
                 console.error("Error updating series:", error);
                 alert('فشل تحديث المسلسل.');
