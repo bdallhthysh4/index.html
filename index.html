@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         :root {
+            /* Colors */
             --primary-color: #e74c3c; /* Vibrant Red */
             --secondary-color: #f39c12; /* Amber Orange */
             --dark-bg-main: #1c1c20; /* Deep charcoal */
@@ -34,6 +35,8 @@
         body {
             font-family: 'Almarai', sans-serif;
             background: var(--gradient-main);
+            background-size: 400% 400%; /* For animated gradient */
+            animation: gradientShift 15s ease infinite; /* Animated background */
             color: var(--text-light);
             margin: 0;
             padding: 0;
@@ -43,6 +46,12 @@
             direction: rtl;
             line-height: 1.6;
             font-size: 16px;
+            overflow-x: hidden; /* Prevent horizontal scroll from slide-in */
+        }
+
+        /* Global Transitions */
+        * {
+            transition: all 0.3s ease-out; /* Smooth transitions for most elements */
         }
 
         /* Scrollbar Styling */
@@ -60,6 +69,68 @@
             background: var(--secondary-color);
         }
 
+        /* Keyframe Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes buttonPress {
+            0% { transform: scale(1); box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
+            50% { transform: scale(0.98); box-shadow: 0 2px 5px rgba(0,0,0,0.6); }
+            100% { transform: scale(1); box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 15px rgba(231, 76, 60, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(231, 76, 60, 0.7); }
+            100% { box-shadow: 0 0 15px rgba(231, 76, 60, 0.4); }
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes slideInFromLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInFromRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Elements with animations */
+        .animated {
+            animation: fadeIn 0.8s ease-out forwards;
+            opacity: 0; /* Start hidden */
+        }
+
+        .auth-container .auth-form-card,
+        .admin-panel-section .container {
+            animation: fadeIn 1s ease-out forwards;
+        }
+
+        .admin-header {
+            animation: slideInFromLeft 0.7s ease-out forwards;
+            transform: translateX(-50px);
+            opacity: 0;
+            animation-delay: 0.2s;
+        }
+
+        .form-section, #series-list {
+            animation: fadeIn 0.8s ease-out forwards;
+            opacity: 0;
+            margin-top: 40px; /* Add initial margin */
+        }
+        .form-section:nth-of-type(1) { animation-delay: 0.3s; }
+        .form-section:nth-of-type(2) { animation-delay: 0.5s; }
+        #series-list { animation-delay: 0.7s; }
+
+
         .container {
             max-width: 1300px;
             margin: 40px auto;
@@ -71,32 +142,33 @@
             border: 1px solid var(--border-color);
             position: relative;
             overflow: hidden;
+            z-index: 1;
+        }
+
+        .container::before, .container::after {
+            content: '';
+            position: absolute;
+            background: radial-gradient(circle, var(--primary-color) 0%, transparent 70%);
+            opacity: 0.07; /* Slightly more visible glow */
+            filter: blur(60px);
+            z-index: 0;
+            animation: pulseGlow 5s infinite alternate; /* Glow animation */
         }
 
         .container::before {
-            content: '';
-            position: absolute;
             top: -50px;
             left: -50px;
             width: 200px;
             height: 200px;
-            background: radial-gradient(circle, var(--primary-color) 0%, transparent 70%);
-            opacity: 0.05;
-            filter: blur(50px);
-            z-index: 0;
         }
 
         .container::after {
-            content: '';
-            position: absolute;
             bottom: -50px;
             right: -50px;
             width: 200px;
             height: 200px;
             background: radial-gradient(circle, var(--secondary-color) 0%, transparent 70%);
-            opacity: 0.05;
-            filter: blur(50px);
-            z-index: 0;
+            animation-delay: 1s; /* Stagger glow */
         }
 
         h1, h2, h3, h4 {
@@ -161,8 +233,8 @@
             transform: translateY(-3px) scale(1.02);
             box-shadow: 0 6px 15px rgba(0,0,0,0.6);
         }
-        .admin-header button i {
-            font-size: 1.1em;
+        .admin-header button:active {
+            animation: buttonPress 0.2s ease-out;
         }
 
         /* Forms */
@@ -234,7 +306,7 @@
         .form-group select:focus {
             outline: none;
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.3);
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.3), inset 0 0 8px rgba(231, 76, 60, 0.2);
         }
         .form-group select {
             -webkit-appearance: none;
@@ -273,6 +345,9 @@
             background: #c0392b; /* Darker red */
             transform: translateY(-3px);
             box-shadow: 0 6px 15px rgba(0,0,0,0.6);
+        }
+        .form-group button:active {
+            animation: buttonPress 0.2s ease-out;
         }
         .form-group button.delete-btn {
             background: var(--danger-color);
@@ -315,7 +390,12 @@
             display: flex;
             flex-direction: column;
             cursor: default; /* Change cursor back to default as buttons are interactive */
+            animation: fadeIn 0.6s ease-out forwards; /* Individual item animation */
+            opacity: 0;
         }
+        .series-item:nth-child(even) { animation-delay: 0.1s; } /* Stagger animation */
+        .series-item:nth-child(odd) { animation-delay: 0.2s; } /* Stagger animation */
+
         .series-item:hover {
             transform: translateY(-8px);
             box-shadow: 0 12px 30px var(--glow-primary);
@@ -422,10 +502,13 @@
             align-items: center;
             border: 1px solid #3d3d45;
             box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            transition: background 0.2s ease;
+            transition: background 0.2s ease, transform 0.2s ease;
+            animation: slideInFromRight 0.5s ease-out forwards; /* Slide in episodes */
+            opacity: 0;
         }
         .episode-item:hover {
             background: var(--hover-light);
+            transform: translateX(-5px);
         }
         .episode-item span {
             flex-grow: 1;
@@ -446,6 +529,9 @@
             border-radius: 7px;
             font-weight: 500;
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .episode-item-actions button:active {
+            animation: buttonPress 0.2s ease-out;
         }
         .episode-item-actions .toggle-new-btn {
             background: var(--info-color);
@@ -492,6 +578,8 @@
             align-items: center;
             min-height: 100vh;
             background: var(--gradient-main);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
             padding: 20px;
             box-sizing: border-box;
         }
@@ -509,29 +597,28 @@
             overflow: hidden;
             z-index: 1;
         }
-        .auth-form-card::before {
+        .auth-form-card::before, .auth-form-card::after {
             content: '';
             position: absolute;
-            top: -20px;
-            left: -20px;
-            width: 100px;
-            height: 100px;
             background: radial-gradient(circle, var(--login-btn-color) 0%, transparent 70%);
             opacity: 0.1;
             filter: blur(30px);
             z-index: -1;
+            animation: pulseGlow 4s infinite alternate;
+        }
+        .auth-form-card::before {
+            top: -20px;
+            left: -20px;
+            width: 100px;
+            height: 100px;
         }
         .auth-form-card::after {
-            content: '';
-            position: absolute;
             bottom: -20px;
             right: -20px;
             width: 100px;
             height: 100px;
             background: radial-gradient(circle, var(--register-btn-color) 0%, transparent 70%);
-            opacity: 0.1;
-            filter: blur(30px);
-            z-index: -1;
+            animation-delay: 0.5s;
         }
 
         .auth-form-card h2 {
@@ -563,7 +650,7 @@
         .auth-form-card input:focus {
             outline: none;
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.3);
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.3), inset 0 0 8px rgba(231, 76, 60, 0.2);
         }
         .auth-form-card button {
             width: 100%;
@@ -576,6 +663,9 @@
             transition: all 0.3s ease;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             margin-top: 15px;
+        }
+        .auth-form-card button:active {
+            animation: buttonPress 0.2s ease-out;
         }
         .auth-form-card button#login-btn {
             background: var(--login-btn-color);
@@ -615,11 +705,13 @@
             color: var(--danger-color);
             margin-top: 15px;
             font-weight: bold;
+            animation: fadeIn 0.5s ease-out;
         }
         .success-message {
             color: var(--success-color);
             margin-top: 15px;
             font-weight: bold;
+            animation: fadeIn 0.5s ease-out;
         }
 
         /* Responsive adjustments */
@@ -756,7 +848,7 @@
 <body>
 
     <div id="auth-page" class="auth-container">
-        <div class="auth-form-card">
+        <div class="auth-form-card animated">
             <h2 id="auth-title">تسجيل الدخول</h2>
             <div id="auth-messages" class="error-message"></div>
 
@@ -976,6 +1068,11 @@
             element.textContent = message;
             element.className = isError ? 'error-message' : 'success-message';
             element.style.display = 'block';
+            // Add animation class
+            element.classList.remove('fadeIn');
+            void element.offsetWidth; // Trigger reflow
+            element.classList.add('fadeIn');
+            
             setTimeout(() => {
                 element.style.display = 'none';
                 element.textContent = '';
@@ -992,6 +1089,11 @@
             switchToRegisterLink.style.display = 'none';
             switchToLoginLink.style.display = 'inline';
             authMessages.style.display = 'none'; // Clear messages on switch
+            // Animate form switch
+            const formCard = document.querySelector('.auth-form-card');
+            formCard.classList.remove('animated');
+            void formCard.offsetWidth; // Trigger reflow
+            formCard.classList.add('animated');
         });
 
         switchToLoginLink.addEventListener('click', (e) => {
@@ -1003,6 +1105,11 @@
             switchToRegisterLink.style.display = 'inline';
             switchToLoginLink.style.display = 'none';
             authMessages.style.display = 'none'; // Clear messages on switch
+            // Animate form switch
+            const formCard = document.querySelector('.auth-form-card');
+            formCard.classList.remove('animated');
+            void formCard.offsetWidth; // Trigger reflow
+            formCard.classList.add('animated');
         });
 
         // Register new user
@@ -1074,6 +1181,12 @@
                     // User is an admin, grant access
                     authPage.style.display = 'none';
                     adminPanelSection.style.display = 'flex';
+                    // Re-apply animations for admin panel elements
+                    document.querySelectorAll('.admin-header, .form-section, #series-list').forEach(el => {
+                        el.classList.remove('animated');
+                        void el.offsetWidth; // Trigger reflow
+                        el.classList.add('animated');
+                    });
                     loadSeries(); // Load admin panel data
                     displayMessage(authMessages, 'تم تسجيل الدخول بنجاح كمسؤول!', false);
                 } else {
@@ -1104,6 +1217,12 @@
                     if (userRole === 'admin') {
                         authPage.style.display = 'none';
                         adminPanelSection.style.display = 'flex';
+                        // Re-apply animations for admin panel elements on page load if already logged in
+                        document.querySelectorAll('.admin-header, .form-section, #series-list').forEach(el => {
+                            el.classList.remove('animated');
+                            void el.offsetWidth; // Trigger reflow
+                            el.classList.add('animated');
+                        });
                         loadSeries();
                     } else {
                         // Signed in but not an admin (e.g., role is 'pending' or missing)
@@ -1161,7 +1280,7 @@
                     editSeriesSelect.appendChild(option);
 
                     const card = document.createElement('div');
-                    card.className = 'series-item';
+                    card.className = 'series-item animated'; // Add animated class
                     card.setAttribute('data-series-id', key);
                     card.innerHTML = `
                         <img src="${series.image || 'https://via.placeholder.com/200x280?text=No+Image'}" alt="${series.title}">
@@ -1252,6 +1371,11 @@
 
             if (currentSelectedSeriesId) {
                 editSeriesForm.style.display = 'block';
+                // Animate the edit form
+                editSeriesForm.classList.remove('animated');
+                void editSeriesForm.offsetWidth; // Trigger reflow
+                editSeriesForm.classList.add('animated');
+
                 try {
                     const snapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
                     const series = snapshot.val();
@@ -1335,7 +1459,9 @@
 
             episodes.forEach((ep, index) => {
                 const episodeItem = document.createElement('div');
-                episodeItem.className = 'episode-item';
+                episodeItem.className = 'episode-item animated'; // Add animated class
+                // Stagger episode animations
+                episodeItem.style.animationDelay = `${0.1 * index}s`; 
                 episodeItem.innerHTML = `
                     <span>${ep.title}</span>
                     <div class="episode-item-actions">
