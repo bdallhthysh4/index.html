@@ -29,6 +29,7 @@
             --login-form-bg: #2c3e50; /* A bit distinct for login */
             --login-btn-color: #2ecc71; /* Green for login */
             --register-btn-color: #3498db; /* Blue for register */
+            --google-btn-color: #DB4437; /* Google Red */
         }
 
         /* Base Styles */
@@ -663,6 +664,10 @@
             transition: all 0.3s ease;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
         .auth-form-card button:active {
             animation: buttonPress 0.2s ease-out;
@@ -684,6 +689,21 @@
             background: #2980b9;
             transform: translateY(-3px);
             box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
+        .auth-form-card button#google-login-btn {
+            background: var(--google-btn-color);
+            color: white;
+            margin-top: 20px;
+            font-size: 1.1em;
+            padding: 12px;
+        }
+        .auth-form-card button#google-login-btn:hover {
+            background: #c7372c;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
+        .auth-form-card button#google-login-btn i {
+            font-size: 1.3em;
         }
 
         .toggle-auth-mode {
@@ -768,6 +788,10 @@
             }
             .auth-form-card {
                 padding: 30px;
+            }
+            .auth-form-card h2 {
+                font-size: 1.8em;
+                margin-bottom: 20px;
             }
         }
 
@@ -867,6 +891,11 @@
             
             <button id="login-btn">تسجيل الدخول</button>
             <button id="register-btn" style="display: none;">إنشاء حساب</button>
+
+            <button id="google-login-btn">
+                <i class="fab fa-google"></i>
+                تسجيل الدخول باستخدام Google
+            </button>
 
             <p class="toggle-auth-mode">
                 <span id="switch-to-register">ليس لديك حساب؟ <a href="#">إنشاء حساب جديد</a></span>
@@ -984,7 +1013,9 @@
             createUserWithEmailAndPassword, 
             signInWithEmailAndPassword, 
             signOut,
-            onAuthStateChanged 
+            onAuthStateChanged,
+            GoogleAuthProvider, // Import Google Auth Provider
+            signInWithPopup // Import signInWithPopup for Google
         } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
         import { 
             getDatabase, 
@@ -1013,6 +1044,7 @@
         const db = getDatabase(app);
         const seriesRef = ref(db, 'series');
         const usersRef = ref(db, 'users'); // Reference to store user roles/data
+        const googleProvider = new GoogleAuthProvider(); // Google Auth Provider
 
         // --- UI Elements ---
         const authPage = document.getElementById('auth-page');
@@ -1026,6 +1058,7 @@
         const authNameInput = document.getElementById('auth-name');
         const loginBtn = document.getElementById('login-btn');
         const registerBtn = document.getElementById('register-btn');
+        const googleLoginBtn = document.getElementById('google-login-btn'); // New Google button
         const authMessages = document.getElementById('auth-messages');
         const switchToRegisterLink = document.getElementById('switch-to-register');
         const switchToLoginLink = document.getElementById('switch-to-login');
@@ -1079,6 +1112,28 @@
             }, 5000); // Hide after 5 seconds
         }
 
+        // Function to handle user data saving to Realtime Database
+        async function saveUserData(user, name = null) {
+            const userRef = ref(db, `users/${user.uid}`);
+            const snapshot = await get(userRef);
+
+            if (!snapshot.exists()) {
+                // Only set if user data doesn't exist (new user or first login via Google)
+                await set(userRef, {
+                    email: user.email,
+                    name: name || user.displayName || 'مستخدم جديد', // Use provided name, Google display name, or default
+                    role: 'pending' // Default role for new users
+                });
+            } else {
+                // If user data exists, ensure basic fields are updated if Google provided them
+                // and preserve existing role
+                const existingData = snapshot.val();
+                if (user.displayName && !existingData.name) {
+                    await update(userRef, { name: user.displayName });
+                }
+            }
+        }
+
         // Toggle between Login and Register views
         switchToRegisterLink.addEventListener('click', (e) => {
             e.preventDefault();
@@ -1086,6 +1141,7 @@
             loginBtn.style.display = 'none';
             registerBtn.style.display = 'block';
             authNameGroup.style.display = 'block';
+            googleLoginBtn.style.display = 'none'; // Hide Google button on register form
             switchToRegisterLink.style.display = 'none';
             switchToLoginLink.style.display = 'inline';
             authMessages.style.display = 'none'; // Clear messages on switch
@@ -1102,6 +1158,7 @@
             loginBtn.style.display = 'block';
             registerBtn.style.display = 'none';
             authNameGroup.style.display = 'none';
+            googleLoginBtn.style.display = 'flex'; // Show Google button on login form
             switchToRegisterLink.style.display = 'inline';
             switchToLoginLink.style.display = 'none';
             authMessages.style.display = 'none'; // Clear messages on switch
@@ -1112,7 +1169,7 @@
             formCard.classList.add('animated');
         });
 
-        // Register new user
+        // Register new user (Email/Password)
         registerBtn.addEventListener('click', async () => {
             const email = authEmailInput.value.trim();
             const password = authPasswordInput.value.trim();
@@ -1131,17 +1188,11 @@
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                // Save user data (including optional name and default role) to Realtime Database
-                await set(ref(db, `users/${user.uid}`), {
-                    email: user.email,
-                    name: name || 'مستخدم جديد', // Use provided name or default
-                    role: 'pending' // IMPORTANT: Admin will need to change this to 'admin' manually
-                });
-
+                await saveUserData(user, name); // Save user data to DB
+                
                 displayMessage(authMessages, 'تم إنشاء الحساب بنجاح! الرجاء انتظار موافقة المسؤول.', false);
-                // Optionally sign out the user and switch to login view
-                await signOut(auth);
-                switchToLoginLink.click(); // Programmatically click to switch to login
+                await signOut(auth); // Sign out after registration
+                switchToLoginLink.click(); 
                 authEmailInput.value = '';
                 authPasswordInput.value = '';
                 authNameInput.value = '';
@@ -1159,7 +1210,7 @@
             }
         });
 
-        // Login existing user
+        // Login existing user (Email/Password)
         loginBtn.addEventListener('click', async () => {
             const email = authEmailInput.value.trim();
             const password = authPasswordInput.value.trim();
@@ -1173,27 +1224,8 @@
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
                 
-                // Check user role from Realtime Database
-                const userRoleSnapshot = await get(ref(db, `users/${user.uid}/role`));
-                const userRole = userRoleSnapshot.val();
+                await handleUserAccess(user); // Centralized access check and UI update
 
-                if (userRole === 'admin') {
-                    // User is an admin, grant access
-                    authPage.style.display = 'none';
-                    adminPanelSection.style.display = 'flex';
-                    // Re-apply animations for admin panel elements
-                    document.querySelectorAll('.admin-header, .form-section, #series-list').forEach(el => {
-                        el.classList.remove('animated');
-                        void el.offsetWidth; // Trigger reflow
-                        el.classList.add('animated');
-                    });
-                    loadSeries(); // Load admin panel data
-                    displayMessage(authMessages, 'تم تسجيل الدخول بنجاح كمسؤول!', false);
-                } else {
-                    // User is not an admin or role is pending
-                    await signOut(auth); // Sign out unauthorized user
-                    displayMessage(authMessages, 'غير مصرح لك بالوصول. الرجاء الاتصال بالمسؤول.', true);
-                }
             } catch (error) {
                 console.error("Login error:", error);
                 let errorMessage = 'فشل تسجيل الدخول.';
@@ -1206,40 +1238,61 @@
             }
         });
 
+        // Login with Google
+        googleLoginBtn.addEventListener('click', async () => {
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                const user = result.user;
+                
+                await saveUserData(user); // Save Google user data to DB if new
+                await handleUserAccess(user); // Centralized access check and UI update
+
+            } catch (error) {
+                console.error("Google Login error:", error);
+                let errorMessage = 'فشل تسجيل الدخول باستخدام Google.';
+                if (error.code === 'auth/popup-closed-by-user') {
+                    errorMessage = 'تم إغلاق نافذة تسجيل الدخول من Google.';
+                } else if (error.code === 'auth/cancelled-popup-request') {
+                    errorMessage = 'تم إلغاء طلب النافذة المنبثقة (ربما تم فتح نافذة أخرى).';
+                } else if (error.code === 'auth/operation-not-allowed') {
+                    errorMessage = 'لم يتم تمكين تسجيل الدخول باستخدام Google في إعدادات مشروعك في Firebase.';
+                }
+                displayMessage(authMessages, errorMessage);
+            }
+        });
+
+        // Centralized function to handle user access after any successful authentication
+        async function handleUserAccess(user) {
+            try {
+                const userRoleSnapshot = await get(ref(db, `users/${user.uid}/role`));
+                const userRole = userRoleSnapshot.val();
+
+                if (userRole === 'admin') {
+                    authPage.style.display = 'none';
+                    adminPanelSection.style.display = 'flex';
+                    document.querySelectorAll('.admin-header, .form-section, #series-list').forEach(el => {
+                        el.classList.remove('animated');
+                        void el.offsetWidth;
+                        el.classList.add('animated');
+                    });
+                    loadSeries();
+                    displayMessage(authMessages, 'تم تسجيل الدخول بنجاح كمسؤول!', false);
+                } else {
+                    await signOut(auth); // Sign out unauthorized user
+                    displayMessage(authMessages, 'غير مصرح لك بالوصول. الرجاء الاتصال بالمسؤول.', true);
+                }
+            } catch (error) {
+                console.error("Error checking user role:", error);
+                await signOut(auth); // Sign out if role check fails
+                displayMessage(authMessages, 'حدث خطأ أثناء التحقق من الأذونات.', true);
+            }
+        }
+
         // Listen for authentication state changes (useful for persistent login)
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                // User is signed in, check their role
-                try {
-                    const userRoleSnapshot = await get(ref(db, `users/${user.uid}/role`));
-                    const userRole = userRoleSnapshot.val();
-
-                    if (userRole === 'admin') {
-                        authPage.style.display = 'none';
-                        adminPanelSection.style.display = 'flex';
-                        // Re-apply animations for admin panel elements on page load if already logged in
-                        document.querySelectorAll('.admin-header, .form-section, #series-list').forEach(el => {
-                            el.classList.remove('animated');
-                            void el.offsetWidth; // Trigger reflow
-                            el.classList.add('animated');
-                        });
-                        loadSeries();
-                    } else {
-                        // Signed in but not an admin (e.g., role is 'pending' or missing)
-                        await signOut(auth); // Log them out immediately
-                        authPage.style.display = 'flex';
-                        adminPanelSection.style.display = 'none';
-                        displayMessage(authMessages, 'غير مصرح لك بالوصول. تم تسجيل الخروج.', true);
-                    }
-                } catch (error) {
-                    console.error("Error checking user role:", error);
-                    await signOut(auth); // Sign out if role check fails
-                    authPage.style.display = 'flex';
-                    adminPanelSection.style.display = 'none';
-                    displayMessage(authMessages, 'حدث خطأ أثناء التحقق من الأذونات.', true);
-                }
+                await handleUserAccess(user);
             } else {
-                // User is signed out
                 authPage.style.display = 'flex';
                 adminPanelSection.style.display = 'none';
             }
