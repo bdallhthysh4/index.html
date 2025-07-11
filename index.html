@@ -32,7 +32,7 @@
             direction: rtl;
         }
 
-       .container {
+        .container {
             max-width: 1200px;
             margin: 40px auto;
             padding: 20px;
@@ -50,7 +50,7 @@
         }
 
         /* Admin Panel Header */
-       .admin-header {
+        .admin-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -62,7 +62,7 @@
             font-size: 24px;
             font-weight: bold;
         }
-       .admin-header button {
+        .admin-header button {
             background: var(--secondary-color);
             color: white;
             border: none;
@@ -72,13 +72,13 @@
             font-size: 16px;
             transition: background 0.3s ease, transform 0.3s ease;
         }
-       .admin-header button:hover {
+        .admin-header button:hover {
             background: #ff6a00;
             transform: scale(1.05);
         }
 
         /* Forms */
-       .form-section {
+        .form-section {
             background: var(--card-bg);
             padding: 25px;
             border-radius: 12px;
@@ -86,7 +86,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
             border: 1px solid var(--border-color);
         }
-       .form-section h3 {
+        .form-section h3 {
             color: var(--secondary-color);
             margin-top: 0;
             margin-bottom: 20px;
@@ -94,18 +94,18 @@
             font-size: 22px;
             text-shadow: 0 0 8px rgba(255,140,0,0.5);
         }
-       .form-group {
+        .form-group {
             margin-bottom: 15px;
         }
-       .form-group label {
+        .form-group label {
             display: block;
             margin-bottom: 8px;
             color: var(--text-light);
             font-weight: bold;
         }
-       .form-group input[type="text"],
-       .form-group input[type="url"],
-       .form-group select {
+        .form-group input[type="text"],
+        .form-group input[type="url"],
+        .form-group select {
             width: calc(100% - 22px); /* Adjust for padding and border */
             padding: 10px;
             border: 1px solid var(--border-color);
@@ -114,7 +114,7 @@
             color: var(--text-light);
             font-size: 16px;
         }
-       .form-group button {
+        .form-group button {
             background: var(--primary-color);
             color: white;
             border: none;
@@ -125,26 +125,26 @@
             transition: all 0.3s ease;
             margin-top: 10px;
         }
-       .form-group button:hover {
+        .form-group button:hover {
             background: #cc2a2a;
             transform: translateY(-1px);
         }
-       .form-group button.delete-btn {
+        .form-group button.delete-btn {
             background: #dc3545;
         }
-       .form-group button.delete-btn:hover {
+        .form-group button.delete-btn:hover {
             background: #c82333;
         }
-       .form-group button.edit-btn {
+        .form-group button.edit-btn {
             background: #007bff;
         }
-       .form-group button.edit-btn:hover {
+        .form-group button.edit-btn:hover {
             background: #0056b3;
         }
-       .form-group button.add-episode-btn {
+        .form-group button.add-episode-btn {
             background: #28a745;
         }
-       .form-group button.add-episode-btn:hover {
+        .form-group button.add-episode-btn:hover {
             background: #218838;
         }
 
@@ -155,7 +155,7 @@
             gap: 25px;
             margin-top: 30px;
         }
-       .series-item {
+        .series-item {
             background: var(--card-bg);
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
@@ -164,38 +164,38 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             /* cursor: pointer; */ /* Removed as buttons handle interaction */
         }
-       .series-item:hover {
+        .series-item:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 25px var(--glow-primary);
         }
-       .series-item img {
+        .series-item img {
             width: 100%;
             height: 200px;
             object-fit: cover;
             display: block;
             border-bottom: 1px solid var(--border-color);
         }
-       .series-item-info {
+        .series-item-info {
             padding: 15px;
             text-align: center;
         }
-       .series-item-info h4 {
+        .series-item-info h4 {
             margin-top: 0;
             margin-bottom: 10px;
             color: var(--text-light);
             font-size: 18px;
         }
-       .series-item-info p {
+        .series-item-info p {
             color: var(--text-muted);
             font-size: 14px;
         }
-       .series-item-actions {
+        .series-item-actions {
             display: flex;
             justify-content: space-around;
             padding: 10px;
             border-top: 1px solid var(--border-color);
         }
-       .series-item-actions button {
+        .series-item-actions button {
             flex: 1;
             margin: 0 5px;
             padding: 8px 12px;
@@ -204,18 +204,18 @@
         }
 
         /* Episode List within Edit Form */
-       .episodes-management {
+        .episodes-management {
             margin-top: 20px;
             padding-top: 20px;
             border-top: 1px dashed var(--border-color);
         }
-       .episodes-management h4 {
+        .episodes-management h4 {
             color: var(--text-light);
             font-size: 18px;
             margin-bottom: 15px;
             text-align: center;
         }
-       .episode-item {
+        .episode-item {
             background: #2a2a2a;
             padding: 10px 15px;
             margin-bottom: 10px;
@@ -225,41 +225,41 @@
             align-items: center;
             border: 1px solid #333;
         }
-       .episode-item span {
+        .episode-item span {
             flex-grow: 1;
             font-size: 15px;
         }
-       .episode-item-actions {
+        .episode-item-actions {
             display: flex;
             gap: 8px;
         }
-       .episode-item-actions button {
+        .episode-item-actions button {
             padding: 6px 10px;
             font-size: 13px;
             border-radius: 5px;
         }
-       .episode-item-actions.toggle-new-btn {
+        .episode-item-actions .toggle-new-btn {
             background: #17a2b8; /* Cyan */
         }
-       .episode-item-actions.toggle-new-btn.active {
+        .episode-item-actions .toggle-new-btn.active {
             background: #28a745; /* Green */
         }
-       .episode-item-actions.toggle-new-btn:hover {
+        .episode-item-actions .toggle-new-btn:hover {
             background: #138496;
         }
 
         /* Responsive adjustments */
         @media (max-width: 768px) {
-           .container {
+            .container {
                 margin: 20px auto;
                 padding: 15px;
             }
-           .admin-header {
+            .admin-header {
                 flex-direction: column;
                 gap: 10px;
                 font-size: 20px;
             }
-           .admin-header button {
+            .admin-header button {
                 width: 100%;
             }
             #series-list {
@@ -291,25 +291,6 @@
                     <input type="text" id="new-series-category" placeholder="مثال: تاريخي، دراما، أكشن">
                 </div>
                 <button id="add-series-btn">إضافة المسلسل</button>
-            </div>
-
-            <div class="form-section">
-                <h3>سحب حلقات مسلسل من رابط خارجي</h3>
-                <p style="color: var(--text-muted); font-size: 14px;">
-                    **ملاحظة هامة:** هذه الميزة تجريبية وتتطلب خادم وسيط (backend) ووظيفة سحب بيانات مخصصة لكل موقع. قد لا تعمل على جميع المواقع أو قد تتطلب تحديثًا مستمرًا.
-                </p>
-                <div class="form-group">
-                    <label for="scrape-series-url">رابط صفحة المسلسل (الموقع الخارجي):</label>
-                    <input type="url" id="scrape-series-url" placeholder="مثال: https://jk.3ck.link/watch/episodes/serie-kuma-season-1-episode-14/" required>
-                </div>
-                <div class="form-group">
-                    <label for="scrape-target-series-select">المسلسل المستهدف في قاعدة بياناتك (لتخزين الحلقات فيه):</label>
-                    <select id="scrape-target-series-select">
-                        <option value="">-- اختر مسلسل --</option>
-                    </select>
-                </div>
-                <button id="scrape-episodes-btn" class="add-episode-btn">سحب وإضافة الحلقات</button>
-                <div id="scrape-status" style="margin-top: 15px; color: var(--text-light);"></div>
             </div>
 
             <div class="form-section">
@@ -364,7 +345,62 @@
     </section>
 
     <script type="module">
-        //<!+/g, '_');
+        //<![CDATA[
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+        import { getDatabase, ref, get, set, remove, update } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+
+        // Firebase configuration (from your provided code)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCEaxXR5eqzg0e5JvjWAFjZ5ZeMraMYREn",
+            authDomain: "mo-play-b0cb7.firebaseapp.com",
+            databaseURL: "https://mo-play-b0cb7-default-rtdb.firebaseio.com",
+            projectId: "mo-play-b0cb7",
+            storageBucket: "mo-play-b0cb7.firebasestorage.app",
+            messagingSenderId: "575424024738",
+            appId: "1:575424024738:web:0b1736c0c2e496adf607fb",
+            measurementId: "G-33QRGFTW30"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app); 
+        const db = getDatabase(app);
+        const seriesRef = ref(db, 'series');
+
+        // UI Elements
+        const adminPanelSection = document.getElementById('admin-panel-section');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        const newSeriesTitleInput = document.getElementById('new-series-title');
+        const newSeriesImageInput = document.getElementById('new-series-image');
+        const newSeriesCategoryInput = document.getElementById('new-series-category');
+        const addSeriesBtn = document.getElementById('add-series-btn');
+
+        const editSeriesSelect = document.getElementById('edit-series-select');
+        const editSeriesForm = document.getElementById('edit-series-form');
+        const editSeriesTitleInput = document.getElementById('edit-series-title');
+        const editSeriesImageInput = document.getElementById('edit-series-image');
+        const editSeriesCategoryInput = document.getElementById('edit-series-category');
+        const updateSeriesBtn = document.getElementById('update-series-btn');
+        const deleteSeriesBtn = document.getElementById('delete-series-btn'); // Corrected typo here
+
+        const episodesListDiv = document.getElementById('episodes-list');
+        const newEpisodeTitleInput = document.getElementById('new-episode-title');
+        const newEpisodeLinkInput = document.getElementById('new-episode-link');
+        const newEpisodeIsNewCheckbox = document.getElementById('new-episode-is-new');
+        const addEpisodeToSeriesBtn = document.getElementById('add-episode-to-series-btn');
+
+        const allSeriesDisplay = document.getElementById('series-list');
+
+        let currentSelectedSeriesId = null; // To store the key of the currently selected series for editing
+
+        // Function to normalize Arabic titles for Firebase keys
+        function normalizeTitleForFirebase(title) {
+            // Remove common Arabic series prefixes (e.g., "مسلسل ", "مسلسلات ")
+            let normalized = title.replace(/^(مسلسل|مسلسلات)\s*/, '');
+            // Replace non-alphanumeric/non-Arabic characters with underscores
+            normalized = normalized.replace(/[^a-zA-Z0-9\u0600-\u06FF]+/g, '_');
             // Replace multiple underscores with a single underscore
             normalized = normalized.replace(/_+/g, '_');
             // Remove leading/trailing underscores
@@ -403,13 +439,10 @@
         async function loadSeries() {
             try {
                 const snapshot = await get(seriesRef);
-                const seriesData = snapshot.val() |
-
-| {};
+                const seriesData = snapshot.val() || {};
                 
                 // Clear existing lists
                 editSeriesSelect.innerHTML = '<option value="">-- اختر مسلسل --</option>';
-                scrapeTargetSeriesSelect.innerHTML = '<option value="">-- اختر مسلسل --</option>'; // تحديث لقائمة السحب التلقائي
                 allSeriesDisplay.innerHTML = '';
 
                 // Populate select list and display all series cards
@@ -417,34 +450,21 @@
                     const series = seriesData[key];
                     
                     // Add to dropdown for editing
-                    const optionEdit = document.createElement('option');
-                    optionEdit.value = key;
-                    optionEdit.textContent = series.title;
-                    editSeriesSelect.appendChild(optionEdit);
-
-                    // Add to dropdown for scraping target
-                    const optionScrape = document.createElement('option');
-                    optionScrape.value = key;
-                    optionScrape.textContent = series.title;
-                    scrapeTargetSeriesSelect.appendChild(optionScrape);
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = series.title;
+                    editSeriesSelect.appendChild(option);
 
                     // Display as a card in "All Series" section
                     const card = document.createElement('div');
                     card.className = 'series-item';
                     card.setAttribute('data-series-id', key);
                     card.innerHTML = `
-                        <img src="${series.image |
-
-| 'https://via.placeholder.com/200x280?text=No+Image'}" alt="${series.title}">
+                        <img src="${series.image || 'https://via.placeholder.com/200x280?text=No+Image'}" alt="${series.title}">
                         <div class="series-item-info">
                             <h4>${series.title}</h4>
-                            <p>التصنيف: ${series.category |
-
-| 'غير محدد'}</p>
-                            <p>المشاهدات: ${series.views |
-
-| 0} | اللايكات: ${series.likes |
-| 0}</p>
+                            <p>التصنيف: ${series.category || 'غير محدد'}</p>
+                            <p>المشاهدات: ${series.views || 0} | اللايكات: ${series.likes || 0}</p>
                         </div>
                         <div class="series-item-actions">
                             <button class="edit-btn" data-series-id="${key}">تعديل</button>
@@ -455,14 +475,14 @@
                 }
 
                 // Add event listeners for edit and delete buttons on series cards
-                document.querySelectorAll('#series-list.edit-btn').forEach(btn => {
+                document.querySelectorAll('#series-list .edit-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const seriesId = e.target.getAttribute('data-series-id');
                         editSeriesSelect.value = seriesId;
                         editSeriesSelect.dispatchEvent(new Event('change')); // Trigger change event
                     });
                 });
-                document.querySelectorAll('#series-list.delete-btn').forEach(btn => {
+                document.querySelectorAll('#series-list .delete-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const seriesId = e.target.getAttribute('data-series-id');
                         deleteSeries(seriesId);
@@ -481,7 +501,7 @@
             const image = newSeriesImageInput.value.trim();
             const category = newSeriesCategoryInput.value.trim();
 
-            if (!title ||!image) {
+            if (!title || !image) {
                 alert('الرجاء إدخال عنوان المسلسل ورابط الصورة.');
                 return;
             }
@@ -495,12 +515,10 @@
             const newSeriesData = {
                 title: title,
                 image: image,
-                category: category |
-
-| 'عام',
+                category: category || 'عام',
                 views: 0,
                 likes: 0,
-                episodes: // Start with no episodes
+                episodes: [] // Start with no episodes
             };
 
             try {
@@ -536,10 +554,8 @@
                     if (series) {
                         editSeriesTitleInput.value = series.title;
                         editSeriesImageInput.value = series.image;
-                        editSeriesCategoryInput.value = series.category |
-
-| '';
-                        loadEpisodes(series.episodes ||); // Load episodes for the selected series
+                        editSeriesCategoryInput.value = series.category || '';
+                        loadEpisodes(series.episodes || []); // Load episodes for the selected series
                     } else {
                         alert('المسلسل المحدد غير موجود.');
                         editSeriesForm.style.display = 'none';
@@ -564,7 +580,7 @@
             const image = editSeriesImageInput.value.trim();
             const category = editSeriesCategoryInput.value.trim();
 
-            if (!title ||!image) {
+            if (!title || !image) {
                 alert('الرجاء إدخال عنوان المسلسل ورابط الصورة.');
                 return;
             }
@@ -574,9 +590,7 @@
                 await update(ref(db, `series/${currentSelectedSeriesId}`), {
                     title: title,
                     image: image,
-                    category: category |
-
-| 'عام'
+                    category: category || 'عام'
                 });
                 alert('تم تحديث المسلسل بنجاح!');
                 loadSeries(); // Reload series to update dropdown and cards
@@ -615,9 +629,7 @@
         // Load and display episodes for a given series
         function loadEpisodes(episodes) {
             episodesListDiv.innerHTML = '';
-            if (!episodes |
-
-| episodes.length === 0) {
+            if (!episodes || episodes.length === 0) {
                 episodesListDiv.innerHTML = '<p style="text-align:center;color:var(--text-muted);">لا توجد حلقات لهذا المسلسل.</p>';
                 return;
             }
@@ -628,7 +640,7 @@
                 episodeItem.innerHTML = `
                     <span>${ep.title}</span>
                     <div class="episode-item-actions">
-                        <button class="toggle-new-btn ${ep.isNew? 'active' : ''}" data-index="${index}">${ep.isNew? 'إزالة "جديدة"' : 'وضع "جديدة"'}</button>
+                        <button class="toggle-new-btn ${ep.isNew ? 'active' : ''}" data-index="${index}">${ep.isNew ? 'إزالة "جديدة"' : 'وضع "جديدة"'}</button>
                         <button class="edit-episode-btn" data-index="${index}">تعديل</button>
                         <button class="delete-episode-btn delete-btn" data-index="${index}">حذف</button>
                     </div>
@@ -659,7 +671,7 @@
             const link = newEpisodeLinkInput.value.trim();
             const isNew = newEpisodeIsNewCheckbox.checked;
 
-            if (!title ||!link) {
+            if (!title || !link) {
                 alert('الرجاء إدخال عنوان الحلقة ورابط الفيديو.');
                 return;
             }
@@ -667,7 +679,7 @@
             try {
                 const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
                 const series = seriesSnapshot.val();
-                const episodes = series.episodes ||; // Ensure episodes is an array
+                const episodes = series.episodes || []; // Ensure episodes is an array
 
                 const newEpisode = {
                     title: title,
@@ -697,16 +709,14 @@
             
             const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
             const series = seriesSnapshot.val();
-            const episodes = series.episodes ||;
+            const episodes = series.episodes || [];
             const episodeToEdit = episodes[index];
 
             const newTitle = prompt('أدخل العنوان الجديد للحلقة:', episodeToEdit.title);
             const newLink = prompt('أدخل الرابط الجديد للحلقة:', episodeToEdit.link);
 
-            if (newTitle!== null && newLink!== null) { // If user didn't click Cancel
-                if (newTitle.trim() === '' |
-
-| newLink.trim() === '') {
+            if (newTitle !== null && newLink !== null) { // If user didn't click Cancel
+                if (newTitle.trim() === '' || newLink.trim() === '') {
                     alert('لا يمكن أن يكون العنوان أو الرابط فارغاً.');
                     return;
                 }
@@ -732,7 +742,7 @@
                 try {
                     const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
                     const series = seriesSnapshot.val();
-                    const episodes = series.episodes ||;
+                    const episodes = series.episodes || [];
 
                     episodes.splice(index, 1); // Remove the episode from the array
 
@@ -752,9 +762,9 @@
             try {
                 const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
                 const series = seriesSnapshot.val();
-                const episodes = series.episodes ||;
+                const episodes = series.episodes || [];
 
-                episodes[index].isNew =!episodes[index].isNew; // Toggle the status
+                episodes[index].isNew = !episodes[index].isNew; // Toggle the status
                 episodes[index].updatedAt = new Date().toISOString(); // Update modification time
 
                 await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
@@ -765,107 +775,6 @@
                 alert('فشل تحديث حالة الحلقة.');
             }
         }
-
-        // --- وظيفة سحب الحلقات التلقائية ---
-        scrapeEpisodesBtn.addEventListener('click', async () => {
-            const scrapeUrl = scrapeSeriesUrlInput.value.trim();
-            const targetSeriesId = scrapeTargetSeriesSelect.value;
-
-            if (!scrapeUrl ||!targetSeriesId) {
-                alert('الرجاء إدخال رابط صفحة المسلسل واختيار المسلسل المستهدف في قاعدة بياناتك.');
-                return;
-            }
-
-            scrapeStatusDiv.textContent = 'جاري سحب الحلقات، قد يستغرق الأمر بعض الوقت...';
-            scrapeEpisodesBtn.disabled = true; // تعطيل الزر أثناء العملية
-
-            try {
-                // استدعاء نقطة النهاية في الخادم الوسيط الخاص بك
-                const response = await fetch('http://localhost:3000/scrape-episodes', { // تأكد من مطابقة المنفذ (PORT)
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ url: scrapeUrl })
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error |
-
-| 'فشل استدعاء خادم السحب.');
-                }
-
-                const data = await response.json();
-                const scrapedSeriesTitle = data.title;
-                const scrapedSeriesImage = data.image;
-                const scrapedSeriesCategory = data.category;
-                const scrapedEpisodes = data.episodes;
-
-                if (scrapedEpisodes.length === 0) {
-                    scrapeStatusDiv.textContent = 'لم يتم العثور على أي حلقات من الرابط المحدد. تحقق من الرابط أو بنية الموقع.';
-                    alert('لم يتم العثور على أي حلقات.');
-                    return;
-                }
-
-                // جلب الحلقات الموجودة حاليًا في Firebase للمسلسل المستهدف
-                const seriesSnapshot = await get(ref(db, `series/${targetSeriesId}`));
-                const series = seriesSnapshot.val();
-                let existingEpisodes = series.episodes ||;
-
-                // دمج الحلقات الجديدة (مع التأكد من عدم تكرارها إذا أردت)
-                const newEpisodesToAdd =;
-                scrapedEpisodes.forEach(scrapedEp => {
-                    // مثال بسيط لتجنب التكرار بناءً على رابط المشغل (playerLink)
-                    const isDuplicate = existingEpisodes.some(ep => ep.playerLink === scrapedEp.playerLink);
-                    if (!isDuplicate) {
-                        newEpisodesToAdd.push(scrapedEp);
-                    }
-                });
-
-                if (newEpisodesToAdd.length === 0) {
-                    scrapeStatusDiv.textContent = 'جميع الحلقات التي تم سحبها موجودة بالفعل.';
-                    alert('جميع الحلقات التي تم سحبها موجودة بالفعل.');
-                    return;
-                }
-
-                const updatedEpisodes =;
-
-                // تحديث المسلسل في Firebase بالحلقات الجديدة والمعلومات المحدثة
-                await update(ref(db, `series/${targetSeriesId}`), { 
-                    title: scrapedSeriesTitle |
-
-| series.title, // تحديث العنوان إذا تم سحبه
-                    image: scrapedSeriesImage |
-
-| series.image, // تحديث الصورة إذا تم سحبها
-                    category: scrapedSeriesCategory |
-
-| series.category, // تحديث التصنيف إذا تم سحبه
-                    episodes: updatedEpisodes 
-                });
-
-                scrapeStatusDiv.textContent = `تم سحب وإضافة ${newEpisodesToAdd.length} حلقة بنجاح!`;
-                alert(`تم سحب وإضافة ${newEpisodesToAdd.length} حلقة بنجاح إلى المسلسل "${scrapedSeriesTitle |
-
-| series.title}".`);
-                
-                // تحديث قائمة الحلقات في واجهة التعديل إذا كان المسلسل المستهدف هو نفسه المحدد للتعديل
-                if (currentSelectedSeriesId === targetSeriesId) {
-                    loadEpisodes(updatedEpisodes);
-                }
-                scrapeSeriesUrlInput.value = '';
-                scrapeTargetSeriesSelect.value = '';
-                loadSeries(); // إعادة تحميل المسلسلات لتحديث البطاقات والقوائم المنسدلة
-
-            } catch (error) {
-                console.error("Error scraping and adding episodes:", error);
-                scrapeStatusDiv.textContent = `خطأ في سحب الحلقات: ${error.message}`;
-                alert(`فشل سحب وإضافة الحلقات: ${error.message}`);
-            } finally {
-                scrapeEpisodesBtn.disabled = false; // إعادة تفعيل الزر
-            }
-        });
         //]]>
     </script>
 </body>
