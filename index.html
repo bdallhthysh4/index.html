@@ -211,6 +211,8 @@
         }
         .form-group input[type="text"],
         .form-group input[type="url"],
+        .form-group input[type="search"], /* إضافة نوع بحث */
+        .form-group textarea, /* إضافة textarea */
         .form-group select {
             width: calc(100% - 24px); /* Adjust for padding and border */
             padding: 12px;
@@ -224,6 +226,8 @@
         }
         .form-group input[type="text"]:focus,
         .form-group input[type="url"]:focus,
+        .form-group input[type="search"]:focus,
+        .form-group textarea:focus,
         .form-group select:focus {
             outline: none;
             border-color: var(--primary-color);
@@ -238,6 +242,10 @@
             background-position: left 10px center;
             background-size: 1em;
             padding-left: 35px; /* Space for the icon */
+        }
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
         }
 
         .action-buttons {
@@ -478,6 +486,71 @@
             color: var(--success-color);
         }
 
+        /* Styles for Slider Items List (New) */
+        #slider-items-list {
+            max-height: 350px;
+            overflow-y: auto;
+            padding-right: 10px;
+            margin-bottom: 20px;
+            border: 1px dashed var(--border-color);
+            border-radius: 10px;
+            background: var(--section-bg);
+            padding: 15px;
+        }
+        #slider-items-list .slider-item-admin {
+            background: #2a2a30;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid #3d3d45;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transition: background 0.2s ease;
+        }
+        #slider-items-list .slider-item-admin:hover {
+            background: var(--hover-light);
+        }
+        #slider-items-list .slider-item-admin img {
+            width: 80px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+        }
+        #slider-items-list .slider-item-admin .info {
+            flex-grow: 1;
+        }
+        #slider-items-list .slider-item-admin .info strong {
+            display: block;
+            font-size: 18px;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+        #slider-items-list .slider-item-admin .info span {
+            font-size: 14px;
+            color: var(--text-muted);
+            display: block;
+        }
+        #slider-items-list .slider-item-admin .actions {
+            display: flex;
+            gap: 8px;
+        }
+        #slider-items-list .slider-item-admin button {
+            padding: 8px 12px;
+            font-size: 14px;
+            border-radius: 7px;
+            font-weight: 500;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        #slider-items-list .slider-item-admin button.edit-btn {
+            background: var(--info-color);
+        }
+        #slider-items-list .slider-item-admin button.delete-btn {
+            background: var(--danger-color);
+        }
+        
         /* Responsive adjustments */
         @media (max-width: 992px) {
             .container {
@@ -505,7 +578,7 @@
             .form-group label {
                 font-size: 16px;
             }
-            .form-group input, .form-group select {
+            .form-group input, .form-group select, .form-group textarea {
                 font-size: 15px;
                 padding: 10px;
             }
@@ -529,6 +602,16 @@
             .episode-item-actions button {
                 font-size: 12px;
                 padding: 7px 10px;
+            }
+             #slider-items-list .slider-item-admin img {
+                width: 60px;
+                height: 40px;
+            }
+            #slider-items-list .slider-item-admin .info strong {
+                font-size: 16px;
+            }
+            #slider-items-list .slider-item-admin .info span {
+                font-size: 13px;
             }
         }
 
@@ -556,7 +639,7 @@
             .form-group label {
                 font-size: 15px;
             }
-            .form-group input, .form-group select {
+            .form-group input, .form-group select, .form-group textarea {
                 font-size: 14px;
                 padding: 9px;
             }
@@ -595,6 +678,23 @@
                 width: 100%;
                 justify-content: space-around;
                 gap: 5px;
+            }
+             #slider-items-list .slider-item-admin {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            #slider-items-list .slider-item-admin img {
+                width: 100%;
+                height: 120px;
+            }
+            #slider-items-list .slider-item-admin .info {
+                width: 100%;
+                text-align: right;
+            }
+            #slider-items-list .slider-item-admin .actions {
+                width: 100%;
+                justify-content: space-around;
             }
         }
     </style>
@@ -635,6 +735,55 @@
                 </div>
             </div>
 
+            <div class="form-section">
+                <h3><i class="fas fa-images"></i> إدارة السلايدر الرئيسي</h3>
+                <div class="form-group">
+                    <label for="select-slider-item">اختر عنصر سلايدر للتعديل أو الحذف:</label>
+                    <select id="select-slider-item">
+                        <option value="">-- اختر عنصر سلايدر --</option>
+                    </select>
+                </div>
+
+                <div id="slider-item-form" style="display: none;">
+                    <div class="form-group">
+                        <label for="slider-title">عنوان السلايدر:</label>
+                        <input type="text" id="slider-title" placeholder="عنوان يظهر في السلايدر" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="slider-description">وصف السلايدر (اختياري):</label>
+                        <textarea id="slider-description" placeholder="وصف قصير يظهر مع العنوان"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="slider-image-url">رابط صورة السلايدر:</label>
+                        <input type="url" id="slider-image-url" placeholder="مثال: https://example.com/slider-image.jpg" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="slider-series-id">ربط بمسلسل (عبر معرف المسلسل):</label>
+                        <select id="slider-series-id">
+                            <option value="">-- اختر مسلسل لربطه --</option>
+                            </select>
+                    </div>
+                    <div class="action-buttons">
+                        <button id="add-slider-item-btn" class="add-episode-btn">
+                            <i class="fas fa-plus"></i>
+                            إضافة عنصر سلايدر
+                        </button>
+                        <button id="update-slider-item-btn" class="edit-btn">
+                            <i class="fas fa-sync-alt"></i>
+                            تحديث عنصر السلايدر
+                        </button>
+                        <button id="delete-slider-item-btn" class="delete-btn">
+                            <i class="fas fa-trash-alt"></i>
+                            حذف عنصر السلايدر
+                        </button>
+                    </div>
+                </div>
+                
+                <h4><i class="fas fa-list-alt"></i> عناصر السلايدر الحالية</h4>
+                <div id="slider-items-list">
+                    <p style="text-align:center;color:var(--text-muted); padding: 15px;">لا توجد عناصر سلايدر حاليًا.</p>
+                </div>
+            </div>
             <div class="form-section">
                 <h3><i class="fas fa-edit"></i> تعديل / حذف مسلسل</h3>
                 <div class="form-group">
@@ -724,6 +873,7 @@
         const auth = getAuth(app); 
         const db = getDatabase(app);
         const seriesRef = ref(db, 'series');
+        const sliderItemsRef = ref(db, 'sliderItems'); // New: Reference to slider items
 
         // UI Elements
         const adminPanelSection = document.getElementById('admin-panel-section');
@@ -740,7 +890,7 @@
         const editSeriesImageInput = document.getElementById('edit-series-image');
         const editSeriesCategoryInput = document.getElementById('edit-series-category');
         const updateSeriesBtn = document.getElementById('update-series-btn');
-        const deleteSeriesBtn = document.getElementById('delete-series-btn'); // Corrected typo here
+        const deleteSeriesBtn = document.getElementById('delete-series-btn');
 
         const episodesListDiv = document.getElementById('episodes-list');
         const newEpisodeTitleInput = document.getElementById('new-episode-title');
@@ -750,39 +900,49 @@
 
         const allSeriesDisplay = document.getElementById('series-list');
 
-        let currentSelectedSeriesId = null; // To store the key of the currently selected series for editing
+        let currentSelectedSeriesId = null;
+
+        // New UI Elements for Slider Management
+        const selectSliderItem = document.getElementById('select-slider-item');
+        const sliderItemForm = document.getElementById('slider-item-form');
+        const sliderTitleInput = document.getElementById('slider-title');
+        const sliderDescriptionInput = document.getElementById('slider-description');
+        const sliderImageUrlInput = document.getElementById('slider-image-url');
+        const sliderSeriesIdSelect = document.getElementById('slider-series-id');
+        const addSliderItemBtn = document.getElementById('add-slider-item-btn');
+        const updateSliderItemBtn = document.getElementById('update-slider-item-btn');
+        const deleteSliderItemBtn = document.getElementById('delete-slider-item-btn');
+        const sliderItemsListDiv = document.getElementById('slider-items-list');
+
+        let currentSelectedSliderId = null; // To store the key of the currently selected slider item for editing
+        let allSeriesAvailable = {}; // To store all series data for sliderSeriesIdSelect
+
 
         // Function to normalize Arabic titles for Firebase keys
         function normalizeTitleForFirebase(title) {
-            // Remove common Arabic series prefixes (e.g., "مسلسل ", "مسلسلات ")
             let normalized = title.replace(/^(مسلسل|مسلسلات)\s*/, '');
-            // Replace non-alphanumeric/non-Arabic characters with underscores
             normalized = normalized.replace(/[^a-zA-Z0-9\u0600-\u06FF]+/g, '_');
-            // Replace multiple underscores with a single underscore
             normalized = normalized.replace(/_+/g, '_');
-            // Remove leading/trailing underscores
             normalized = normalized.replace(/^_|_$/g, '');
-            // Trim whitespace and convert to lowercase for consistency
             return normalized.trim();
         }
 
-        // --- Authentication (simplified for direct admin panel access) ---
-        // Since there's no login page, we directly load the admin panel.
-        // onAuthStateChanged is no longer strictly necessary for initial display.
-        // However, getAuth and signOut are still useful if you want to allow users
-        // to explicitly log out from previous sessions or handle authentication states.
-
-        // Load series directly when the page loads
-        window.addEventListener('load', loadSeries);
+        // --- Authentication ---
+        // Load series directly when the page loads, and also slider items
+        window.addEventListener('load', async () => {
+            await loadSeries(); // Load series first as slider items may link to them
+            await loadSliderItems();
+        });
 
         // Logout functionality
         logoutBtn.addEventListener('click', async () => {
             if (confirm('هل أنت متأكد أنك تريد تسجيل الخروج؟')) {
                 try {
-                    await signOut(auth); // Sign out any current user
+                    await signOut(auth);
                     alert('تم تسجيل الخروج بنجاح. لن تتمكن من تعديل البيانات بعد الآن.');
-                    adminPanelSection.style.display = 'none'; // Hide the panel
-                    // You might redirect to a login page or display a message here
+                    adminPanelSection.style.display = 'none';
+                    // Optional: Redirect to login page
+                    // window.location.href = '/login.html'; 
                 } catch (error) {
                     console.error("Logout failed:", error);
                     alert('فشل تسجيل الخروج.');
@@ -790,31 +950,32 @@
             }
         });
 
-        // --- Series Management ---
-
-        // Load and display all series
+        // --- Series Management (existing code) ---
         async function loadSeries() {
             try {
                 const snapshot = await get(seriesRef);
                 const seriesData = snapshot.val() || {};
-                
-                // Clear existing lists
+                allSeriesAvailable = seriesData; // Store for slider select
+
                 editSeriesSelect.innerHTML = '<option value="">-- اختر مسلسل --</option>';
+                sliderSeriesIdSelect.innerHTML = '<option value="">-- اختر مسلسل لربطه --</option>'; // Populate for slider
                 allSeriesDisplay.innerHTML = '';
 
                 let hasSeries = false;
-                // Populate select list and display all series cards
                 for (const key in seriesData) {
                     hasSeries = true;
                     const series = seriesData[key];
                     
-                    // Add to dropdown for editing
                     const option = document.createElement('option');
                     option.value = key;
                     option.textContent = series.title;
                     editSeriesSelect.appendChild(option);
 
-                    // Display as a card in "All Series" section
+                    const sliderOption = document.createElement('option'); // For slider select
+                    sliderOption.value = key;
+                    sliderOption.textContent = series.title;
+                    sliderSeriesIdSelect.appendChild(sliderOption);
+
                     const card = document.createElement('div');
                     card.className = 'series-item';
                     card.setAttribute('data-series-id', key);
@@ -837,13 +998,11 @@
                     allSeriesDisplay.innerHTML = '<p style="text-align:center;color:var(--text-muted); padding: 20px;">لا توجد مسلسلات لعرضها حاليًا. الرجاء إضافة مسلسل جديد.</p>';
                 }
 
-
-                // Add event listeners for edit and delete buttons on series cards
                 document.querySelectorAll('#series-list .edit-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const seriesId = e.target.getAttribute('data-series-id');
                         editSeriesSelect.value = seriesId;
-                        editSeriesSelect.dispatchEvent(new Event('change')); // Trigger change event
+                        editSeriesSelect.dispatchEvent(new Event('change'));
                     });
                 });
                 document.querySelectorAll('#series-list .delete-btn').forEach(btn => {
@@ -859,7 +1018,6 @@
             }
         }
 
-        // Add new series
         addSeriesBtn.addEventListener('click', async () => {
             const title = newSeriesTitleInput.value.trim();
             const image = newSeriesImageInput.value.trim();
@@ -882,11 +1040,10 @@
                 category: category || 'عام',
                 views: 0,
                 likes: 0,
-                episodes: [] // Start with no episodes
+                episodes: []
             };
 
             try {
-                // Check if a series with this normalized title already exists
                 const existingSeriesSnapshot = await get(ref(db, `series/${safeTitle}`));
                 if (existingSeriesSnapshot.exists()) {
                     alert('مسلسل بهذا العنوان موجود بالفعل. الرجاء اختيار عنوان مختلف أو تعديل المسلسل الحالي.');
@@ -898,17 +1055,16 @@
                 newSeriesTitleInput.value = '';
                 newSeriesImageInput.value = '';
                 newSeriesCategoryInput.value = '';
-                loadSeries(); // Reload series to update lists
+                await loadSeries(); // Reload series to update lists (including slider select)
             } catch (error) {
                 console.error("Error adding series:", error);
                 alert('فشل إضافة المسلسل. قد يكون هناك مشكلة في الاتصال أو الأذونات.');
             }
         });
 
-        // When a series is selected for editing
         editSeriesSelect.addEventListener('change', async () => {
             currentSelectedSeriesId = editSeriesSelect.value;
-            episodesListDiv.innerHTML = ''; // Clear episode list
+            episodesListDiv.innerHTML = '';
 
             if (currentSelectedSeriesId) {
                 editSeriesForm.style.display = 'block';
@@ -919,7 +1075,7 @@
                         editSeriesTitleInput.value = series.title;
                         editSeriesImageInput.value = series.image;
                         editSeriesCategoryInput.value = series.category || '';
-                        loadEpisodes(series.episodes || []); // Load episodes for the selected series
+                        loadEpisodes(series.episodes || []);
                     } else {
                         alert('المسلسل المحدد غير موجود.');
                         editSeriesForm.style.display = 'none';
@@ -933,7 +1089,6 @@
             }
         });
 
-        // Update an existing series
         updateSeriesBtn.addEventListener('click', async () => {
             if (!currentSelectedSeriesId) {
                 alert('الرجاء اختيار مسلسل للتعديل.');
@@ -950,32 +1105,30 @@
             }
 
             try {
-                // No need to normalize title if we are just updating existing fields of the currentSelectedSeriesId
                 await update(ref(db, `series/${currentSelectedSeriesId}`), {
                     title: title,
                     image: image,
                     category: category || 'عام'
                 });
                 alert('تم تحديث المسلسل بنجاح!');
-                loadSeries(); // Reload series to update dropdown and cards
-                // Keep the same series selected in the dropdown
+                await loadSeries(); // Reload series to update dropdown and cards
                 editSeriesSelect.value = currentSelectedSeriesId; 
-                editSeriesSelect.dispatchEvent(new Event('change')); // Trigger change to refresh edit form
+                editSeriesSelect.dispatchEvent(new Event('change'));
             } catch (error) {
                 console.error("Error updating series:", error);
                 alert('فشل تحديث المسلسل.');
             }
         });
 
-        // Delete a series
         async function deleteSeries(seriesIdToDelete) {
             if (confirm('هل أنت متأكد أنك تريد حذف هذا المسلسل وجميع حلقاته؟ هذا الإجراء لا يمكن التراجع عنه!')) {
                 try {
                     await remove(ref(db, `series/${seriesIdToDelete}`));
                     alert('تم حذف المسلسل بنجاح!');
-                    editSeriesForm.style.display = 'none'; // Hide edit form
-                    currentSelectedSeriesId = null; // Clear selected ID
-                    loadSeries(); // Reload series to update lists
+                    editSeriesForm.style.display = 'none';
+                    currentSelectedSeriesId = null;
+                    await loadSeries(); // Reload series to update lists
+                    await loadSliderItems(); // Also refresh slider list in case it used this series
                 } catch (error) {
                     console.error("Error deleting series:", error);
                     alert('فشل حذف المسلسل.');
@@ -988,9 +1141,7 @@
             }
         });
 
-        // --- Episode Management ---
-
-        // Load and display episodes for a given series
+        // --- Episode Management (existing code) ---
         function loadEpisodes(episodes) {
             episodesListDiv.innerHTML = '';
             if (!episodes || episodes.length === 0) {
@@ -1012,7 +1163,6 @@
                 episodesListDiv.appendChild(episodeItem);
             });
 
-            // Add event listeners for episode buttons
             document.querySelectorAll('.toggle-new-btn').forEach(btn => {
                 btn.addEventListener('click', toggleEpisodeNewStatus);
             });
@@ -1024,7 +1174,6 @@
             });
         }
 
-        // Add new episode to a series
         addEpisodeToSeriesBtn.addEventListener('click', async () => {
             if (!currentSelectedSeriesId) {
                 alert('الرجاء اختيار مسلسل لإضافة حلقة إليه.');
@@ -1043,31 +1192,29 @@
             try {
                 const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
                 const series = seriesSnapshot.val();
-                const episodes = series.episodes || []; // Ensure episodes is an array
+                const episodes = series.episodes || [];
 
                 const newEpisode = {
                     title: title,
                     link: link,
                     isNew: isNew,
-                    updatedAt: new Date().toISOString() // Record current time
+                    updatedAt: new Date().toISOString()
                 };
 
-                episodes.push(newEpisode); // Add new episode to the array
+                episodes.push(newEpisode);
 
                 await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
                 alert('تم إضافة الحلقة بنجاح!');
-                // Clear episode input fields
                 newEpisodeTitleInput.value = '';
                 newEpisodeLinkInput.value = '';
                 newEpisodeIsNewCheckbox.checked = false;
-                loadEpisodes(episodes); // Reload episode list to show the new episode
+                loadEpisodes(episodes);
             } catch (error) {
                 console.error("Error adding episode:", error);
                 alert('فشل إضافة الحلقة.');
             }
         });
 
-        // Edit an existing episode
         async function editEpisode(event) {
             const index = parseInt(event.target.getAttribute('data-index'));
             
@@ -1079,19 +1226,19 @@
             const newTitle = prompt('أدخل العنوان الجديد للحلقة:', episodeToEdit.title);
             const newLink = prompt('أدخل الرابط الجديد للحلقة:', episodeToEdit.link);
 
-            if (newTitle !== null && newLink !== null) { // If user didn't click Cancel
+            if (newTitle !== null && newLink !== null) {
                 if (newTitle.trim() === '' || newLink.trim() === '') {
                     alert('لا يمكن أن يكون العنوان أو الرابط فارغاً.');
                     return;
                 }
                 episodes[index].title = newTitle.trim();
                 episodes[index].link = newLink.trim();
-                episodes[index].updatedAt = new Date().toISOString(); // Update modification time
+                episodes[index].updatedAt = new Date().toISOString();
 
                 try {
                     await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
                     alert('تم تحديث الحلقة بنجاح!');
-                    loadEpisodes(episodes); // Refresh episode list
+                    loadEpisodes(episodes);
                 } catch (error) {
                     console.error("Error updating episode:", error);
                     alert('فشل تحديث الحلقة.');
@@ -1099,7 +1246,6 @@
             }
         }
 
-        // Delete an episode
         async function deleteEpisode(event) {
             const index = parseInt(event.target.getAttribute('data-index'));
             if (confirm('هل أنت متأكد أنك تريد حذف هذه الحلقة؟')) {
@@ -1108,11 +1254,11 @@
                     const series = seriesSnapshot.val();
                     const episodes = series.episodes || [];
 
-                    episodes.splice(index, 1); // Remove the episode from the array
+                    episodes.splice(index, 1);
 
                     await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
                     alert('تم حذف الحلقة بنجاح!');
-                    loadEpisodes(episodes); // Refresh episode list
+                    loadEpisodes(episodes);
                 } catch (error) {
                     console.error("Error deleting episode:", error);
                     alert('فشل حذف الحلقة.');
@@ -1120,7 +1266,6 @@
             }
         }
 
-        // Toggle "isNew" status for an episode
         async function toggleEpisodeNewStatus(event) {
             const index = parseInt(event.target.getAttribute('data-index'));
             try {
@@ -1128,17 +1273,225 @@
                 const series = seriesSnapshot.val();
                 const episodes = series.episodes || [];
 
-                episodes[index].isNew = !episodes[index].isNew; // Toggle the status
-                episodes[index].updatedAt = new Date().toISOString(); // Update modification time
+                episodes[index].isNew = !episodes[index].isNew;
+                episodes[index].updatedAt = new Date().toISOString();
 
                 await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
                 alert('تم تحديث حالة الحلقة بنجاح!');
-                loadEpisodes(episodes); // Refresh episode list to reflect change
+                loadEpisodes(episodes);
             } catch (error) {
                 console.error("Error toggling new status:", error);
                 alert('فشل تحديث حالة الحلقة.');
             }
         }
+
+        // --- Slider Management (New Code) ---
+        async function loadSliderItems() {
+            try {
+                const snapshot = await get(sliderItemsRef);
+                const sliderData = snapshot.val() || {};
+                
+                selectSliderItem.innerHTML = '<option value="">-- اختر عنصر سلايدر --</option>';
+                sliderItemsListDiv.innerHTML = '';
+                
+                let hasSliderItems = false;
+                for (const key in sliderData) {
+                    hasSliderItems = true;
+                    const item = sliderData[key];
+
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = item.title;
+                    selectSliderItem.appendChild(option);
+
+                    const listItem = document.createElement('div');
+                    listItem.className = 'slider-item-admin';
+                    listItem.innerHTML = `
+                        <img src="${item.imageUrl || 'https://via.placeholder.com/80x50?text=No+Image'}" alt="${item.title}">
+                        <div class="info">
+                            <strong>${item.title}</strong>
+                            <span>الوصف: ${item.description || 'لا يوجد'}</span>
+                            <span>مرتبط بـ: ${item.seriesId ? (allSeriesAvailable[item.seriesId] ? allSeriesAvailable[item.seriesId].title : item.seriesId) : 'لا يوجد'}</span>
+                        </div>
+                        <div class="actions">
+                            <button class="edit-btn" data-slider-id="${key}"><i class="fas fa-edit"></i> تعديل</button>
+                            <button class="delete-btn" data-slider-id="${key}"><i class="fas fa-trash-alt"></i> حذف</button>
+                        </div>
+                    `;
+                    sliderItemsListDiv.appendChild(listItem);
+                }
+
+                if (!hasSliderItems) {
+                    sliderItemsListDiv.innerHTML = '<p style="text-align:center;color:var(--text-muted); padding: 15px;">لا توجد عناصر سلايدر حاليًا. ابدأ بإضافة واحدة!</p>';
+                }
+
+                // Add event listeners for edit and delete buttons on slider items
+                document.querySelectorAll('#slider-items-list .edit-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const sliderId = e.target.getAttribute('data-slider-id');
+                        selectSliderItem.value = sliderId;
+                        selectSliderItem.dispatchEvent(new Event('change')); // Trigger change event
+                    });
+                });
+                document.querySelectorAll('#slider-items-list .delete-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const sliderId = e.target.getAttribute('data-slider-id');
+                        deleteSliderItem(sliderId);
+                    });
+                });
+
+            } catch (error) {
+                console.error("Error loading slider items:", error);
+                alert('فشل تحميل عناصر السلايدر.');
+            }
+        }
+
+        // When a slider item is selected for editing
+        selectSliderItem.addEventListener('change', async () => {
+            currentSelectedSliderId = selectSliderItem.value;
+            if (currentSelectedSliderId) {
+                sliderItemForm.style.display = 'block';
+                addSliderItemBtn.style.display = 'none'; // Hide add button when editing
+                updateSliderItemBtn.style.display = 'inline-flex';
+                deleteSliderItemBtn.style.display = 'inline-flex';
+
+                try {
+                    const snapshot = await get(ref(db, `sliderItems/${currentSelectedSliderId}`));
+                    const item = snapshot.val();
+                    if (item) {
+                        sliderTitleInput.value = item.title;
+                        sliderDescriptionInput.value = item.description || '';
+                        sliderImageUrlInput.value = item.imageUrl;
+                        sliderSeriesIdSelect.value = item.seriesId || '';
+                    } else {
+                        alert('عنصر السلايدر المحدد غير موجود.');
+                        sliderItemForm.style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error("Error loading slider item for edit:", error);
+                    alert('فشل تحميل بيانات عنصر السلايدر للتعديل.');
+                }
+            } else {
+                sliderItemForm.style.display = 'block'; // Show form to add new
+                addSliderItemBtn.style.display = 'inline-flex'; // Show add button
+                updateSliderItemBtn.style.display = 'none'; // Hide update/delete buttons
+                deleteSliderItemBtn.style.display = 'none';
+                // Clear fields when nothing is selected (ready for new addition)
+                sliderTitleInput.value = '';
+                sliderDescriptionInput.value = '';
+                sliderImageUrlInput.value = '';
+                sliderSeriesIdSelect.value = '';
+            }
+        });
+
+        // Add new slider item
+        addSliderItemBtn.addEventListener('click', async () => {
+            const title = sliderTitleInput.value.trim();
+            const description = sliderDescriptionInput.value.trim();
+            const imageUrl = sliderImageUrlInput.value.trim();
+            const seriesId = sliderSeriesIdSelect.value || null;
+
+            if (!title || !imageUrl) {
+                alert('الرجاء إدخال عنوان السلايدر ورابط الصورة.');
+                return;
+            }
+
+            const safeId = normalizeTitleForFirebase(title) + '_' + Date.now(); // Unique ID
+            if (!safeId) {
+                alert('عنوان السلايدر غير صالح لإنشاء مفتاح.');
+                return;
+            }
+
+            const newSliderItemData = {
+                title: title,
+                description: description,
+                imageUrl: imageUrl,
+                seriesId: seriesId
+            };
+
+            try {
+                await set(ref(db, `sliderItems/${safeId}`), newSliderItemData);
+                alert('تم إضافة عنصر السلايدر بنجاح!');
+                // Clear form
+                sliderTitleInput.value = '';
+                sliderDescriptionInput.value = '';
+                sliderImageUrlInput.value = '';
+                sliderSeriesIdSelect.value = '';
+                await loadSliderItems(); // Reload slider items list
+                selectSliderItem.value = ''; // Reset dropdown
+                selectSliderItem.dispatchEvent(new Event('change')); // Trigger change to show add state
+            } catch (error) {
+                console.error("Error adding slider item:", error);
+                alert('فشل إضافة عنصر السلايدر.');
+            }
+        });
+
+        // Update existing slider item
+        updateSliderItemBtn.addEventListener('click', async () => {
+            if (!currentSelectedSliderId) {
+                alert('الرجاء اختيار عنصر سلايدر للتعديل.');
+                return;
+            }
+
+            const title = sliderTitleInput.value.trim();
+            const description = sliderDescriptionInput.value.trim();
+            const imageUrl = sliderImageUrlInput.value.trim();
+            const seriesId = sliderSeriesIdSelect.value || null;
+
+            if (!title || !imageUrl) {
+                alert('الرجاء إدخال عنوان السلايدر ورابط الصورة.');
+                return;
+            }
+
+            const updatedSliderItemData = {
+                title: title,
+                description: description,
+                imageUrl: imageUrl,
+                seriesId: seriesId
+            };
+
+            try {
+                await update(ref(db, `sliderItems/${currentSelectedSliderId}`), updatedSliderItemData);
+                alert('تم تحديث عنصر السلايدر بنجاح!');
+                await loadSliderItems(); // Reload slider items list
+                // Keep the same item selected in the dropdown
+                selectSliderItem.value = currentSelectedSliderId;
+                selectSliderItem.dispatchEvent(new Event('change')); // Trigger change to refresh form
+            } catch (error) {
+                console.error("Error updating slider item:", error);
+                alert('فشل تحديث عنصر السلايدر.');
+            }
+        });
+
+        // Delete slider item
+        async function deleteSliderItem(sliderIdToDelete) {
+            if (confirm('هل أنت متأكد أنك تريد حذف عنصر السلايدر هذا؟')) {
+                try {
+                    await remove(ref(db, `sliderItems/${sliderIdToDelete}`));
+                    alert('تم حذف عنصر السلايدر بنجاح!');
+                    sliderItemForm.style.display = 'block'; // Keep form visible to add new
+                    addSliderItemBtn.style.display = 'inline-flex'; // Show add button
+                    updateSliderItemBtn.style.display = 'none'; // Hide update/delete buttons
+                    deleteSliderItemBtn.style.display = 'none';
+                    // Clear fields
+                    sliderTitleInput.value = '';
+                    sliderDescriptionInput.value = '';
+                    sliderImageUrlInput.value = '';
+                    sliderSeriesIdSelect.value = '';
+                    currentSelectedSliderId = null;
+                    await loadSliderItems(); // Reload slider items list
+                } catch (error) {
+                    console.error("Error deleting slider item:", error);
+                    alert('فشل حذف عنصر السلايدر.');
+                }
+            }
+        }
+        deleteSliderItemBtn.addEventListener('click', () => {
+            if (currentSelectedSliderId) {
+                deleteSliderItem(currentSelectedSliderId);
+            }
+        });
+
         //]]>
     </script>
 </body>
