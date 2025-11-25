@@ -496,6 +496,32 @@
         .form-group input[type="checkbox"]:checked + label {
             color: var(--success-color);
         }
+        
+        /* Loading Spinner */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .loader {
+            border: 8px solid var(--card-bg);
+            border-top: 8px solid var(--primary-color);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
         /* Responsive adjustments */
         @media (max-width: 992px) {
@@ -516,6 +542,10 @@
     </style>
 </head>
 <body>
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loader"></div>
+    </div>
+    
     <section id="admin-panel-section">
         <div class="admin-header">
             <div class="logo">
@@ -663,6 +693,7 @@
         // UI Elements
         const adminPanelSection = document.getElementById('admin-panel-section');
         const logoutBtn = document.getElementById('logout-btn');
+        const loadingOverlay = document.getElementById('loading-overlay');
 
         const newSeriesTitleInput = document.getElementById('new-series-title');
         const newSeriesImageInput = document.getElementById('new-series-image');
@@ -693,7 +724,24 @@
 
         let currentSelectedSeriesId = null;
 
-        // Function to normalize Arabic titles for Firebase keys
+        // Utility: Show/Hide Loading Overlay
+        const toggleLoading = (show) => {
+            loadingOverlay.style.display = show ? 'flex' : 'none';
+        };
+
+        // Utility: Clear New Episode Inputs
+        const clearNewEpisodeInputs = () => {
+            newEpisodeTitleInput.value = '';
+            newEpisodeName1Input.value = 'المشغل 1';
+            newEpisodeLink1Input.value = '';
+            newEpisodeName2Input.value = 'المشغل 2';
+            newEpisodeLink2Input.value = '';
+            newEpisodeName3Input.value = 'المشغل 3';
+            newEpisodeLink3Input.value = '';
+            newEpisodeIsNewCheckbox.checked = false;
+        };
+
+        // Utility: Normalize Arabic titles for Firebase keys
         function normalizeTitleForFirebase(title) {
             let normalized = title.replace(/^(مسلسل|مسلسلات)\s*/, '');
             normalized = normalized.replace(/[^a-zA-Z0-9\u0600-\u06FF]+/g, '_');
@@ -702,20 +750,27 @@
             return normalized.trim();
         }
 
-        window.addEventListener('load', loadSeries);
+        window.addEventListener('load', () => {
+             // التحقق من حالة تسجيل الدخول قد يكون مفيداً هنا قبل تحميل المسلسلات
+             // onAuthStateChanged(auth, (user) => { if (user) loadSeries(); else window.location.href = 'login.html'; });
+             loadSeries();
+        });
 
         // Logout functionality
         logoutBtn.addEventListener('click', async () => {
             if (confirm('هل أنت متأكد أنك تريد تسجيل الخروج؟')) {
+                toggleLoading(true);
                 try {
                     await signOut(auth);
                     alert('تم تسجيل الخروج بنجاح. لن تتمكن من تعديل البيانات بعد الآن.');
-                    adminPanelSection.style.display = 'none';
                     // يمكنك إعادة توجيه المستخدم لصفحة تسجيل الدخول هنا
                     // window.location.href = 'login.html'; 
+                    adminPanelSection.style.display = 'none';
                 } catch (error) {
                     console.error("Logout failed:", error);
-                    alert('فشل تسجيل الخروج.');
+                    alert('فشل تسجيل الخروج: ' + error.message);
+                } finally {
+                    toggleLoading(false);
                 }
             }
         });
@@ -723,6 +778,7 @@
         // --- Series Management ---
 
         async function loadSeries() {
+            toggleLoading(true);
             try {
                 const snapshot = await get(seriesRef);
                 const seriesData = snapshot.val() || {};
@@ -762,12 +818,13 @@
                     allSeriesDisplay.innerHTML = '<p style="text-align:center;color:var(--text-muted); padding: 20px;">لا توجد مسلسلات لعرضها حاليًا. الرجاء إضافة مسلسل جديد.</p>';
                 }
 
-
                 document.querySelectorAll('#series-list .edit-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const seriesId = e.currentTarget.getAttribute('data-series-id');
                         editSeriesSelect.value = seriesId;
                         editSeriesSelect.dispatchEvent(new Event('change'));
+                        // Scroll to the edit section
+                        editSeriesSelect.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     });
                 });
                 document.querySelectorAll('#series-list .delete-btn').forEach(btn => {
@@ -779,7 +836,9 @@
 
             } catch (error) {
                 console.error("Error loading series:", error);
-                alert('فشل تحميل المسلسلات.');
+                alert('فشل تحميل المسلسلات: ' + error.message);
+            } finally {
+                toggleLoading(false);
             }
         }
 
@@ -798,22 +857,23 @@
                 alert('عنوان المسلسل غير صالح لإنشاء مفتاح.');
                 return;
             }
-
-            const newSeriesData = {
-                title: title,
-                image: image,
-                category: category || 'عام',
-                views: 0,
-                likes: 0,
-                episodes: []
-            };
-
+            
+            toggleLoading(true);
             try {
                 const existingSeriesSnapshot = await get(ref(db, `series/${safeTitle}`));
                 if (existingSeriesSnapshot.exists()) {
                     alert('مسلسل بهذا العنوان موجود بالفعل. الرجاء اختيار عنوان مختلف أو تعديل المسلسل الحالي.');
                     return;
                 }
+
+                const newSeriesData = {
+                    title: title,
+                    image: image,
+                    category: category || 'عام',
+                    views: 0,
+                    likes: 0,
+                    episodes: []
+                };
 
                 await set(ref(db, `series/${safeTitle}`), newSeriesData);
                 alert('تم إضافة المسلسل بنجاح!');
@@ -823,16 +883,20 @@
                 loadSeries();
             } catch (error) {
                 console.error("Error adding series:", error);
-                alert('فشل إضافة المسلسل. قد يكون هناك مشكلة في الاتصال أو الأذونات.');
+                alert('فشل إضافة المسلسل: ' + error.message);
+            } finally {
+                toggleLoading(false);
             }
         });
 
         editSeriesSelect.addEventListener('change', async () => {
             currentSelectedSeriesId = editSeriesSelect.value;
             episodesListDiv.innerHTML = '';
+            clearNewEpisodeInputs();
 
             if (currentSelectedSeriesId) {
                 editSeriesForm.style.display = 'block';
+                toggleLoading(true);
                 try {
                     const snapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
                     const series = snapshot.val();
@@ -840,14 +904,15 @@
                         editSeriesTitleInput.value = series.title;
                         editSeriesImageInput.value = series.image;
                         editSeriesCategoryInput.value = series.category || '';
-                        // نحتاج لتحويل أي حلقة قديمة إلى تنسيق players مؤقتاً لعرضها بشكل صحيح
+                        
                         const episodesToDisplay = (series.episodes || []).map(ep => {
+                            // منطق الترحيل المؤقت للعرض فقط: يحول الهيكل القديم إلى هيكل players للعرض
                             if (!ep.players && (ep.link1 || ep.link2 || ep.link3)) {
                                 const tempPlayers = [];
                                 if (ep.link1) tempPlayers.push({ name: 'المشغل 1', link: ep.link1 });
                                 if (ep.link2) tempPlayers.push({ name: 'المشغل 2', link: ep.link2 });
                                 if (ep.link3) tempPlayers.push({ name: 'المشغل 3', link: ep.link3 });
-                                return { ...ep, players: tempPlayers }; // إرجاع نسخة مؤقتة مع players
+                                return { ...ep, players: tempPlayers }; 
                             }
                             return ep;
                         });
@@ -859,7 +924,9 @@
                     }
                 } catch (error) {
                     console.error("Error loading series for edit:", error);
-                    alert('فشل تحميل بيانات المسلسل للتعديل.');
+                    alert('فشل تحميل بيانات المسلسل للتعديل: ' + error.message);
+                } finally {
+                    toggleLoading(false);
                 }
             } else {
                 editSeriesForm.style.display = 'none';
@@ -880,25 +947,32 @@
                 alert('الرجاء إدخال عنوان المسلسل ورابط الصورة.');
                 return;
             }
-
+            
+            toggleLoading(true);
             try {
+                // ملاحظة: لا نغير المفتاح (ID) هنا، فقط البيانات الداخلية
                 await update(ref(db, `series/${currentSelectedSeriesId}`), {
                     title: title,
                     image: image,
                     category: category || 'عام'
                 });
                 alert('تم تحديث المسلسل بنجاح!');
-                loadSeries();
+                
+                // تحديث القائمة والقائمة المنسدلة
+                await loadSeries();
                 editSeriesSelect.value = currentSelectedSeriesId; 
-                editSeriesSelect.dispatchEvent(new Event('change'));
+                editSeriesSelect.dispatchEvent(new Event('change')); // إعادة تحميل بيانات التعديل
             } catch (error) {
                 console.error("Error updating series:", error);
-                alert('فشل تحديث المسلسل.');
+                alert('فشل تحديث المسلسل: ' + error.message);
+            } finally {
+                toggleLoading(false);
             }
         });
 
         async function deleteSeries(seriesIdToDelete) {
             if (confirm('هل أنت متأكد أنك تريد حذف هذا المسلسل وجميع حلقاته؟ هذا الإجراء لا يمكن التراجع عنه!')) {
+                toggleLoading(true);
                 try {
                     await remove(ref(db, `series/${seriesIdToDelete}`));
                     alert('تم حذف المسلسل بنجاح!');
@@ -907,7 +981,9 @@
                     loadSeries();
                 } catch (error) {
                     console.error("Error deleting series:", error);
-                    alert('فشل حذف المسلسل.');
+                    alert('فشل حذف المسلسل: ' + error.message);
+                } finally {
+                    toggleLoading(false);
                 }
             }
         }
@@ -927,10 +1003,10 @@
             }
 
             episodes.forEach((ep, index) => {
-                // Determine player info based on the new 'players' array
                 const players = ep.players || [];
                 const playerCount = players.length;
                 
+                // استخدام أسماء المشغلات من مصفوفة players
                 const playerNames = players.map(p => p.name).join(' | ') || (ep.link1 ? 'مشغلات قديمة' : 'بدون مشغلات');
 
                 const episodeItem = document.createElement('div');
@@ -998,7 +1074,8 @@
                 alert('الرجاء إدخال رابط مشغل واحد على الأقل (يفضل المشغل 1).');
                 return;
             }
-
+            
+            toggleLoading(true);
             try {
                 const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
                 const series = seriesSnapshot.val();
@@ -1007,7 +1084,7 @@
                 const newEpisode = {
                     title: title,
                     players: players, // NEW STRUCTURE
-                    isNew: newEpisodeIsNewCheckbox.checked,
+                    isNew: newEpisodeIsNewCheckbox.checked || false,
                     updatedAt: new Date().toISOString()
                 };
 
@@ -1016,135 +1093,126 @@
                 await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
                 alert('تم إضافة الحلقة بنجاح!');
                 
-                // Clear input fields (including new name fields)
-                newEpisodeTitleInput.value = '';
-                newEpisodeName1Input.value = 'المشغل 1';
-                newEpisodeLink1Input.value = '';
-                newEpisodeName2Input.value = 'المشغل 2';
-                newEpisodeLink2Input.value = '';
-                newEpisodeName3Input.value = 'المشغل 3';
-                newEpisodeLink3Input.value = '';
-                newEpisodeIsNewCheckbox.checked = false;
+                clearNewEpisodeInputs();
                 
                 // إعادة تحميل قائمة الحلقات
                 loadEpisodes(episodes);
             } catch (error) {
                 console.error("Error adding episode:", error);
-                alert('فشل إضافة الحلقة.');
+                alert('فشل إضافة الحلقة: ' + error.message);
+            } finally {
+                toggleLoading(false);
             }
         });
 
-        // Edit an existing episode (Updated to handle new 'players' array AND old link structure)
+        // Edit an existing episode (Handles migration to 'players' structure)
         async function editEpisode(event) {
             const index = parseInt(event.currentTarget.getAttribute('data-index'));
             
-            const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
-            const series = seriesSnapshot.val();
-            const episodes = series.episodes || [];
-            let episodeToEdit = episodes[index];
-
-            // ******* المنطق الأساسي للتحويل والعمل على تنسيق players *******
-            let currentPlayers = episodeToEdit.players || [];
-            if (!episodeToEdit.players && (episodeToEdit.link1 || episodeToEdit.link2 || episodeToEdit.link3)) {
-                // تحويل الهيكل القديم إلى الجديد إذا لم يكن players موجودًا
-                currentPlayers = [];
-                if (episodeToEdit.link1) currentPlayers.push({ name: 'المشغل 1', link: episodeToEdit.link1 });
-                if (episodeToEdit.link2) currentPlayers.push({ name: 'المشغل 2', link: episodeToEdit.link2 });
-                if (episodeToEdit.link3) currentPlayers.push({ name: 'المشغل 3', link: episodeToEdit.link3 });
-                alert('تنبيه: يتم الآن تعديل حلقة بهيكل قديم (link1, link2). سيتم تحويلها وحفظها بالهيكل الجديد (players).');
-            }
-
-            const newTitle = prompt('أدخل العنوان الجديد للحلقة:', episodeToEdit.title);
-            if (newTitle === null || newTitle.trim() === '') {
-                alert('لم يتم حفظ التعديلات. العنوان مطلوب أو تم الإلغاء.');
-                return; 
-            }
-
-            let updatedPlayers = [...currentPlayers];
-            
-            // 1. Edit Existing Players
-            for(let i = 0; i < updatedPlayers.length; i++) {
-                const player = updatedPlayers[i];
-                const editAction = prompt(`تحرير المشغل رقم ${i + 1}:\nالاسم الحالي: ${player.name}\nالرابط الحالي: ${player.link}\n\n1. تعديل الاسم والرابط\n2. حذف المشغل\n3. تخطي\n\nأدخل الرقم (1، 2، أو 3):`, '3');
-
-                if (editAction === '2') {
-                    if(confirm(`هل أنت متأكد من حذف المشغل: ${player.name}؟`)) {
-                        updatedPlayers.splice(i, 1);
-                        i--; // Adjust index after splice
-                    }
-                    continue;
-                } else if (editAction === '1') {
-                    const newName = prompt(`أدخل اسم المشغل الجديد (الحالي: ${player.name}):`, player.name);
-                    if (newName === null) continue;
-                    
-                    const newLink = prompt(`أدخل رابط المشغل الجديد (الحالي: ${player.link}):`, player.link);
-                    if (newLink === null) continue;
-
-                    if (newLink.trim() === '') {
-                         alert('رابط المشغل لا يمكن أن يكون فارغاً. تم حذف المشغل بدلاً من ذلك.');
-                         updatedPlayers.splice(i, 1);
-                         i--;
-                         continue;
-                    }
-
-                    updatedPlayers[i].name = newName.trim();
-                    updatedPlayers[i].link = newLink.trim();
-                }
-            }
-
-            // 2. Add New Player
-            if (confirm('هل تريد إضافة مشغل جديد؟')) {
-                const newPlayerName = prompt('أدخل اسم المشغل الجديد:');
-                if (newPlayerName && newPlayerName.trim()) {
-                    const newPlayerLink = prompt(`أدخل رابط المشغل لـ: ${newPlayerName.trim()}`);
-                    if (newPlayerLink && newPlayerLink.trim()) {
-                        updatedPlayers.push({ name: newPlayerName.trim(), link: newPlayerLink.trim() });
-                    } else {
-                        alert('تم إلغاء الإضافة. الرابط مطلوب.');
-                    }
-                } else {
-                    alert('تم إلغاء الإضافة. الاسم مطلوب.');
-                }
-            }
-
-            if (updatedPlayers.length === 0) {
-                alert('يجب أن تحتوي الحلقة على مشغل واحد على الأقل. لم يتم حفظ التعديلات.');
-                return;
-            }
-
-            episodes[index].title = newTitle.trim();
-            episodes[index].players = updatedPlayers; // Store the new array
-            
-            // **تنظيف حقول الروابط القديمة (الترحيل)**
-            delete episodes[index].link1;
-            delete episodes[index].link2;
-            delete episodes[index].link3;
-
-            // **تنظيف الحقول الأخرى التي قد لا تحتاجها**
-            delete episodes[index].title1; // للتأكد من حذف أي حقول غير مرغوبة
-            
-            episodes[index].updatedAt = new Date().toISOString();
-
+            toggleLoading(true);
             try {
+                const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
+                const series = seriesSnapshot.val();
+                const episodes = series.episodes || [];
+                let episodeToEdit = episodes[index];
+
+                // ******* منطق الترحيل الفعلي هنا *******
+                let currentPlayers = episodeToEdit.players || [];
+                if (!episodeToEdit.players && (episodeToEdit.link1 || episodeToEdit.link2 || episodeToEdit.link3)) {
+                    // تحويل الهيكل القديم إلى الجديد قبل التعديل
+                    currentPlayers = [];
+                    if (episodeToEdit.link1) currentPlayers.push({ name: 'المشغل 1', link: episodeToEdit.link1 });
+                    if (episodeToEdit.link2) currentPlayers.push({ name: 'المشغل 2', link: episodeToEdit.link2 });
+                    if (episodeToEdit.link3) currentPlayers.push({ name: 'المشغل 3', link: episodeToEdit.link3 });
+                    alert('تنبيه: يتم الآن تعديل حلقة بهيكل قديم (link1, link2..). سيتم تحويلها وحفظها بالهيكل الجديد (players).');
+                }
+
+                const newTitle = prompt('أدخل العنوان الجديد للحلقة:', episodeToEdit.title);
+                if (newTitle === null || newTitle.trim() === '') {
+                    toggleLoading(false);
+                    alert('لم يتم حفظ التعديلات. العنوان مطلوب أو تم الإلغاء.');
+                    return; 
+                }
+
+                let updatedPlayers = [...currentPlayers];
+                
+                // 1. Edit/Delete Existing Players
+                for(let i = 0; i < updatedPlayers.length; i++) {
+                    const player = updatedPlayers[i];
+                    const editAction = prompt(`تحرير المشغل رقم ${i + 1} (${player.name}):\nالرابط الحالي: ${player.link}\n\n1. تعديل الاسم والرابط\n2. حذف المشغل\n3. تخطي\n\nأدخل الرقم (1، 2، أو 3):`, '3');
+
+                    if (editAction === '2') {
+                        if(confirm(`هل أنت متأكد من حذف المشغل: ${player.name}؟`)) {
+                            updatedPlayers.splice(i, 1);
+                            i--; 
+                        }
+                        continue;
+                    } else if (editAction === '1') {
+                        const newName = prompt(`أدخل اسم المشغل الجديد (الحالي: ${player.name}):`, player.name);
+                        if (newName === null) continue;
+                        
+                        const newLink = prompt(`أدخل رابط المشغل الجديد (الحالي: ${player.link}):`, player.link);
+                        if (newLink === null) continue;
+
+                        if (newLink.trim() === '') {
+                             if (confirm('رابط المشغل لا يمكن أن يكون فارغاً. هل تريد حذفه بدلاً من ذلك؟')) {
+                                updatedPlayers.splice(i, 1);
+                                i--;
+                                continue;
+                             } else {
+                                alert('تم الإلغاء.');
+                                continue;
+                             }
+                        }
+
+                        updatedPlayers[i].name = newName.trim();
+                        updatedPlayers[i].link = newLink.trim();
+                    }
+                }
+
+                // 2. Add New Player
+                if (confirm('هل تريد إضافة مشغل جديد؟')) {
+                    const newPlayerName = prompt('أدخل اسم المشغل الجديد:');
+                    if (newPlayerName && newPlayerName.trim()) {
+                        const newPlayerLink = prompt(`أدخل رابط المشغل لـ: ${newPlayerName.trim()}`);
+                        if (newPlayerLink && newPlayerLink.trim()) {
+                            updatedPlayers.push({ name: newPlayerName.trim(), link: newPlayerLink.trim() });
+                        } else {
+                            alert('تم إلغاء الإضافة. الرابط مطلوب.');
+                        }
+                    } else {
+                        alert('تم إلغاء الإضافة. الاسم مطلوب.');
+                    }
+                }
+
+                if (updatedPlayers.length === 0) {
+                    toggleLoading(false);
+                    alert('يجب أن تحتوي الحلقة على مشغل واحد على الأقل. لم يتم حفظ التعديلات.');
+                    return;
+                }
+
+                episodes[index].title = newTitle.trim();
+                episodes[index].players = updatedPlayers; // حفظ بالهيكل الجديد
+                
+                // **تنظيف حقول الروابط القديمة لضمان الترحيل الكامل**
+                delete episodes[index].link1;
+                delete episodes[index].link2;
+                delete episodes[index].link3;
+                delete episodes[index].title1; // تنظيف إضافي
+                
+                episodes[index].updatedAt = new Date().toISOString();
+
                 await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
                 alert('تم تحديث الحلقة بنجاح! تم حفظها الآن بتنسيق المشغلات (players) الجديد.');
 
                 // تحويل بيانات العرض مؤقتاً لتظهر في loadEpisodes
-                const episodesToDisplay = episodes.map(ep => {
-                    if (!ep.players && (ep.link1 || ep.link2 || ep.link3)) {
-                        const tempPlayers = [];
-                        if (ep.link1) tempPlayers.push({ name: 'المشغل 1', link: ep.link1 });
-                        if (ep.link2) tempPlayers.push({ name: 'المشغل 2', link: ep.link2 });
-                        if (ep.link3) tempPlayers.push({ name: 'المشغل 3', link: ep.link3 });
-                        return { ...ep, players: tempPlayers };
-                    }
-                    return ep;
-                });
-                loadEpisodes(episodesToDisplay);
+                loadEpisodes(episodes);
 
             } catch (error) {
                 console.error("Error updating episode:", error);
-                alert('فشل تحديث الحلقة.');
+                alert('فشل تحديث الحلقة: ' + error.message);
+            } finally {
+                toggleLoading(false);
             }
         }
 
@@ -1152,6 +1220,7 @@
         async function deleteEpisode(event) {
             const index = parseInt(event.currentTarget.getAttribute('data-index'));
             if (confirm('هل أنت متأكد أنك تريد حذف هذه الحلقة؟')) {
+                toggleLoading(true);
                 try {
                     const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
                     const series = seriesSnapshot.val();
@@ -1163,21 +1232,13 @@
                     alert('تم حذف الحلقة بنجاح!');
 
                     // تحويل بيانات العرض مؤقتاً لتظهر في loadEpisodes
-                    const episodesToDisplay = episodes.map(ep => {
-                        if (!ep.players && (ep.link1 || ep.link2 || ep.link3)) {
-                            const tempPlayers = [];
-                            if (ep.link1) tempPlayers.push({ name: 'المشغل 1', link: ep.link1 });
-                            if (ep.link2) tempPlayers.push({ name: 'المشغل 2', link: ep.link2 });
-                            if (ep.link3) tempPlayers.push({ name: 'المشغل 3', link: ep.link3 });
-                            return { ...ep, players: tempPlayers };
-                        }
-                        return ep;
-                    });
-                    loadEpisodes(episodesToDisplay);
+                    loadEpisodes(episodes);
 
                 } catch (error) {
                     console.error("Error deleting episode:", error);
-                    alert('فشل حذف الحلقة.');
+                    alert('فشل حذف الحلقة: ' + error.message);
+                } finally {
+                    toggleLoading(false);
                 }
             }
         }
@@ -1185,6 +1246,7 @@
         // Toggle "isNew" status for an episode
         async function toggleEpisodeNewStatus(event) {
             const index = parseInt(event.currentTarget.getAttribute('data-index'));
+            toggleLoading(true);
             try {
                 const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
                 const series = seriesSnapshot.val();
@@ -1197,21 +1259,13 @@
                 alert('تم تحديث حالة الحلقة بنجاح!');
                 
                 // تحويل بيانات العرض مؤقتاً لتظهر في loadEpisodes
-                const episodesToDisplay = episodes.map(ep => {
-                    if (!ep.players && (ep.link1 || ep.link2 || ep.link3)) {
-                        const tempPlayers = [];
-                        if (ep.link1) tempPlayers.push({ name: 'المشغل 1', link: ep.link1 });
-                        if (ep.link2) tempPlayers.push({ name: 'المشغل 2', link: ep.link2 });
-                        if (ep.link3) tempPlayers.push({ name: 'المشغل 3', link: ep.link3 });
-                        return { ...ep, players: tempPlayers };
-                    }
-                    return ep;
-                });
-                loadEpisodes(episodesToDisplay);
+                loadEpisodes(episodes);
 
             } catch (error) {
                 console.error("Error toggling new status:", error);
-                alert('فشل تحديث حالة الحلقة.');
+                alert('فشل تحديث حالة الحلقة: ' + error.message);
+            } finally {
+                toggleLoading(false);
             }
         }
         //]]>
