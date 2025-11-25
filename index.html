@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>حكايتنا - لوحة الإدارة</title>
-    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700&family=Almarai:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700&family=Almarai:wght=400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         :root {
@@ -286,14 +286,31 @@
             background: #229954;
         }
         
-        /* New: Player Links Grid */
-        .player-links-grid {
+        /* New: Player Links Container - Updated for Name/Link pairs */
+        #new-episode-players-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
+            margin-top: 20px;
         }
-        .player-links-grid .form-group {
-            margin-bottom: 0;
+        .player-input-group {
+            background: #2a2a30; /* Darker background for grouping */
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #4a4a50;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .player-input-group label {
+            font-size: 15px; /* Slightly smaller label */
+            margin-top: 10px;
+        }
+        .player-input-group label:first-child {
+            margin-top: 0;
+        }
+        .player-input-group input[type="text"],
+        .player-input-group input[type="url"] {
+            margin-bottom: 10px;
+            width: calc(100% - 24px); 
         }
 
         /* Series List */
@@ -494,15 +511,13 @@
                 margin: 30px auto;
                 padding: 20px;
             }
-            /* ... (Responsive CSS remains mostly the same) ... */
-            .player-links-grid {
+            #new-episode-players-container {
                 grid-template-columns: 1fr;
             }
         }
 
         @media (max-width: 768px) {
-            /* ... (Responsive CSS remains mostly the same) ... */
-            .player-links-grid {
+            #new-episode-players-container {
                 grid-template-columns: 1fr;
             }
         }
@@ -586,16 +601,24 @@
                             <label for="new-episode-title">عنوان الحلقة الجديدة:</label>
                             <input type="text" id="new-episode-title" placeholder="مثال: الحلقة 1 الموسم الأول" required>
                         </div>
-                        <div class="player-links-grid">
-                            <div class="form-group">
-                                <label for="new-episode-link-1">رابط المشغل 1 (أساسي):</label>
+
+                        <h4 style="margin-top: 30px; font-size: 18px;"><i class="fas fa-cogs"></i> مشغلات الحلقة (يمكنك تغيير الاسم لكل مشغل)</h4>
+                        <div id="new-episode-players-container">
+                            <div class="player-input-group">
+                                <label for="new-episode-name-1">اسم المشغل 1 (أساسي):</label>
+                                <input type="text" id="new-episode-name-1" value="المشغل 1" required>
+                                <label for="new-episode-link-1">رابط المشغل 1:</label>
                                 <input type="url" id="new-episode-link-1" placeholder="رابط المشغل الأساسي (مطلوب)" required>
                             </div>
-                            <div class="form-group">
+                            <div class="player-input-group">
+                                <label for="new-episode-name-2">اسم المشغل 2:</label>
+                                <input type="text" id="new-episode-name-2" value="المشغل 2">
                                 <label for="new-episode-link-2">رابط المشغل 2:</label>
                                 <input type="url" id="new-episode-link-2" placeholder="رابط احتياطي (اختياري)">
                             </div>
-                            <div class="form-group">
+                            <div class="player-input-group">
+                                <label for="new-episode-name-3">اسم المشغل 3:</label>
+                                <input type="text" id="new-episode-name-3" value="المشغل 3">
                                 <label for="new-episode-link-3">رابط المشغل 3:</label>
                                 <input type="url" id="new-episode-link-3" placeholder="رابط احتياطي آخر (اختياري)">
                             </div>
@@ -663,10 +686,13 @@
         const deleteSeriesBtn = document.getElementById('delete-series-btn');
 
         const episodesListDiv = document.getElementById('episodes-list');
-        // Updated Episode Link Inputs
+        // Updated Episode Link Inputs (now includes names)
         const newEpisodeTitleInput = document.getElementById('new-episode-title');
+        const newEpisodeName1Input = document.getElementById('new-episode-name-1'); // NEW
         const newEpisodeLink1Input = document.getElementById('new-episode-link-1');
+        const newEpisodeName2Input = document.getElementById('new-episode-name-2'); // NEW
         const newEpisodeLink2Input = document.getElementById('new-episode-link-2');
+        const newEpisodeName3Input = document.getElementById('new-episode-name-3'); // NEW
         const newEpisodeLink3Input = document.getElementById('new-episode-link-3');
         
         const newEpisodeIsNewCheckbox = document.getElementById('new-episode-is-new');
@@ -896,12 +922,20 @@
             }
 
             episodes.forEach((ep, index) => {
+                // Determine if the episode uses the new 'players' array or the old 'link1' structure for display
+                const playerCount = ep.players ? ep.players.length : (ep.link1 ? 1 : 0) + (ep.link2 ? 1 : 0) + (ep.link3 ? 1 : 0);
+                
+                const playerNames = ep.players 
+                    ? ep.players.map(p => p.name).join(' | ') 
+                    : (ep.link2 || ep.link3 ? 'متعدد المشغلات (قديم)' : (ep.link1 ? 'مشغل واحد (قديم)' : 'بدون مشغلات'));
+
                 const episodeItem = document.createElement('div');
                 episodeItem.className = 'episode-item';
                 episodeItem.setAttribute('data-index', index); 
-                // Display the title and indicate if multiple links exist (optional)
+                
+                // Display player info
                 episodeItem.innerHTML = `
-                    <span>${ep.title} (${ep.link2 || ep.link3 ? 'متعدد المشغلات' : 'مشغل واحد'})</span>
+                    <span>${ep.title} | ${playerCount} مشغل (${playerNames})</span>
                     <div class="episode-item-actions">
                         <button class="toggle-new-btn ${ep.isNew ? 'active' : ''}" data-index="${index}">${ep.isNew ? '<i class="fas fa-eye-slash"></i> إزالة "جديدة"' : '<i class="fas fa-eye"></i> وضع "جديدة"'}</button>
                         <button class="edit-episode-btn" data-index="${index}"><i class="fas fa-edit"></i> تعديل</button>
@@ -930,13 +964,36 @@
             }
 
             const title = newEpisodeTitleInput.value.trim();
-            const link1 = newEpisodeLink1Input.value.trim();
-            const link2 = newEpisodeLink2Input.value.trim();
-            const link3 = newEpisodeLink3Input.value.trim();
-            const isNew = newEpisodeIsNewCheckbox.checked;
+            
+            // NEW LOGIC: Collect all players (Name and Link)
+            const players = [];
+            
+            const player1Name = newEpisodeName1Input.value.trim() || 'المشغل 1';
+            const player1Link = newEpisodeLink1Input.value.trim();
+            if (player1Link) {
+                players.push({ name: player1Name, link: player1Link });
+            }
 
-            if (!title || !link1) {
-                alert('الرجاء إدخال عنوان الحلقة ورابط المشغل الأساسي (1).');
+            const player2Name = newEpisodeName2Input.value.trim() || 'المشغل 2';
+            const player2Link = newEpisodeLink2Input.value.trim();
+            if (player2Link) {
+                players.push({ name: player2Name, link: player2Link });
+            }
+            
+            const player3Name = newEpisodeName3Input.value.trim() || 'المشغل 3';
+            const player3Link = newEpisodeLink3Input.value.trim();
+            if (player3Link) {
+                players.push({ name: player3Name, link: player3Link });
+            }
+
+
+            if (!title) {
+                alert('الرجاء إدخال عنوان الحلقة.');
+                return;
+            }
+
+            if (players.length === 0) {
+                alert('الرجاء إدخال رابط مشغل واحد على الأقل (يفضل المشغل 1).');
                 return;
             }
 
@@ -947,10 +1004,8 @@
 
                 const newEpisode = {
                     title: title,
-                    link1: link1, // Player 1 (required)
-                    link2: link2 || null, // Player 2 (optional)
-                    link3: link3 || null, // Player 3 (optional)
-                    isNew: isNew,
+                    players: players, // NEW STRUCTURE
+                    isNew: newEpisodeIsNewCheckbox.checked,
                     updatedAt: new Date().toISOString()
                 };
 
@@ -958,10 +1013,14 @@
 
                 await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
                 alert('تم إضافة الحلقة بنجاح!');
-                // Clear episode input fields
+                
+                // Clear input fields (including new name fields)
                 newEpisodeTitleInput.value = '';
+                newEpisodeName1Input.value = 'المشغل 1';
                 newEpisodeLink1Input.value = '';
+                newEpisodeName2Input.value = 'المشغل 2';
                 newEpisodeLink2Input.value = '';
+                newEpisodeName3Input.value = 'المشغل 3';
                 newEpisodeLink3Input.value = '';
                 newEpisodeIsNewCheckbox.checked = false;
                 loadEpisodes(episodes);
@@ -971,37 +1030,87 @@
             }
         });
 
-        // Edit an existing episode
+        // Edit an existing episode (Updated to handle new 'players' array)
         async function editEpisode(event) {
             const index = parseInt(event.currentTarget.getAttribute('data-index'));
             
             const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
             const series = seriesSnapshot.val();
             const episodes = series.episodes || [];
-            const episodeToEdit = episodes[index];
+            let episodeToEdit = episodes[index];
+
+            // NEW: Convert old structure (link1, link2, link3) to new structure (players array) for editing
+            let currentPlayers = episodeToEdit.players || [];
+            if (!episodeToEdit.players && episodeToEdit.link1) {
+                currentPlayers = [];
+                if (episodeToEdit.link1) currentPlayers.push({ name: 'المشغل 1', link: episodeToEdit.link1 });
+                if (episodeToEdit.link2) currentPlayers.push({ name: 'المشغل 2', link: episodeToEdit.link2 });
+                if (episodeToEdit.link3) currentPlayers.push({ name: 'المشغل 3', link: episodeToEdit.link3 });
+            }
 
             const newTitle = prompt('أدخل العنوان الجديد للحلقة:', episodeToEdit.title);
             if (newTitle === null) return; 
 
-            // Prompt for each player link
-            const newLink1 = prompt('أدخل الرابط الجديد للمشغل 1 (أساسي):', episodeToEdit.link1 || '');
-            if (newLink1 === null) return; 
-            if (newLink1.trim() === '') {
-                 alert('لا يمكن أن يكون رابط المشغل الأساسي (1) فارغاً.');
-                 return;
+            let updatedPlayers = [...currentPlayers];
+            
+            // 1. Edit Existing Players
+            for(let i = 0; i < updatedPlayers.length; i++) {
+                const player = updatedPlayers[i];
+                const editAction = prompt(`تحرير المشغل رقم ${i + 1}:\nالاسم الحالي: ${player.name}\nالرابط الحالي: ${player.link}\n\n1. تعديل الاسم والرابط\n2. حذف المشغل\n3. تخطي\n\nأدخل الرقم (1، 2، أو 3):`, '3');
+
+                if (editAction === '2') {
+                    if(confirm(`هل أنت متأكد من حذف المشغل: ${player.name}؟`)) {
+                        updatedPlayers.splice(i, 1);
+                        i--; // Adjust index after splice
+                    }
+                    continue;
+                } else if (editAction === '1') {
+                    const newName = prompt(`أدخل اسم المشغل الجديد (الحالي: ${player.name}):`, player.name);
+                    if (newName === null) continue;
+                    
+                    const newLink = prompt(`أدخل رابط المشغل الجديد (الحالي: ${player.link}):`, player.link);
+                    if (newLink === null) continue;
+
+                    if (newLink.trim() === '') {
+                         alert('رابط المشغل لا يمكن أن يكون فارغاً. تم حذف المشغل.');
+                         updatedPlayers.splice(i, 1);
+                         i--;
+                         continue;
+                    }
+
+                    updatedPlayers[i].name = newName.trim();
+                    updatedPlayers[i].link = newLink.trim();
+                }
             }
 
-            const newLink2 = prompt('أدخل الرابط الجديد للمشغل 2 (احتياطي):', episodeToEdit.link2 || '');
-            if (newLink2 === null) return; 
+            // 2. Add New Player
+            if (confirm('هل تريد إضافة مشغل جديد؟')) {
+                const newPlayerName = prompt('أدخل اسم المشغل الجديد:');
+                if (newPlayerName && newPlayerName.trim()) {
+                    const newPlayerLink = prompt(`أدخل رابط المشغل لـ: ${newPlayerName.trim()}`);
+                    if (newPlayerLink && newPlayerLink.trim()) {
+                        updatedPlayers.push({ name: newPlayerName.trim(), link: newPlayerLink.trim() });
+                    } else {
+                        alert('تم إلغاء الإضافة. الرابط مطلوب.');
+                    }
+                } else {
+                    alert('تم إلغاء الإضافة. الاسم مطلوب.');
+                }
+            }
 
-            const newLink3 = prompt('أدخل الرابط الجديد للمشغل 3 (احتياطي آخر):', episodeToEdit.link3 || '');
-            if (newLink3 === null) return; 
+            if (updatedPlayers.length === 0) {
+                alert('يجب أن تحتوي الحلقة على مشغل واحد على الأقل. لم يتم حفظ التعديلات.');
+                return;
+            }
 
-            
             episodes[index].title = newTitle.trim();
-            episodes[index].link1 = newLink1.trim();
-            episodes[index].link2 = newLink2.trim() || null; // Store null if empty
-            episodes[index].link3 = newLink3.trim() || null; // Store null if empty
+            episodes[index].players = updatedPlayers; // Store the new array
+            
+            // Clean up old link fields for full transition to 'players' array
+            delete episodes[index].link1;
+            delete episodes[index].link2;
+            delete episodes[index].link3;
+
             episodes[index].updatedAt = new Date().toISOString();
 
             try {
