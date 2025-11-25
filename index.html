@@ -707,7 +707,7 @@
         import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
         import { getDatabase, ref, get, set, remove, update } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
-        // Firebase configuration (from your provided code)
+        // **تنبيه هام:** تأكد من أن إعدادات Firebase الخاصة بك هنا هي الإعدادات الصحيحة لمشروعك.
         const firebaseConfig = {
             apiKey: "AIzaSyCEaxXR5eqzg0e5JvjWAFjZ5ZeMraMYREn",
             authDomain: "mo-play-b0cb7.firebaseapp.com",
@@ -740,7 +740,7 @@
         const editSeriesImageInput = document.getElementById('edit-series-image');
         const editSeriesCategoryInput = document.getElementById('edit-series-category');
         const updateSeriesBtn = document.getElementById('update-series-btn');
-        const deleteSeriesBtn = document.getElementById('delete-series-btn'); // Corrected typo here
+        const deleteSeriesBtn = document.getElementById('delete-series-btn');
 
         const episodesListDiv = document.getElementById('episodes-list');
         const newEpisodeTitleInput = document.getElementById('new-episode-title');
@@ -766,12 +766,6 @@
             return normalized.trim();
         }
 
-        // --- Authentication (simplified for direct admin panel access) ---
-        // Since there's no login page, we directly load the admin panel.
-        // onAuthStateChanged is no longer strictly necessary for initial display.
-        // However, getAuth and signOut are still useful if you want to allow users
-        // to explicitly log out from previous sessions or handle authentication states.
-
         // Load series directly when the page loads
         window.addEventListener('load', loadSeries);
 
@@ -782,7 +776,7 @@
                     await signOut(auth); // Sign out any current user
                     alert('تم تسجيل الخروج بنجاح. لن تتمكن من تعديل البيانات بعد الآن.');
                     adminPanelSection.style.display = 'none'; // Hide the panel
-                    // You might redirect to a login page or display a message here
+                    // يمكنك توجيه المستخدم لصفحة تسجيل الدخول هنا
                 } catch (error) {
                     console.error("Logout failed:", error);
                     alert('فشل تسجيل الخروج.');
@@ -841,14 +835,16 @@
                 // Add event listeners for edit and delete buttons on series cards
                 document.querySelectorAll('#series-list .edit-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
-                        const seriesId = e.target.getAttribute('data-series-id');
+                        // Find the closest series-item to get the data-series-id correctly
+                        const seriesId = e.currentTarget.getAttribute('data-series-id');
                         editSeriesSelect.value = seriesId;
                         editSeriesSelect.dispatchEvent(new Event('change')); // Trigger change event
                     });
                 });
                 document.querySelectorAll('#series-list .delete-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
-                        const seriesId = e.target.getAttribute('data-series-id');
+                        // Find the closest series-item to get the data-series-id correctly
+                        const seriesId = e.currentTarget.getAttribute('data-series-id');
                         deleteSeries(seriesId);
                     });
                 });
@@ -1001,6 +997,8 @@
             episodes.forEach((ep, index) => {
                 const episodeItem = document.createElement('div');
                 episodeItem.className = 'episode-item';
+                // Add data-index to the episode-item div to make it easier for event delegation
+                episodeItem.setAttribute('data-index', index); 
                 episodeItem.innerHTML = `
                     <span>${ep.title}</span>
                     <div class="episode-item-actions">
@@ -1012,7 +1010,7 @@
                 episodesListDiv.appendChild(episodeItem);
             });
 
-            // Add event listeners for episode buttons
+            // Add event listeners for episode buttons using event delegation on the episode-item actions
             document.querySelectorAll('.toggle-new-btn').forEach(btn => {
                 btn.addEventListener('click', toggleEpisodeNewStatus);
             });
@@ -1069,7 +1067,7 @@
 
         // Edit an existing episode
         async function editEpisode(event) {
-            const index = parseInt(event.target.getAttribute('data-index'));
+            const index = parseInt(event.currentTarget.getAttribute('data-index'));
             
             const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
             const series = seriesSnapshot.val();
@@ -1077,31 +1075,37 @@
             const episodeToEdit = episodes[index];
 
             const newTitle = prompt('أدخل العنوان الجديد للحلقة:', episodeToEdit.title);
+            
+            // If the user cancelled the first prompt, stop
+            if (newTitle === null) return; 
+
             const newLink = prompt('أدخل الرابط الجديد للحلقة:', episodeToEdit.link);
 
-            if (newTitle !== null && newLink !== null) { // If user didn't click Cancel
-                if (newTitle.trim() === '' || newLink.trim() === '') {
-                    alert('لا يمكن أن يكون العنوان أو الرابط فارغاً.');
-                    return;
-                }
-                episodes[index].title = newTitle.trim();
-                episodes[index].link = newLink.trim();
-                episodes[index].updatedAt = new Date().toISOString(); // Update modification time
+            // If the user cancelled the second prompt, stop
+            if (newLink === null) return; 
 
-                try {
-                    await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
-                    alert('تم تحديث الحلقة بنجاح!');
-                    loadEpisodes(episodes); // Refresh episode list
-                } catch (error) {
-                    console.error("Error updating episode:", error);
-                    alert('فشل تحديث الحلقة.');
-                }
+            if (newTitle.trim() === '' || newLink.trim() === '') {
+                alert('لا يمكن أن يكون العنوان أو الرابط فارغاً.');
+                return;
+            }
+            
+            episodes[index].title = newTitle.trim();
+            episodes[index].link = newLink.trim();
+            episodes[index].updatedAt = new Date().toISOString(); // Update modification time
+
+            try {
+                await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
+                alert('تم تحديث الحلقة بنجاح!');
+                loadEpisodes(episodes); // Refresh episode list
+            } catch (error) {
+                console.error("Error updating episode:", error);
+                alert('فشل تحديث الحلقة.');
             }
         }
 
         // Delete an episode
         async function deleteEpisode(event) {
-            const index = parseInt(event.target.getAttribute('data-index'));
+            const index = parseInt(event.currentTarget.getAttribute('data-index'));
             if (confirm('هل أنت متأكد أنك تريد حذف هذه الحلقة؟')) {
                 try {
                     const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
@@ -1122,7 +1126,7 @@
 
         // Toggle "isNew" status for an episode
         async function toggleEpisodeNewStatus(event) {
-            const index = parseInt(event.target.getAttribute('data-index'));
+            const index = parseInt(event.currentTarget.getAttribute('data-index'));
             try {
                 const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
                 const series = seriesSnapshot.val();
