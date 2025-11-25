@@ -4,18 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>حكايتنا - لوحة الإدارة</title>
-    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700&family=Almarai:wght=400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700&family=Almarai:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         :root {
             --primary-color: #e74c3c; /* Vibrant Red */
             --secondary-color: #f39c12; /* Amber Orange */
-            --dark-bg-main: #1c1c20; /* Deep charcoal */
-            --dark-bg-secondary: #28282d; /* Slightly lighter charcoal */
-            --card-bg: #323238; /* Darker grey for cards */
+            --dark-bg-main: #1c1c20;
+            --dark-bg-secondary: #28282d;
+            --card-bg: #323238;
             --section-bg: #2b2b30;
-            --text-light: #ecf0f1; /* Off-white */
-            --text-muted: #bdc3c7; /* Light grey */
+            --text-light: #ecf0f1;
+            --text-muted: #bdc3c7;
             --border-color: #4a4a50;
             --shadow-dark: rgba(0,0,0,0.7);
             --glow-primary: rgba(231, 76, 60, 0.5);
@@ -68,32 +68,27 @@
             border: 1px solid var(--border-color);
             position: relative;
             overflow: hidden;
+            z-index: 1;
         }
 
-        .container::before {
+        .container::before, .container::after {
             content: '';
             position: absolute;
+            width: 200px;
+            height: 200px;
+            opacity: 0.05;
+            filter: blur(50px);
+            z-index: 0;
+        }
+        .container::before {
             top: -50px;
             left: -50px;
-            width: 200px;
-            height: 200px;
             background: radial-gradient(circle, var(--primary-color) 0%, transparent 70%);
-            opacity: 0.05;
-            filter: blur(50px);
-            z-index: 0;
         }
-
         .container::after {
-            content: '';
-            position: absolute;
             bottom: -50px;
             right: -50px;
-            width: 200px;
-            height: 200px;
             background: radial-gradient(circle, var(--secondary-color) 0%, transparent 70%);
-            opacity: 0.05;
-            filter: blur(50px);
-            z-index: 0;
         }
 
         h1, h2, h3, h4 {
@@ -154,7 +149,7 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.4);
         }
         .admin-header button:hover {
-            background: #e67e22; /* Darker amber */
+            background: #e67e22;
             transform: translateY(-3px) scale(1.02);
             box-shadow: 0 6px 15px rgba(0,0,0,0.6);
         }
@@ -172,7 +167,7 @@
             border: 1px solid var(--border-color);
             position: relative;
             overflow: hidden;
-            z-index: 1; /* Ensure content is above pseudo-elements */
+            z-index: 1;
         }
         .form-section::before {
             content: '';
@@ -196,9 +191,6 @@
             justify-content: center;
             gap: 10px;
         }
-        .form-section h3 i {
-            color: var(--primary-color);
-        }
         .form-group {
             margin-bottom: 20px;
         }
@@ -212,7 +204,7 @@
         .form-group input[type="text"],
         .form-group input[type="url"],
         .form-group select {
-            width: calc(100% - 24px); /* Adjust for padding and border */
+            width: calc(100% - 24px);
             padding: 12px;
             border: 1px solid var(--border-color);
             border-radius: 8px;
@@ -237,7 +229,7 @@
             background-repeat: no-repeat;
             background-position: left 10px center;
             background-size: 1em;
-            padding-left: 35px; /* Space for the icon */
+            padding-left: 35px;
         }
 
         .action-buttons {
@@ -263,7 +255,7 @@
             gap: 8px;
         }
         .form-group button:hover {
-            background: #c0392b; /* Darker red */
+            background: #c0392b;
             transform: translateY(-3px);
             box-shadow: 0 6px 15px rgba(0,0,0,0.6);
         }
@@ -285,8 +277,8 @@
         .form-group button.add-episode-btn:hover {
             background: #229954;
         }
-        
-        /* New: Player Links Container - Updated for Name/Link pairs */
+
+        /* Player Links Container */
         #new-episode-players-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -294,14 +286,14 @@
             margin-top: 20px;
         }
         .player-input-group {
-            background: #2a2a30; /* Darker background for grouping */
+            background: #2a2a30;
             padding: 15px;
             border-radius: 10px;
             border: 1px solid #4a4a50;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         .player-input-group label {
-            font-size: 15px; /* Slightly smaller label */
+            font-size: 15px;
             margin-top: 10px;
         }
         .player-input-group label:first-child {
@@ -310,7 +302,7 @@
         .player-input-group input[type="text"],
         .player-input-group input[type="url"] {
             margin-bottom: 10px;
-            width: calc(100% - 24px); 
+            width: calc(100% - 24px);
         }
 
         /* Series List */
@@ -334,7 +326,7 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
             display: flex;
             flex-direction: column;
-            cursor: default; /* Change cursor back to default as buttons are interactive */
+            cursor: default;
         }
         .series-item:hover {
             transform: translateY(-8px);
@@ -413,9 +405,9 @@
             gap: 10px;
         }
         #episodes-list {
-            max-height: 300px; /* Constrain height */
-            overflow-y: auto; /* Enable scrolling */
-            padding-right: 10px; /* For scrollbar */
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 10px;
             margin-bottom: 20px;
         }
         #episodes-list::-webkit-scrollbar {
@@ -454,7 +446,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            padding-right: 10px; /* Space for actions */
+            padding-right: 10px;
         }
         .episode-item-actions {
             display: flex;
@@ -499,7 +491,7 @@
             width: auto;
             transform: scale(1.3);
             margin-left: 10px;
-            accent-color: var(--success-color); /* For modern browsers */
+            accent-color: var(--success-color);
         }
         .form-group input[type="checkbox"]:checked + label {
             color: var(--success-color);
@@ -650,7 +642,7 @@
         import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
         import { getDatabase, ref, get, set, remove, update } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
-        // Firebase configuration (Use your configuration here)
+        // Firebase configuration (استبدل هذا بتهيئة Firebase الخاصة بك)
         const firebaseConfig = {
             apiKey: "AIzaSyCEaxXR5eqzg0e5JvjWAFjZ5ZeMraMYREn",
             authDomain: "mo-play-b0cb7.firebaseapp.com",
@@ -686,13 +678,12 @@
         const deleteSeriesBtn = document.getElementById('delete-series-btn');
 
         const episodesListDiv = document.getElementById('episodes-list');
-        // Updated Episode Link Inputs (now includes names)
         const newEpisodeTitleInput = document.getElementById('new-episode-title');
-        const newEpisodeName1Input = document.getElementById('new-episode-name-1'); // NEW
+        const newEpisodeName1Input = document.getElementById('new-episode-name-1');
         const newEpisodeLink1Input = document.getElementById('new-episode-link-1');
-        const newEpisodeName2Input = document.getElementById('new-episode-name-2'); // NEW
+        const newEpisodeName2Input = document.getElementById('new-episode-name-2');
         const newEpisodeLink2Input = document.getElementById('new-episode-link-2');
-        const newEpisodeName3Input = document.getElementById('new-episode-name-3'); // NEW
+        const newEpisodeName3Input = document.getElementById('new-episode-name-3');
         const newEpisodeLink3Input = document.getElementById('new-episode-link-3');
         
         const newEpisodeIsNewCheckbox = document.getElementById('new-episode-is-new');
@@ -702,7 +693,7 @@
 
         let currentSelectedSeriesId = null;
 
-        // Function to normalize Arabic titles for Firebase keys (as provided previously)
+        // Function to normalize Arabic titles for Firebase keys
         function normalizeTitleForFirebase(title) {
             let normalized = title.replace(/^(مسلسل|مسلسلات)\s*/, '');
             normalized = normalized.replace(/[^a-zA-Z0-9\u0600-\u06FF]+/g, '_');
@@ -720,6 +711,8 @@
                     await signOut(auth);
                     alert('تم تسجيل الخروج بنجاح. لن تتمكن من تعديل البيانات بعد الآن.');
                     adminPanelSection.style.display = 'none';
+                    // يمكنك إعادة توجيه المستخدم لصفحة تسجيل الدخول هنا
+                    // window.location.href = 'login.html'; 
                 } catch (error) {
                     console.error("Logout failed:", error);
                     alert('فشل تسجيل الخروج.');
@@ -847,7 +840,19 @@
                         editSeriesTitleInput.value = series.title;
                         editSeriesImageInput.value = series.image;
                         editSeriesCategoryInput.value = series.category || '';
-                        loadEpisodes(series.episodes || []);
+                        // نحتاج لتحويل أي حلقة قديمة إلى تنسيق players مؤقتاً لعرضها بشكل صحيح
+                        const episodesToDisplay = (series.episodes || []).map(ep => {
+                            if (!ep.players && (ep.link1 || ep.link2 || ep.link3)) {
+                                const tempPlayers = [];
+                                if (ep.link1) tempPlayers.push({ name: 'المشغل 1', link: ep.link1 });
+                                if (ep.link2) tempPlayers.push({ name: 'المشغل 2', link: ep.link2 });
+                                if (ep.link3) tempPlayers.push({ name: 'المشغل 3', link: ep.link3 });
+                                return { ...ep, players: tempPlayers }; // إرجاع نسخة مؤقتة مع players
+                            }
+                            return ep;
+                        });
+
+                        loadEpisodes(episodesToDisplay);
                     } else {
                         alert('المسلسل المحدد غير موجود.');
                         editSeriesForm.style.display = 'none';
@@ -922,18 +927,16 @@
             }
 
             episodes.forEach((ep, index) => {
-                // Determine if the episode uses the new 'players' array or the old 'link1' structure for display
-                const playerCount = ep.players ? ep.players.length : (ep.link1 ? 1 : 0) + (ep.link2 ? 1 : 0) + (ep.link3 ? 1 : 0);
+                // Determine player info based on the new 'players' array
+                const players = ep.players || [];
+                const playerCount = players.length;
                 
-                const playerNames = ep.players 
-                    ? ep.players.map(p => p.name).join(' | ') 
-                    : (ep.link2 || ep.link3 ? 'متعدد المشغلات (قديم)' : (ep.link1 ? 'مشغل واحد (قديم)' : 'بدون مشغلات'));
+                const playerNames = players.map(p => p.name).join(' | ') || (ep.link1 ? 'مشغلات قديمة' : 'بدون مشغلات');
 
                 const episodeItem = document.createElement('div');
                 episodeItem.className = 'episode-item';
                 episodeItem.setAttribute('data-index', index); 
                 
-                // Display player info
                 episodeItem.innerHTML = `
                     <span>${ep.title} | ${playerCount} مشغل (${playerNames})</span>
                     <div class="episode-item-actions">
@@ -965,7 +968,6 @@
 
             const title = newEpisodeTitleInput.value.trim();
             
-            // NEW LOGIC: Collect all players (Name and Link)
             const players = [];
             
             const player1Name = newEpisodeName1Input.value.trim() || 'المشغل 1';
@@ -1023,6 +1025,8 @@
                 newEpisodeName3Input.value = 'المشغل 3';
                 newEpisodeLink3Input.value = '';
                 newEpisodeIsNewCheckbox.checked = false;
+                
+                // إعادة تحميل قائمة الحلقات
                 loadEpisodes(episodes);
             } catch (error) {
                 console.error("Error adding episode:", error);
@@ -1030,7 +1034,7 @@
             }
         });
 
-        // Edit an existing episode (Updated to handle new 'players' array)
+        // Edit an existing episode (Updated to handle new 'players' array AND old link structure)
         async function editEpisode(event) {
             const index = parseInt(event.currentTarget.getAttribute('data-index'));
             
@@ -1039,17 +1043,22 @@
             const episodes = series.episodes || [];
             let episodeToEdit = episodes[index];
 
-            // NEW: Convert old structure (link1, link2, link3) to new structure (players array) for editing
+            // ******* المنطق الأساسي للتحويل والعمل على تنسيق players *******
             let currentPlayers = episodeToEdit.players || [];
-            if (!episodeToEdit.players && episodeToEdit.link1) {
+            if (!episodeToEdit.players && (episodeToEdit.link1 || episodeToEdit.link2 || episodeToEdit.link3)) {
+                // تحويل الهيكل القديم إلى الجديد إذا لم يكن players موجودًا
                 currentPlayers = [];
                 if (episodeToEdit.link1) currentPlayers.push({ name: 'المشغل 1', link: episodeToEdit.link1 });
                 if (episodeToEdit.link2) currentPlayers.push({ name: 'المشغل 2', link: episodeToEdit.link2 });
                 if (episodeToEdit.link3) currentPlayers.push({ name: 'المشغل 3', link: episodeToEdit.link3 });
+                alert('تنبيه: يتم الآن تعديل حلقة بهيكل قديم (link1, link2). سيتم تحويلها وحفظها بالهيكل الجديد (players).');
             }
 
             const newTitle = prompt('أدخل العنوان الجديد للحلقة:', episodeToEdit.title);
-            if (newTitle === null) return; 
+            if (newTitle === null || newTitle.trim() === '') {
+                alert('لم يتم حفظ التعديلات. العنوان مطلوب أو تم الإلغاء.');
+                return; 
+            }
 
             let updatedPlayers = [...currentPlayers];
             
@@ -1072,7 +1081,7 @@
                     if (newLink === null) continue;
 
                     if (newLink.trim() === '') {
-                         alert('رابط المشغل لا يمكن أن يكون فارغاً. تم حذف المشغل.');
+                         alert('رابط المشغل لا يمكن أن يكون فارغاً. تم حذف المشغل بدلاً من ذلك.');
                          updatedPlayers.splice(i, 1);
                          i--;
                          continue;
@@ -1106,24 +1115,40 @@
             episodes[index].title = newTitle.trim();
             episodes[index].players = updatedPlayers; // Store the new array
             
-            // Clean up old link fields for full transition to 'players' array
+            // **تنظيف حقول الروابط القديمة (الترحيل)**
             delete episodes[index].link1;
             delete episodes[index].link2;
             delete episodes[index].link3;
 
+            // **تنظيف الحقول الأخرى التي قد لا تحتاجها**
+            delete episodes[index].title1; // للتأكد من حذف أي حقول غير مرغوبة
+            
             episodes[index].updatedAt = new Date().toISOString();
 
             try {
                 await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
-                alert('تم تحديث الحلقة بنجاح!');
-                loadEpisodes(episodes);
+                alert('تم تحديث الحلقة بنجاح! تم حفظها الآن بتنسيق المشغلات (players) الجديد.');
+
+                // تحويل بيانات العرض مؤقتاً لتظهر في loadEpisodes
+                const episodesToDisplay = episodes.map(ep => {
+                    if (!ep.players && (ep.link1 || ep.link2 || ep.link3)) {
+                        const tempPlayers = [];
+                        if (ep.link1) tempPlayers.push({ name: 'المشغل 1', link: ep.link1 });
+                        if (ep.link2) tempPlayers.push({ name: 'المشغل 2', link: ep.link2 });
+                        if (ep.link3) tempPlayers.push({ name: 'المشغل 3', link: ep.link3 });
+                        return { ...ep, players: tempPlayers };
+                    }
+                    return ep;
+                });
+                loadEpisodes(episodesToDisplay);
+
             } catch (error) {
                 console.error("Error updating episode:", error);
                 alert('فشل تحديث الحلقة.');
             }
         }
 
-        // Delete an episode (Logic remains the same)
+        // Delete an episode
         async function deleteEpisode(event) {
             const index = parseInt(event.currentTarget.getAttribute('data-index'));
             if (confirm('هل أنت متأكد أنك تريد حذف هذه الحلقة؟')) {
@@ -1136,7 +1161,20 @@
 
                     await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
                     alert('تم حذف الحلقة بنجاح!');
-                    loadEpisodes(episodes);
+
+                    // تحويل بيانات العرض مؤقتاً لتظهر في loadEpisodes
+                    const episodesToDisplay = episodes.map(ep => {
+                        if (!ep.players && (ep.link1 || ep.link2 || ep.link3)) {
+                            const tempPlayers = [];
+                            if (ep.link1) tempPlayers.push({ name: 'المشغل 1', link: ep.link1 });
+                            if (ep.link2) tempPlayers.push({ name: 'المشغل 2', link: ep.link2 });
+                            if (ep.link3) tempPlayers.push({ name: 'المشغل 3', link: ep.link3 });
+                            return { ...ep, players: tempPlayers };
+                        }
+                        return ep;
+                    });
+                    loadEpisodes(episodesToDisplay);
+
                 } catch (error) {
                     console.error("Error deleting episode:", error);
                     alert('فشل حذف الحلقة.');
@@ -1144,7 +1182,7 @@
             }
         }
 
-        // Toggle "isNew" status for an episode (Logic remains the same)
+        // Toggle "isNew" status for an episode
         async function toggleEpisodeNewStatus(event) {
             const index = parseInt(event.currentTarget.getAttribute('data-index'));
             try {
@@ -1157,7 +1195,20 @@
 
                 await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: episodes });
                 alert('تم تحديث حالة الحلقة بنجاح!');
-                loadEpisodes(episodes);
+                
+                // تحويل بيانات العرض مؤقتاً لتظهر في loadEpisodes
+                const episodesToDisplay = episodes.map(ep => {
+                    if (!ep.players && (ep.link1 || ep.link2 || ep.link3)) {
+                        const tempPlayers = [];
+                        if (ep.link1) tempPlayers.push({ name: 'المشغل 1', link: ep.link1 });
+                        if (ep.link2) tempPlayers.push({ name: 'المشغل 2', link: ep.link2 });
+                        if (ep.link3) tempPlayers.push({ name: 'المشغل 3', link: ep.link3 });
+                        return { ...ep, players: tempPlayers };
+                    }
+                    return ep;
+                });
+                loadEpisodes(episodesToDisplay);
+
             } catch (error) {
                 console.error("Error toggling new status:", error);
                 alert('فشل تحديث حالة الحلقة.');
