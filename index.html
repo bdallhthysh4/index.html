@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>حكايتنا - لوحة الإدارة</title>
-    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700&family=Almarai:wght=400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700&family=Almarai:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         :root {
@@ -211,6 +211,7 @@
         }
         .form-group input[type="text"],
         .form-group input[type="url"],
+        .form-group textarea, /* Added textarea */
         .form-group select {
             width: calc(100% - 24px); /* Adjust for padding and border */
             padding: 12px;
@@ -221,9 +222,11 @@
             font-size: 17px;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
             box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);
+            box-sizing: border-box; /* Important for width calculation */
         }
         .form-group input[type="text"]:focus,
         .form-group input[type="url"]:focus,
+        .form-group textarea:focus, /* Added textarea focus */
         .form-group select:focus {
             outline: none;
             border-color: var(--primary-color);
@@ -238,6 +241,10 @@
             background-position: left 10px center;
             background-size: 1em;
             padding-left: 35px; /* Space for the icon */
+        }
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
         }
 
         .action-buttons {
@@ -597,6 +604,32 @@
                             <p style="text-align:center;color:var(--text-muted);">اختر مسلسلاً لعرض الحلقات.</p>
                         </div>
                         
+                        <div class="form-section" style="background: #3e2e30; border-color: var(--danger-color); margin-top: 30px; padding: 20px;">
+                            <h4 style="color: var(--danger-color); text-shadow: 0 0 8px rgba(231, 76, 60, 0.5); margin-bottom: 20px;"><i class="fas fa-layer-group"></i> إضافة حلقات جماعية (دفعة واحدة)</h4>
+                            
+                            <div class="form-group">
+                                <label for="bulk-episodes-input">أدخل بيانات الحلقات (كل حلقة في سطر جديد)</label>
+                                <p style="color: var(--text-muted); font-size: 14px; margin-top: -10px; margin-bottom: 15px;">**الصيغة المطلوبة:** عنوان الحلقة | اسم المشغل 1 | رابط المشغل 1 | اسم المشغل 2 | رابط المشغل 2 | ...</p>
+                                <textarea id="bulk-episodes-input" rows="8" placeholder="مثال:
+الحلقة 1 | المشغل الرئيسي | https://link1.com | المشغل الاحتياطي | https://link2.com
+الحلقة 2 | الأساسي | https://link3.com
+الحلقة 3 | اسم اخر | https://link4.com | مشاهدة | https://link5.com"></textarea>
+                            </div>
+                            
+                            <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                                <input type="checkbox" id="bulk-episodes-is-new">
+                                <label for="bulk-episodes-is-new" style="margin-bottom: 0;">وضع علامة "حلقة جديدة" على جميع الحلقات</label>
+                            </div>
+
+                            <div class="action-buttons">
+                                <button id="add-bulk-episodes-btn" class="add-episode-btn" style="background: var(--danger-color);">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    إضافة الحلقات دفعة واحدة
+                                </button>
+                            </div>
+                        </div>
+                        <h4 style="margin-top: 30px; font-size: 20px;"><i class="fas fa-plus-square"></i> إضافة حلقة مفردة</h4>
+                        
                         <div class="form-group">
                             <label for="new-episode-title">عنوان الحلقة الجديدة:</label>
                             <input type="text" id="new-episode-title" placeholder="مثال: الحلقة 1 الموسم الأول" required>
@@ -686,18 +719,23 @@
         const deleteSeriesBtn = document.getElementById('delete-series-btn');
 
         const episodesListDiv = document.getElementById('episodes-list');
-        // Updated Episode Link Inputs (now includes names)
+        // Single Episode Inputs
         const newEpisodeTitleInput = document.getElementById('new-episode-title');
-        const newEpisodeName1Input = document.getElementById('new-episode-name-1'); // NEW
+        const newEpisodeName1Input = document.getElementById('new-episode-name-1');
         const newEpisodeLink1Input = document.getElementById('new-episode-link-1');
-        const newEpisodeName2Input = document.getElementById('new-episode-name-2'); // NEW
+        const newEpisodeName2Input = document.getElementById('new-episode-name-2');
         const newEpisodeLink2Input = document.getElementById('new-episode-link-2');
-        const newEpisodeName3Input = document.getElementById('new-episode-name-3'); // NEW
+        const newEpisodeName3Input = document.getElementById('new-episode-name-3');
         const newEpisodeLink3Input = document.getElementById('new-episode-link-3');
         
         const newEpisodeIsNewCheckbox = document.getElementById('new-episode-is-new');
         const addEpisodeToSeriesBtn = document.getElementById('add-episode-to-series-btn');
 
+        // NEW BULK ELEMENTS
+        const bulkEpisodesInput = document.getElementById('bulk-episodes-input');
+        const bulkEpisodesIsNewCheckbox = document.getElementById('bulk-episodes-is-new');
+        const addBulkEpisodesBtn = document.getElementById('add-bulk-episodes-btn');
+        
         const allSeriesDisplay = document.getElementById('series-list');
 
         let currentSelectedSeriesId = null;
@@ -837,6 +875,7 @@
         editSeriesSelect.addEventListener('change', async () => {
             currentSelectedSeriesId = editSeriesSelect.value;
             episodesListDiv.innerHTML = '';
+            bulkEpisodesInput.value = ''; // Clear bulk input when changing series
 
             if (currentSelectedSeriesId) {
                 editSeriesForm.style.display = 'block';
@@ -956,7 +995,7 @@
             });
         }
 
-        // Add new episode to a series
+        // Add single new episode to a series
         addEpisodeToSeriesBtn.addEventListener('click', async () => {
             if (!currentSelectedSeriesId) {
                 alert('الرجاء اختيار مسلسل لإضافة حلقة إليه.');
@@ -965,7 +1004,7 @@
 
             const title = newEpisodeTitleInput.value.trim();
             
-            // NEW LOGIC: Collect all players (Name and Link)
+            // Collect all players (Name and Link)
             const players = [];
             
             const player1Name = newEpisodeName1Input.value.trim() || 'المشغل 1';
@@ -1029,6 +1068,102 @@
                 alert('فشل إضافة الحلقة.');
             }
         });
+
+
+        // --- NEW: Bulk Episode Addition ---
+
+        async function handleBulkEpisodesAddition() {
+            if (!currentSelectedSeriesId) {
+                alert('الرجاء اختيار مسلسل لإضافة الحلقات إليه.');
+                return;
+            }
+
+            const inputData = bulkEpisodesInput.value.trim();
+            if (!inputData) {
+                alert('الرجاء إدخال بيانات الحلقات في الخانة المخصصة.');
+                return;
+            }
+
+            const lines = inputData.split('\n').filter(line => line.trim() !== '');
+            const episodesToAdd = [];
+            const isNewFlag = bulkEpisodesIsNewCheckbox.checked;
+            const errors = [];
+
+            lines.forEach((line, index) => {
+                // Split by pipeline |
+                const parts = line.split('|').map(part => part.trim()).filter(part => part.length > 0);
+                
+                if (parts.length < 3 || parts.length % 2 !== 1) {
+                    errors.push(`السطر رقم ${index + 1} (${line.substring(0, 30)}...): صيغة غير صحيحة. يجب أن تكون: عنوان | اسم مشغل 1 | رابط مشغل 1 ...`);
+                    return;
+                }
+
+                const title = parts[0];
+                const players = [];
+
+                // Loop through player pairs (Name and Link)
+                for (let i = 1; i < parts.length; i += 2) {
+                    const name = parts[i];
+                    const link = parts[i + 1];
+                    
+                    // Basic URL validation
+                    if (link.startsWith('http://') || link.startsWith('https://')) {
+                        players.push({ name: name, link: link });
+                    } else {
+                         errors.push(`السطر رقم ${index + 1} (${title}): رابط المشغل "${name}" غير صالح (يجب أن يبدأ بـ http/https).`);
+                         // Skip adding this player but allow the episode to be created if others are valid
+                    }
+                }
+                
+                if (players.length > 0) {
+                    episodesToAdd.push({
+                        title: title,
+                        players: players,
+                        isNew: isNewFlag,
+                        updatedAt: new Date().toISOString()
+                    });
+                } else {
+                     errors.push(`السطر رقم ${index + 1} (${title}): لم يتم العثور على أي مشغل صالح لإضافته.`);
+                }
+            });
+
+            if (episodesToAdd.length === 0) {
+                alert(`فشل في إضافة أي حلقة. ${errors.length > 0 ? '\n\nالأخطاء:\n' + errors.join('\n') : ''}`);
+                return;
+            }
+            
+            // Proceed to Firebase update
+            try {
+                const seriesSnapshot = await get(ref(db, `series/${currentSelectedSeriesId}`));
+                const series = seriesSnapshot.val();
+                const existingEpisodes = series.episodes || [];
+                
+                // Append new episodes to the existing array
+                const updatedEpisodes = [...existingEpisodes, ...episodesToAdd];
+
+                await update(ref(db, `series/${currentSelectedSeriesId}`), { episodes: updatedEpisodes });
+                
+                let successMessage = `تم إضافة ${episodesToAdd.length} حلقة بنجاح!`;
+                if (errors.length > 0) {
+                    successMessage += `\n\n**تنبيه:** ${errors.length} خطأ في بعض الأسطر لم تتم إضافتها:\n` + errors.join('\n');
+                }
+                
+                alert(successMessage);
+                
+                // Clear input fields and reload list
+                bulkEpisodesInput.value = '';
+                bulkEpisodesIsNewCheckbox.checked = false;
+                loadEpisodes(updatedEpisodes);
+            } catch (error) {
+                console.error("Error adding bulk episodes:", error);
+                alert('فشل إضافة الحلقات دفعة واحدة. قد يكون هناك مشكلة في الاتصال أو الأذونات.');
+            }
+        }
+        // Listener for Bulk Add Button
+        addBulkEpisodesBtn.addEventListener('click', handleBulkEpisodesAddition);
+
+        // --- End Bulk Episode Addition ---
+
 
         // Edit an existing episode (Updated to handle new 'players' array)
         async function editEpisode(event) {
