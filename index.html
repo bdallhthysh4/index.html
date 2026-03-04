@@ -1,231 +1,234 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html dir='rtl' lang='ar'>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حكايتنا - إدارة المبدعين والأرباح</title>
-    <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: #e74c3c;
-            --secondary-color: #f39c12;
-            --dark-bg-main: #1c1c20;
-            --dark-bg-secondary: #28282d;
-            --card-bg: #323238;
-            --text-light: #ecf0f1;
-            --success-color: #27ae60;
-            --danger-color: #e74c3c;
-        }
-
-        body {
-            font-family: 'Almarai', sans-serif;
-            background: var(--dark-bg-main);
-            color: var(--text-light);
-            margin: 0;
-            direction: rtl;
-        }
-
-        .container { max-width: 1200px; margin: 20px auto; padding: 20px; }
-
-        /* Stats Card */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .stat-card { background: var(--card-bg); padding: 20px; border-radius: 15px; text-align: center; border-bottom: 4px solid var(--primary-color); }
-        .stat-card i { font-size: 2rem; color: var(--secondary-color); margin-bottom: 10px; }
-        .stat-card h3 { margin: 5px 0; font-size: 1.5rem; }
-
-        /* Form Styling */
-        .form-section { background: var(--dark-bg-secondary); padding: 25px; border-radius: 15px; margin-bottom: 30px; border: 1px solid #444; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 8px; font-weight: bold; }
-        input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #1a1a1e; color: white; box-sizing: border-box; }
-        
-        button { cursor: pointer; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; transition: 0.3s; }
-        .btn-main { background: var(--primary-color); color: white; width: 100%; margin-top: 10px; }
-        .btn-main:hover { background: #c0392b; }
-
-        #lock-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #111; z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-    </style>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <title>حكايتنا - الإدارة</title>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui; }
+    body { background: linear-gradient(145deg, #0f172a, #1e293b); min-height: 100vh; padding: 20px; }
+    .login-box { max-width: 400px; margin: 100px auto; background: white; border-radius: 30px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+    .login-box h2 { text-align: center; color: #0f172a; margin-bottom: 30px; }
+    .login-box h2 i { color: #ef4444; margin-left: 10px; }
+    .login-box input { width: 100%; padding: 15px; margin-bottom: 20px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 16px; }
+    .login-box button { width: 100%; padding: 15px; background: #ef4444; color: white; border: none; border-radius: 12px; font-size: 18px; cursor: pointer; }
+    .dashboard { display: none; max-width: 1200px; margin: 0 auto; }
+    .dashboard.show { display: block; }
+    .header { background: white; border-radius: 20px; padding: 25px; margin-bottom: 20px; }
+    .header-top { display: flex; justify-content: space-between; align-items: center; }
+    .header h1 { color: #0f172a; }
+    .header h1 i { color: #ef4444; }
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+    .stat-card { background: #f8fafc; border-radius: 15px; padding: 20px; text-align: center; }
+    .stat-number { font-size: 40px; font-weight: bold; color: #ef4444; }
+    .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+    .tab-btn { padding: 12px 25px; background: white; border: none; border-radius: 10px; cursor: pointer; }
+    .tab-btn.active { background: #ef4444; color: white; }
+    .tab-content { display: none; background: white; border-radius: 20px; padding: 25px; }
+    .tab-content.active { display: block; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+    .form-control { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; }
+    .episode-item { display: flex; gap: 10px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #e2e8f0; }
+    .btn { padding: 12px 25px; background: #ef4444; color: white; border: none; border-radius: 10px; cursor: pointer; margin-left: 10px; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #f1f5f9; padding: 15px; text-align: right; }
+    td { padding: 15px; border-bottom: 1px solid #e2e8f0; }
+  </style>
 </head>
 <body>
 
-<div id="lock-screen">
-    <i class="fas fa-user-lock" style="font-size: 5rem; color: var(--danger-color);"></i>
-    <h1>عذراً، هذا الحساب مرتبط بجهاز آخر!</h1>
-    <p>لا يمكنك الدخول إلى لوحة التحكم إلا من الجهاز المصرح به فقط.</p>
+<div class='login-box' id='loginBox'>
+  <h2><i class='fas fa-lock'></i> دخول المدير</h2>
+  <input type='password' id='adminPass' placeholder='كلمة المرور'>
+  <button onclick='checkPass()'><i class='fas fa-sign-in-alt'></i> دخول</button>
+  <div id='passError' style='color:#ef4444; text-align:center; margin-top:15px; display:none;'>كلمة المرور غير صحيحة</div>
 </div>
 
-<header style="background: var(--dark-bg-secondary); padding: 15px 50px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-color);">
-    <h2>لوحة تحكم المبدعين - حكايتنا</h2>
-    <div>
-        <span id="user-display-name">جاري التحميل...</span>
-        <button onclick="logout()" style="background: #e74c3c; color: white; margin-right: 15px;">خروج</button>
+<div class='dashboard' id='dashboard'>
+  <div class='header'>
+    <div class='header-top'>
+      <h1><i class='fas fa-crown'></i> لوحة تحكم حكايتنا</h1>
+      <button onclick='logout()' style='background:#ef4444; color:white; border:none; padding:10px 20px; border-radius:10px; cursor:pointer;'>خروج</button>
     </div>
-</header>
-
-<div class="container">
-    <div class="stats-grid">
-        <div class="stat-card">
-            <i class="fas fa-wallet"></i>
-            <p>أرباحك الحالية</p>
-            <h3 id="user-balance">0.00 $</h3>
-        </div>
-        <div class="stat-card">
-            <i class="fas fa-tv"></i>
-            <p>المسلسلات المكتملة</p>
-            <h3 id="completed-series">0</h3>
-        </div>
+    <div class='stats'>
+      <div class='stat-card'><div class='stat-number' id='totalSeries'>0</div><div>مسلسلات</div></div>
+      <div class='stat-card'><div class='stat-number' id='totalEpisodes'>0</div><div>حلقات</div></div>
     </div>
-
-    <div class="form-section">
-        <h3><i class="fas fa-upload"></i> رفع عمل جديد</h3>
-        <div class="form-group">
-            <label>عنوان المسلسل</label>
-            <input type="text" id="series-title" placeholder="مثال: المؤسس عثمان">
-        </div>
-        <div class="form-group">
-            <label>حالة المسلسل</label>
-            <select id="series-status">
-                <option value="ongoing">مستمر (لن يحسب ربح الآن)</option>
-                <option value="completed">مكتمل (سيتم إضافة 0.05$ فوراً)</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>رابط الصورة</label>
-            <input type="url" id="series-image" placeholder="https://example.com/image.jpg">
-        </div>
-        <button class="btn-main" id="add-series-btn">إضافة المسلسل وبدء رفع الحلقات</button>
-    </div>
-
-    <div id="management-area" style="display:none;">
-        <div class="form-section" style="border-color: var(--success-color);">
-            <h3>إضافة حلقات لـ: <span id="current-series-name" style="color: var(--secondary-color);"></span></h3>
-            <p style="font-size: 13px; color: #aaa;">رقم المسلسل (ID): <span id="current-series-id"></span></p>
-            <div class="form-group">
-                <input type="text" id="ep-title" placeholder="اسم الحلقة (مثلاً: الحلقة 1)">
-                <input type="url" id="ep-link" placeholder="رابط المشغل (Embed Link)" style="margin-top:10px;">
-            </div>
-            <button id="save-ep-btn" class="btn-main" style="background: var(--success-color);">حفظ الحلقة ونشرها</button>
-        </div>
-    </div>
+  </div>
+  
+  <div class='tabs'>
+    <button class='tab-btn active' onclick='showAddTab()'>➕ إضافة</button>
+    <button class='tab-btn' onclick='showListTab()'>📋 القائمة</button>
+  </div>
+  
+  <div class='tab-content active' id='addTab'>
+    <h3 style='margin-bottom:20px;'>إضافة مسلسل</h3>
+    <div class='form-group'><label>الاسم</label><input class='form-control' id='title'></div>
+    <div class='form-group'><label>الصورة</label><input class='form-control' id='image' type='url'></div>
+    <div class='form-group'><label>التصنيف</label><input class='form-control' id='category'></div>
+    <div class='form-group'><label>الوصف</label><textarea class='form-control' id='desc' rows='3'></textarea></div>
+    <div class='form-group'><label>التقييم</label><input class='form-control' id='rating' type='number' min='0' max='5' step='0.1' value='0'></div>
+    
+    <h4 style='margin:20px 0;'>الحلقات</h4>
+    <div id='episodesBox'></div>
+    
+    <button class='btn' onclick='addEpisode()' style='background:#10b981;'>➕ إضافة حلقة</button>
+    <button class='btn' onclick='saveSeries()'>💾 حفظ</button>
+  </div>
+  
+  <div class='tab-content' id='listTab'>
+    <h3 style='margin-bottom:20px;'>جميع المسلسلات</h3>
+    <table>
+      <thead><tr><th>الصورة</th><th>الاسم</th><th>التصنيف</th><th>الحلقات</th><th>التقييم</th><th>التحكم</th></tr></thead>
+      <tbody id='seriesTable'></tbody>
+    </table>
+  </div>
 </div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
-    import { getDatabase, ref, get, set, update, increment, push } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+<script src='https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js'></script>
+<script src='https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js'></script>
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyCEaxXR5eqzg0e5JvjWAFjZ5ZeMraMYREn",
-        authDomain: "mo-play-b0cb7.firebaseapp.com",
-        databaseURL: "https://mo-play-b0cb7-default-rtdb.firebaseio.com",
-        projectId: "mo-play-b0cb7",
-        storageBucket: "mo-play-b0cb7.firebasestorage.app",
-    };
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyCEaxXR5eqzg0e5JvjWAFjZ5ZeMraMYREn",
+  authDomain: "mo-play-b0cb7.firebaseapp.com",
+  databaseURL: "https://mo-play-b0cb7-default-rtdb.firebaseio.com",
+  projectId: "mo-play-b0cb7",
+  storageBucket: "mo-play-b0cb7.firebasestorage.app",
+  appId: "1:575424024738:web:0b1736c0c2e496adf607fb"
+});
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
+const db = firebase.database();
+let seriesList = [];
+let editId = null;
 
-    let activeSeriesId = null;
-    const deviceFingerprint = btoa(navigator.userAgent + navigator.language + screen.width);
+function checkPass() {
+  if (document.getElementById('adminPass').value === 'fugrUEV*3KsW9XS') {
+    document.getElementById('loginBox').style.display = 'none';
+    document.getElementById('dashboard').classList.add('show');
+    loadData();
+  } else {
+    document.getElementById('passError').style.display = 'block';
+  }
+}
 
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            const userSnap = await get(ref(db, `admins/${user.uid}`));
-            if (userSnap.exists()) {
-                const userData = userSnap.val();
-                
-                // نظام قفل الجهاز
-                if (userData.deviceId && userData.deviceId !== deviceFingerprint) {
-                    document.getElementById('lock-screen').style.display = 'flex';
-                    return;
-                } else if (!userData.deviceId) {
-                    await update(ref(db, `admins/${user.uid}`), { deviceId: deviceFingerprint });
-                }
+function logout() {
+  document.getElementById('loginBox').style.display = 'block';
+  document.getElementById('dashboard').classList.remove('show');
+}
 
-                document.getElementById('user-display-name').innerText = "مرحباً: " + (userData.name || "أدمن");
-                document.getElementById('user-balance').innerText = (userData.balance || 0).toFixed(2) + " $";
-                document.getElementById('completed-series').innerText = userData.completedCount || 0;
-            } else {
-                alert("ليس لديك صلاحيات دخول");
-                window.location.href = "login.html";
-            }
-        } else {
-            window.location.href = "login.html";
-        }
+function showAddTab() {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelector('.tab-btn').classList.add('active');
+  document.getElementById('addTab').classList.add('active');
+}
+
+function showListTab() {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.tab-btn')[1].classList.add('active');
+  document.getElementById('listTab').classList.add('active');
+  displayList();
+}
+
+function addEpisode() {
+  const div = document.createElement('div');
+  div.className = 'episode-item';
+  div.innerHTML = '<div style="flex:1;"><input class="form-control" placeholder="العنوان" style="margin-bottom:5px;"><input class="form-control" placeholder="الرابط 1" style="margin-bottom:5px;"><input class="form-control" placeholder="الرابط 2" style="margin-bottom:5px;"><input class="form-control" placeholder="الرابط 3"></div><button onclick="this.parentElement.remove()" style="background:#dc3545; color:white; border:none; padding:0 15px; border-radius:5px;">×</button>';
+  document.getElementById('episodesBox').appendChild(div);
+}
+
+function saveSeries() {
+  const data = {
+    title: document.getElementById('title').value,
+    image: document.getElementById('image').value,
+    category: document.getElementById('category').value || 'غير مصنف',
+    description: document.getElementById('desc').value || '',
+    rating: parseFloat(document.getElementById('rating').value) || 0,
+    ratingCount: 0,
+    views: 0,
+    episodes: []
+  };
+  
+  document.querySelectorAll('#episodesBox .episode-item').forEach(item => {
+    const inputs = item.querySelectorAll('input');
+    if (inputs[0].value && inputs[1].value) {
+      data.episodes.push({
+        title: inputs[0].value,
+        link1: inputs[1].value,
+        link2: inputs[2].value || '',
+        link3: inputs[3].value || ''
+      });
+    }
+  });
+  
+  if (editId) {
+    db.ref('series/' + editId).update(data).then(() => { alert('تم التحديث'); resetForm(); editId = null; });
+  } else {
+    db.ref('series').push(data).then(() => { alert('تم الحفظ'); resetForm(); });
+  }
+}
+
+function resetForm() {
+  document.getElementById('title').value = '';
+  document.getElementById('image').value = '';
+  document.getElementById('category').value = '';
+  document.getElementById('desc').value = '';
+  document.getElementById('rating').value = '0';
+  document.getElementById('episodesBox').innerHTML = '';
+}
+
+function loadData() {
+  db.ref('series').on('value', (snap) => {
+    if (snap.val()) {
+      seriesList = Object.keys(snap.val()).map(key => ({id: key, ...snap.val()[key]}));
+      document.getElementById('totalSeries').textContent = seriesList.length;
+      let total = 0;
+      seriesList.forEach(s => total += (s.episodes ? s.episodes.length : 0));
+      document.getElementById('totalEpisodes').textContent = total;
+      displayList();
+    }
+  });
+}
+
+function displayList() {
+  const tbody = document.getElementById('seriesTable');
+  tbody.innerHTML = '';
+  seriesList.forEach(s => {
+    tbody.innerHTML += '<tr><td><img src="' + s.image + '" style="width:50px; height:70px; object-fit:cover; border-radius:5px;" onerror="this.src=\'https://via.placeholder.com/50x70/333/fff?text=No\'"></td><td>' + s.title + '</td><td>' + (s.category || '') + '</td><td>' + (s.episodes ? s.episodes.length : 0) + '</td><td>★ ' + (s.rating || 0) + '</td><td><button onclick="editSeries(\'' + s.id + '\')" style="background:#28a745; color:white; border:none; padding:5px 10px; border-radius:5px; margin-left:5px;">✏️</button><button onclick="deleteSeries(\'' + s.id + '\')" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:5px;">🗑️</button></td>';
+  });
+}
+
+function editSeries(id) {
+  const s = seriesList.find(x => x.id === id);
+  if (!s) return;
+  editId = id;
+  document.getElementById('title').value = s.title || '';
+  document.getElementById('image').value = s.image || '';
+  document.getElementById('category').value = s.category || '';
+  document.getElementById('desc').value = s.description || '';
+  document.getElementById('rating').value = s.rating || 0;
+  
+  document.getElementById('episodesBox').innerHTML = '';
+  if (s.episodes) {
+    s.episodes.forEach(ep => {
+      const div = document.createElement('div');
+      div.className = 'episode-item';
+      div.innerHTML = '<div style="flex:1;"><input class="form-control" value="' + (ep.title || '') + '" style="margin-bottom:5px;"><input class="form-control" value="' + (ep.link1 || '') + '" style="margin-bottom:5px;"><input class="form-control" value="' + (ep.link2 || '') + '" style="margin-bottom:5px;"><input class="form-control" value="' + (ep.link3 || '') + '"></div><button onclick="this.parentElement.remove()" style="background:#dc3545; color:white; border:none; padding:0 15px; border-radius:5px;">×</button>';
+      document.getElementById('episodesBox').appendChild(div);
     });
+  }
+  showAddTab();
+}
 
-    // إضافة مسلسل جديد
-    document.getElementById('add-series-btn').onclick = async () => {
-        const title = document.getElementById('series-title').value.trim();
-        const status = document.getElementById('series-status').value;
-        const image = document.getElementById('series-image').value.trim();
+function deleteSeries(id) {
+  if (confirm('هل أنت متأكد؟')) db.ref('series/' + id).remove();
+}
 
-        if (!title || !image) return alert("يرجى إكمال كافة البيانات");
-
-        const seriesId = "series_" + Date.now(); // معرف فريد للمسلسل
-        const seriesData = {
-            id: seriesId,
-            title: title,
-            status: status,
-            image: image,
-            uploaderId: auth.currentUser.uid,
-            views: 0,
-            likes: 0
-        };
-
-        try {
-            await set(ref(db, `series/${seriesId}`), seriesData);
-
-            if (status === 'completed') {
-                await update(ref(db, `admins/${auth.currentUser.uid}`), {
-                    balance: increment(0.05),
-                    completedCount: increment(1)
-                });
-            }
-
-            // إظهار منطقة إضافة الحلقات للمسلسل الحالي
-            activeSeriesId = seriesId;
-            document.getElementById('current-series-name').innerText = title;
-            document.getElementById('current-series-id').innerText = seriesId;
-            document.getElementById('management-area').style.display = 'block';
-            
-            alert("تم إنشاء المسلسل بنجاح! يمكنك الآن إضافة الحلقات بالأسفل.");
-            window.scrollTo(0, document.body.scrollHeight);
-        } catch (e) {
-            alert("خطأ في القاعدة: " + e.message);
-        }
-    };
-
-    // إضافة حلقات للمسلسل النشط
-    window.addEpisode = async () => {
-        const epTitle = document.getElementById('ep-title').value.trim();
-        const epLink = document.getElementById('ep-link').value.trim();
-
-        if (!activeSeriesId) return alert("يرجى إضافة مسلسل أولاً");
-        if (!epTitle || !epLink) return alert("أكمل بيانات الحلقة");
-
-        try {
-            const epRef = ref(db, `series/${activeSeriesId}/episodes`);
-            const newEpRef = push(epRef); // إضافة الحلقة كعنصر جديد في القائمة
-            await set(newEpRef, {
-                title: epTitle,
-                link1: epLink // الرابط الأساسي
-            });
-
-            alert("تم نشر " + epTitle + " بنجاح!");
-            document.getElementById('ep-title').value = "";
-            document.getElementById('ep-link').value = "";
-        } catch (e) {
-            alert("فشل إضافة الحلقة: " + e.message);
-        }
-    };
-
-    // ربط الزر بالدالة
-    document.getElementById('save-ep-btn').onclick = window.addEpisode;
-
-    window.logout = () => signOut(auth).then(() => location.reload());
+window.onload = function() { addEpisode(); };
 </script>
 
 </body>
