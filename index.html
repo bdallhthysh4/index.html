@@ -3,94 +3,805 @@
 <head>
   <meta charset='UTF-8'>
   <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-  <title>حكايتنا - الإدارة</title>
+  <title>حكايتنا | لوحة الإدارة</title>
   <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui; }
-    body { background: linear-gradient(145deg, #0f172a, #1e293b); min-height: 100vh; padding: 20px; }
-    .login-box { max-width: 400px; margin: 100px auto; background: white; border-radius: 30px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
-    .login-box h2 { text-align: center; color: #0f172a; margin-bottom: 30px; }
-    .login-box h2 i { color: #ef4444; margin-left: 10px; }
-    .login-box input { width: 100%; padding: 15px; margin-bottom: 20px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 16px; }
-    .login-box button { width: 100%; padding: 15px; background: #ef4444; color: white; border: none; border-radius: 12px; font-size: 18px; cursor: pointer; }
-    .dashboard { display: none; max-width: 1200px; margin: 0 auto; }
-    .dashboard.show { display: block; }
-    .header { background: white; border-radius: 20px; padding: 25px; margin-bottom: 20px; }
-    .header-top { display: flex; justify-content: space-between; align-items: center; }
-    .header h1 { color: #0f172a; }
-    .header h1 i { color: #ef4444; }
-    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-    .stat-card { background: #f8fafc; border-radius: 15px; padding: 20px; text-align: center; }
-    .stat-number { font-size: 40px; font-weight: bold; color: #ef4444; }
-    .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-    .tab-btn { padding: 12px 25px; background: white; border: none; border-radius: 10px; cursor: pointer; }
-    .tab-btn.active { background: #ef4444; color: white; }
-    .tab-content { display: none; background: white; border-radius: 20px; padding: 25px; }
-    .tab-content.active { display: block; }
-    .form-group { margin-bottom: 20px; }
-    .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
-    .form-control { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; }
-    .episode-item { display: flex; gap: 10px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #e2e8f0; }
-    .btn { padding: 12px 25px; background: #ef4444; color: white; border: none; border-radius: 10px; cursor: pointer; margin-left: 10px; }
-    table { width: 100%; border-collapse: collapse; }
-    th { background: #f1f5f9; padding: 15px; text-align: right; }
-    td { padding: 15px; border-bottom: 1px solid #e2e8f0; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+    }
+    
+    body {
+      background: #f8fafc;
+      min-height: 100vh;
+    }
+    
+    /* شاشة الدخول الفاخرة */
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+    }
+    
+    .login-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      width: 100%;
+      max-width: 420px;
+      border-radius: 30px;
+      padding: 50px 40px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      animation: slideUp 0.6s ease;
+    }
+    
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .login-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    
+    .login-header .logo {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      box-shadow: 0 10px 30px -5px #667eea;
+    }
+    
+    .login-header .logo i {
+      font-size: 40px;
+      color: white;
+    }
+    
+    .login-header h2 {
+      color: #1a202c;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+    
+    .login-header p {
+      color: #718096;
+      font-size: 14px;
+    }
+    
+    .login-input {
+      width: 100%;
+      padding: 15px 20px;
+      margin-bottom: 20px;
+      border: 2px solid #e2e8f0;
+      border-radius: 15px;
+      font-size: 16px;
+      transition: all 0.3s;
+      background: white;
+    }
+    
+    .login-input:focus {
+      border-color: #667eea;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .login-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: 15px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 10px 20px -5px #667eea;
+    }
+    
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px -5px #667eea;
+    }
+    
+    .error-message {
+      color: #e53e3e;
+      text-align: center;
+      margin-top: 15px;
+      display: none;
+      font-weight: 500;
+    }
+    
+    /* لوحة التحكم */
+    .dashboard {
+      display: none;
+      background: #f8fafc;
+      min-height: 100vh;
+    }
+    
+    .dashboard.show {
+      display: block;
+      animation: fadeIn 0.5s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    /* الشريط العلوي */
+    .top-bar {
+      background: white;
+      padding: 20px 30px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .brand-icon {
+      width: 45px;
+      height: 45px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .brand-icon i {
+      color: white;
+      font-size: 22px;
+    }
+    
+    .brand h1 {
+      font-size: 22px;
+      color: #1a202c;
+      font-weight: 700;
+    }
+    
+    .brand span {
+      color: #667eea;
+    }
+    
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    
+    .logout-btn {
+      background: #f56565;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: 0.3s;
+    }
+    
+    .logout-btn:hover {
+      background: #c53030;
+    }
+    
+    /* المحتوى الرئيسي */
+    .main-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 30px;
+    }
+    
+    /* بطاقات الإحصائيات */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+    
+    .stat-card {
+      background: white;
+      border-radius: 20px;
+      padding: 25px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      transition: 0.3s;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px -5px rgba(102, 126, 234, 0.3);
+    }
+    
+    .stat-icon {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .stat-icon i {
+      color: white;
+      font-size: 30px;
+    }
+    
+    .stat-info h3 {
+      color: #718096;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+    
+    .stat-number {
+      font-size: 32px;
+      font-weight: 700;
+      color: #1a202c;
+    }
+    
+    /* تبويبات التصفح */
+    .nav-tabs {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 30px;
+      background: white;
+      padding: 15px;
+      border-radius: 50px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+    
+    .nav-btn {
+      padding: 12px 30px;
+      border: none;
+      border-radius: 40px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: 0.3s;
+      background: transparent;
+      color: #718096;
+    }
+    
+    .nav-btn i {
+      font-size: 18px;
+    }
+    
+    .nav-btn.active {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      box-shadow: 0 10px 20px -5px #667eea;
+    }
+    
+    /* بطاقة المحتوى */
+    .content-card {
+      background: white;
+      border-radius: 30px;
+      padding: 30px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+    
+    .content-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    
+    .content-header h2 {
+      color: #1a202c;
+      font-size: 24px;
+      font-weight: 700;
+    }
+    
+    .content-header h2 i {
+      color: #667eea;
+      margin-left: 10px;
+    }
+    
+    /* النماذج */
+    .form-row {
+      margin-bottom: 25px;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      color: #4a5568;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid #e2e8f0;
+      border-radius: 15px;
+      font-size: 15px;
+      transition: 0.3s;
+    }
+    
+    .form-input:focus {
+      border-color: #667eea;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    textarea.form-input {
+      min-height: 100px;
+      resize: vertical;
+    }
+    
+    /* الحلقات */
+    .episodes-section {
+      background: #f7fafc;
+      border-radius: 20px;
+      padding: 25px;
+      margin: 30px 0;
+    }
+    
+    .episodes-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .episodes-title h3 {
+      color: #1a202c;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    
+    .add-episode-btn {
+      background: #48bb78;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: 0.3s;
+    }
+    
+    .add-episode-btn:hover {
+      background: #38a169;
+      transform: translateY(-2px);
+    }
+    
+    .episode-item {
+      background: white;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 15px;
+      display: flex;
+      gap: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    .episode-inputs {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 10px;
+    }
+    
+    .episode-inputs input {
+      padding: 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+    
+    .delete-episode {
+      background: #fc8181;
+      color: white;
+      border: none;
+      width: 45px;
+      height: 45px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.3s;
+    }
+    
+    .delete-episode:hover {
+      background: #f56565;
+    }
+    
+    /* أزرار الإجراءات */
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .primary-btn {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      padding: 14px 35px;
+      border-radius: 15px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: 0.3s;
+    }
+    
+    .primary-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px #667eea;
+    }
+    
+    .secondary-btn {
+      background: #edf2f7;
+      color: #4a5568;
+      border: none;
+      padding: 14px 35px;
+      border-radius: 15px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: 0.3s;
+    }
+    
+    .secondary-btn:hover {
+      background: #e2e8f0;
+    }
+    
+    /* الجدول */
+    .table-wrapper {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    th {
+      background: #f7fafc;
+      padding: 18px;
+      text-align: right;
+      font-weight: 600;
+      color: #4a5568;
+      font-size: 14px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    
+    td {
+      padding: 18px;
+      border-bottom: 1px solid #e2e8f0;
+      color: #2d3748;
+    }
+    
+    tr:hover td {
+      background: #f7fafc;
+    }
+    
+    .table-img {
+      width: 50px;
+      height: 70px;
+      object-fit: cover;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .table-actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .edit-btn {
+      background: #48bb78;
+      color: white;
+      border: none;
+      width: 35px;
+      height: 35px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    
+    .edit-btn:hover {
+      background: #38a169;
+    }
+    
+    .delete-btn {
+      background: #fc8181;
+      color: white;
+      border: none;
+      width: 35px;
+      height: 35px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    
+    .delete-btn:hover {
+      background: #f56565;
+    }
+    
+    /* التبويبات */
+    .tab-panel {
+      display: none;
+    }
+    
+    .tab-panel.active {
+      display: block;
+    }
+    
+    /* التنبيهات */
+    .alert {
+      padding: 15px 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      display: none;
+      animation: slideDown 0.3s ease;
+    }
+    
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .alert.show {
+      display: block;
+    }
+    
+    .alert-success {
+      background: #c6f6d5;
+      color: #22543d;
+      border: 1px solid #9ae6b4;
+    }
+    
+    .alert-error {
+      background: #fed7d7;
+      color: #742a2a;
+      border: 1px solid #feb2b2;
+    }
+    
+    /* تصغير الشاشة */
+    @media (max-width: 768px) {
+      .episode-inputs {
+        grid-template-columns: 1fr;
+      }
+      
+      .nav-tabs {
+        flex-direction: column;
+        border-radius: 20px;
+      }
+      
+      .top-bar {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+    }
   </style>
 </head>
 <body>
 
-<div class='login-box' id='loginBox'>
-  <h2><i class='fas fa-lock'></i> دخول المدير</h2>
-  <input type='password' id='adminPass' placeholder='كلمة المرور'>
-  <button onclick='checkPass()'><i class='fas fa-sign-in-alt'></i> دخول</button>
-  <div id='passError' style='color:#ef4444; text-align:center; margin-top:15px; display:none;'>كلمة المرور غير صحيحة</div>
-</div>
-
-<div class='dashboard' id='dashboard'>
-  <div class='header'>
-    <div class='header-top'>
-      <h1><i class='fas fa-crown'></i> لوحة تحكم حكايتنا</h1>
-      <button onclick='logout()' style='background:#ef4444; color:white; border:none; padding:10px 20px; border-radius:10px; cursor:pointer;'>خروج</button>
+<!-- شاشة الدخول -->
+<div class='login-container' id='loginScreen'>
+  <div class='login-card'>
+    <div class='login-header'>
+      <div class='logo'>
+        <i class='fas fa-film'></i>
+      </div>
+      <h2>حكايتنا</h2>
+      <p>لوحة تحكم المدير</p>
     </div>
-    <div class='stats'>
-      <div class='stat-card'><div class='stat-number' id='totalSeries'>0</div><div>مسلسلات</div></div>
-      <div class='stat-card'><div class='stat-number' id='totalEpisodes'>0</div><div>حلقات</div></div>
+    
+    <input type='password' class='login-input' id='adminPassword' placeholder='كلمة المرور'>
+    <button class='login-btn' onclick='checkAdminLogin()'>
+      <i class='fas fa-sign-in-alt'></i>
+      تسجيل الدخول
+    </button>
+    
+    <div class='error-message' id='loginError'>
+      <i class='fas fa-exclamation-circle'></i>
+      كلمة المرور غير صحيحة
     </div>
-  </div>
-  
-  <div class='tabs'>
-    <button class='tab-btn active' onclick='showAddTab()'>➕ إضافة</button>
-    <button class='tab-btn' onclick='showListTab()'>📋 القائمة</button>
-  </div>
-  
-  <div class='tab-content active' id='addTab'>
-    <h3 style='margin-bottom:20px;'>إضافة مسلسل</h3>
-    <div class='form-group'><label>الاسم</label><input class='form-control' id='title'></div>
-    <div class='form-group'><label>الصورة</label><input class='form-control' id='image' type='url'></div>
-    <div class='form-group'><label>التصنيف</label><input class='form-control' id='category'></div>
-    <div class='form-group'><label>الوصف</label><textarea class='form-control' id='desc' rows='3'></textarea></div>
-    <div class='form-group'><label>التقييم</label><input class='form-control' id='rating' type='number' min='0' max='5' step='0.1' value='0'></div>
-    
-    <h4 style='margin:20px 0;'>الحلقات</h4>
-    <div id='episodesBox'></div>
-    
-    <button class='btn' onclick='addEpisode()' style='background:#10b981;'>➕ إضافة حلقة</button>
-    <button class='btn' onclick='saveSeries()'>💾 حفظ</button>
-  </div>
-  
-  <div class='tab-content' id='listTab'>
-    <h3 style='margin-bottom:20px;'>جميع المسلسلات</h3>
-    <table>
-      <thead><tr><th>الصورة</th><th>الاسم</th><th>التصنيف</th><th>الحلقات</th><th>التقييم</th><th>التحكم</th></tr></thead>
-      <tbody id='seriesTable'></tbody>
-    </table>
   </div>
 </div>
 
+<!-- لوحة التحكم -->
+<div class='dashboard' id='adminPanel'>
+  <!-- الشريط العلوي -->
+  <div class='top-bar'>
+    <div class='brand'>
+      <div class='brand-icon'>
+        <i class='fas fa-film'></i>
+      </div>
+      <h1>حكايتنا <span>| الإدارة</span></h1>
+    </div>
+    
+    <div class='user-menu'>
+      <button class='logout-btn' onclick='logoutAdmin()'>
+        <i class='fas fa-sign-out-alt'></i>
+        تسجيل الخروج
+      </button>
+    </div>
+  </div>
+  
+  <!-- المحتوى الرئيسي -->
+  <div class='main-content'>
+    <!-- الإحصائيات -->
+    <div class='stats-grid'>
+      <div class='stat-card'>
+        <div class='stat-icon'>
+          <i class='fas fa-tv'></i>
+        </div>
+        <div class='stat-info'>
+          <h3>إجمالي المسلسلات</h3>
+          <div class='stat-number' id='totalSeries'>0</div>
+        </div>
+      </div>
+      
+      <div class='stat-card'>
+        <div class='stat-icon'>
+          <i class='fas fa-film'></i>
+        </div>
+        <div class='stat-info'>
+          <h3>إجمالي الحلقات</h3>
+          <div class='stat-number' id='totalEpisodes'>0</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- تبويبات التصفح -->
+    <div class='nav-tabs'>
+      <button class='nav-btn active' onclick='switchPanel("add", this)'>
+        <i class='fas fa-plus-circle'></i>
+        إضافة مسلسل
+      </button>
+      <button class='nav-btn' onclick='switchPanel("list", this)'>
+        <i class='fas fa-list'></i>
+        قائمة المسلسلات
+      </button>
+    </div>
+    
+    <!-- لوحة الإضافة -->
+    <div class='tab-panel active' id='addPanel'>
+      <div class='content-card'>
+        <div class='content-header'>
+          <h2><i class='fas fa-plus-circle'></i> إضافة مسلسل جديد</h2>
+        </div>
+        
+        <div class='alert alert-success' id='successAlert'>تم الحفظ بنجاح</div>
+        <div class='alert alert-error' id='errorAlert'>حدث خطأ</div>
+        
+        <div class='form-row'>
+          <label class='form-label'>اسم المسلسل</label>
+          <input type='text' class='form-input' id='seriesTitle' placeholder='مثال: المؤسس عثمان'>
+        </div>
+        
+        <div class='form-row'>
+          <label class='form-label'>رابط الصورة</label>
+          <input type='url' class='form-input' id='seriesImage' placeholder='https://example.com/image.jpg'>
+        </div>
+        
+        <div class='form-row'>
+          <label class='form-label'>التصنيف</label>
+          <input type='text' class='form-input' id='seriesCategory' placeholder='تركي, عربي, أكشن, دراما'>
+        </div>
+        
+        <div class='form-row'>
+          <label class='form-label'>الوصف</label>
+          <textarea class='form-input' id='seriesDescription' placeholder='وصف مختصر للمسلسل...'></textarea>
+        </div>
+        
+        <div class='form-row'>
+          <label class='form-label'>التقييم (0 - 5)</label>
+          <input type='number' class='form-input' id='seriesRating' min='0' max='5' step='0.1' value='0'>
+        </div>
+        
+        <!-- الحلقات -->
+        <div class='episodes-section'>
+          <div class='episodes-title'>
+            <h3><i class='fas fa-list'></i> قائمة الحلقات</h3>
+            <button class='add-episode-btn' onclick='addNewEpisode()'>
+              <i class='fas fa-plus'></i>
+              إضافة حلقة
+            </button>
+          </div>
+          
+          <div id='episodesContainer'></div>
+        </div>
+        
+        <!-- أزرار الإجراءات -->
+        <div class='action-buttons'>
+          <button class='primary-btn' onclick='saveSeries()'>
+            <i class='fas fa-save'></i>
+            حفظ المسلسل
+          </button>
+          <button class='secondary-btn' onclick='resetForm()'>
+            <i class='fas fa-redo'></i>
+            تفريغ الحقول
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- لوحة القائمة -->
+    <div class='tab-panel' id='listPanel'>
+      <div class='content-card'>
+        <div class='content-header'>
+          <h2><i class='fas fa-list'></i> جميع المسلسلات</h2>
+        </div>
+        
+        <div class='table-wrapper'>
+          <table>
+            <thead>
+              <tr>
+                <th>الصورة</th>
+                <th>اسم المسلسل</th>
+                <th>التصنيف</th>
+                <th>عدد الحلقات</th>
+                <th>التقييم</th>
+                <th>التحكم</th>
+              </tr>
+            </thead>
+            <tbody id='seriesTable'></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase -->
 <script src='https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js'></script>
 <script src='https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js'></script>
 
 <script>
+// إعدادات Firebase
 firebase.initializeApp({
   apiKey: "AIzaSyCEaxXR5eqzg0e5JvjWAFjZ5ZeMraMYREn",
   authDomain: "mo-play-b0cb7.firebaseapp.com",
@@ -101,134 +812,262 @@ firebase.initializeApp({
 });
 
 const db = firebase.database();
-let seriesList = [];
+let seriesData = [];
+let editMode = false;
 let editId = null;
 
-function checkPass() {
-  if (document.getElementById('adminPass').value === 'fugrUEV*3KsW9XS') {
-    document.getElementById('loginBox').style.display = 'none';
-    document.getElementById('dashboard').classList.add('show');
-    loadData();
+// التحقق من كلمة المرور
+function checkAdminLogin() {
+  const password = document.getElementById('adminPassword').value;
+  if (password === 'fugrUEV*3KsW9XS') {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminPanel').classList.add('show');
+    loadSeries();
   } else {
-    document.getElementById('passError').style.display = 'block';
+    document.getElementById('loginError').style.display = 'block';
   }
 }
 
-function logout() {
-  document.getElementById('loginBox').style.display = 'block';
-  document.getElementById('dashboard').classList.remove('show');
+// تسجيل الخروج
+function logoutAdmin() {
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('adminPanel').classList.remove('show');
+  document.getElementById('adminPassword').value = '';
+  document.getElementById('loginError').style.display = 'none';
 }
 
-function showAddTab() {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-  document.querySelector('.tab-btn').classList.add('active');
-  document.getElementById('addTab').classList.add('active');
-}
-
-function showListTab() {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-  document.querySelectorAll('.tab-btn')[1].classList.add('active');
-  document.getElementById('listTab').classList.add('active');
-  displayList();
-}
-
-function addEpisode() {
-  const div = document.createElement('div');
-  div.className = 'episode-item';
-  div.innerHTML = '<div style="flex:1;"><input class="form-control" placeholder="العنوان" style="margin-bottom:5px;"><input class="form-control" placeholder="الرابط 1" style="margin-bottom:5px;"><input class="form-control" placeholder="الرابط 2" style="margin-bottom:5px;"><input class="form-control" placeholder="الرابط 3"></div><button onclick="this.parentElement.remove()" style="background:#dc3545; color:white; border:none; padding:0 15px; border-radius:5px;">×</button>';
-  document.getElementById('episodesBox').appendChild(div);
-}
-
-function saveSeries() {
-  const data = {
-    title: document.getElementById('title').value,
-    image: document.getElementById('image').value,
-    category: document.getElementById('category').value || 'غير مصنف',
-    description: document.getElementById('desc').value || '',
-    rating: parseFloat(document.getElementById('rating').value) || 0,
-    ratingCount: 0,
-    views: 0,
-    episodes: []
-  };
+// تبديل اللوحات
+function switchPanel(panel, btn) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   
-  document.querySelectorAll('#episodesBox .episode-item').forEach(item => {
+  btn.classList.add('active');
+  
+  if (panel === 'add') {
+    document.getElementById('addPanel').classList.add('active');
+  } else {
+    document.getElementById('listPanel').classList.add('active');
+    displaySeriesList();
+  }
+}
+
+// إضافة حقل حلقة جديد
+function addNewEpisode() {
+  const container = document.getElementById('episodesContainer');
+  const episodeDiv = document.createElement('div');
+  episodeDiv.className = 'episode-item';
+  
+  episodeDiv.innerHTML = `
+    <div class="episode-inputs">
+      <input type="text" placeholder="عنوان الحلقة">
+      <input type="url" placeholder="رابط السيرفر 1">
+      <input type="url" placeholder="رابط السيرفر 2">
+      <input type="url" placeholder="رابط السيرفر 3">
+    </div>
+    <button class="delete-episode" onclick="this.parentElement.remove()">
+      <i class="fas fa-trash"></i>
+    </button>
+  `;
+  
+  container.appendChild(episodeDiv);
+}
+
+// حفظ المسلسل
+function saveSeries() {
+  const title = document.getElementById('seriesTitle').value.trim();
+  const image = document.getElementById('seriesImage').value.trim();
+  const category = document.getElementById('seriesCategory').value.trim();
+  const description = document.getElementById('seriesDescription').value.trim();
+  const rating = parseFloat(document.getElementById('seriesRating').value) || 0;
+  
+  if (!title || !image) {
+    showAlert('error', 'الرجاء إدخال اسم المسلسل والصورة');
+    return;
+  }
+  
+  // جمع بيانات الحلقات
+  const episodes = [];
+  document.querySelectorAll('.episode-item').forEach(item => {
     const inputs = item.querySelectorAll('input');
-    if (inputs[0].value && inputs[1].value) {
-      data.episodes.push({
+    if (inputs.length >= 2 && inputs[0].value && inputs[1].value) {
+      episodes.push({
         title: inputs[0].value,
         link1: inputs[1].value,
-        link2: inputs[2].value || '',
-        link3: inputs[3].value || ''
+        link2: inputs[2]?.value || '',
+        link3: inputs[3]?.value || ''
       });
     }
   });
   
-  if (editId) {
-    db.ref('series/' + editId).update(data).then(() => { alert('تم التحديث'); resetForm(); editId = null; });
+  const seriesObject = {
+    title: title,
+    image: image,
+    category: category || 'غير مصنف',
+    description: description || '',
+    rating: rating,
+    ratingCount: 0,
+    views: 0,
+    episodes: episodes
+  };
+  
+  if (editMode && editId) {
+    db.ref('series/' + editId).update(seriesObject)
+      .then(() => {
+        showAlert('success', 'تم تحديث المسلسل بنجاح');
+        resetForm();
+        loadSeries();
+        editMode = false;
+        editId = null;
+      })
+      .catch(error => showAlert('error', error.message));
   } else {
-    db.ref('series').push(data).then(() => { alert('تم الحفظ'); resetForm(); });
+    db.ref('series').push(seriesObject)
+      .then(() => {
+        showAlert('success', 'تم إضافة المسلسل بنجاح');
+        resetForm();
+        loadSeries();
+      })
+      .catch(error => showAlert('error', error.message));
   }
 }
 
-function resetForm() {
-  document.getElementById('title').value = '';
-  document.getElementById('image').value = '';
-  document.getElementById('category').value = '';
-  document.getElementById('desc').value = '';
-  document.getElementById('rating').value = '0';
-  document.getElementById('episodesBox').innerHTML = '';
+// عرض التنبيهات
+function showAlert(type, message) {
+  const alertBox = document.getElementById(type === 'success' ? 'successAlert' : 'errorAlert');
+  alertBox.textContent = message;
+  alertBox.classList.add('show');
+  setTimeout(() => alertBox.classList.remove('show'), 3000);
 }
 
-function loadData() {
-  db.ref('series').on('value', (snap) => {
-    if (snap.val()) {
-      seriesList = Object.keys(snap.val()).map(key => ({id: key, ...snap.val()[key]}));
-      document.getElementById('totalSeries').textContent = seriesList.length;
-      let total = 0;
-      seriesList.forEach(s => total += (s.episodes ? s.episodes.length : 0));
-      document.getElementById('totalEpisodes').textContent = total;
-      displayList();
+// تصفير النموذج
+function resetForm() {
+  document.getElementById('seriesTitle').value = '';
+  document.getElementById('seriesImage').value = '';
+  document.getElementById('seriesCategory').value = '';
+  document.getElementById('seriesDescription').value = '';
+  document.getElementById('seriesRating').value = '0';
+  document.getElementById('episodesContainer').innerHTML = '';
+  addNewEpisode();
+  editMode = false;
+  editId = null;
+}
+
+// تحميل المسلسلات
+function loadSeries() {
+  db.ref('series').on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      seriesData = Object.keys(data).map(key => ({
+        id: key,
+        ...data[key]
+      }));
+      
+      // تحديث الإحصائيات
+      document.getElementById('totalSeries').textContent = seriesData.length;
+      
+      let totalEpisodes = 0;
+      seriesData.forEach(s => {
+        totalEpisodes += (s.episodes ? s.episodes.length : 0);
+      });
+      document.getElementById('totalEpisodes').textContent = totalEpisodes;
+      
+      displaySeriesList();
     }
   });
 }
 
-function displayList() {
+// عرض قائمة المسلسلات
+function displaySeriesList() {
   const tbody = document.getElementById('seriesTable');
   tbody.innerHTML = '';
-  seriesList.forEach(s => {
-    tbody.innerHTML += '<tr><td><img src="' + s.image + '" style="width:50px; height:70px; object-fit:cover; border-radius:5px;" onerror="this.src=\'https://via.placeholder.com/50x70/333/fff?text=No\'"></td><td>' + s.title + '</td><td>' + (s.category || '') + '</td><td>' + (s.episodes ? s.episodes.length : 0) + '</td><td>★ ' + (s.rating || 0) + '</td><td><button onclick="editSeries(\'' + s.id + '\')" style="background:#28a745; color:white; border:none; padding:5px 10px; border-radius:5px; margin-left:5px;">✏️</button><button onclick="deleteSeries(\'' + s.id + '\')" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:5px;">🗑️</button></td>';
+  
+  seriesData.forEach(series => {
+    const row = document.createElement('tr');
+    const episodeCount = series.episodes ? series.episodes.length : 0;
+    
+    row.innerHTML = `
+      <td>
+        <img src="${series.image}" class="table-img" onerror="this.src='https://via.placeholder.com/50x70/667eea/ffffff?text=No'">
+      </td>
+      <td>${series.title}</td>
+      <td>${series.category || 'غير مصنف'}</td>
+      <td>${episodeCount} حلقة</td>
+      <td>★ ${series.rating || 0}</td>
+      <td>
+        <div class="table-actions">
+          <button class="edit-btn" onclick="editSeries('${series.id}')">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="delete-btn" onclick="deleteSeries('${series.id}')">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(row);
   });
 }
 
+// تعديل مسلسل
 function editSeries(id) {
-  const s = seriesList.find(x => x.id === id);
-  if (!s) return;
-  editId = id;
-  document.getElementById('title').value = s.title || '';
-  document.getElementById('image').value = s.image || '';
-  document.getElementById('category').value = s.category || '';
-  document.getElementById('desc').value = s.description || '';
-  document.getElementById('rating').value = s.rating || 0;
+  const series = seriesData.find(s => s.id === id);
+  if (!series) return;
   
-  document.getElementById('episodesBox').innerHTML = '';
-  if (s.episodes) {
-    s.episodes.forEach(ep => {
-      const div = document.createElement('div');
-      div.className = 'episode-item';
-      div.innerHTML = '<div style="flex:1;"><input class="form-control" value="' + (ep.title || '') + '" style="margin-bottom:5px;"><input class="form-control" value="' + (ep.link1 || '') + '" style="margin-bottom:5px;"><input class="form-control" value="' + (ep.link2 || '') + '" style="margin-bottom:5px;"><input class="form-control" value="' + (ep.link3 || '') + '"></div><button onclick="this.parentElement.remove()" style="background:#dc3545; color:white; border:none; padding:0 15px; border-radius:5px;">×</button>';
-      document.getElementById('episodesBox').appendChild(div);
+  editMode = true;
+  editId = id;
+  
+  document.getElementById('seriesTitle').value = series.title || '';
+  document.getElementById('seriesImage').value = series.image || '';
+  document.getElementById('seriesCategory').value = series.category || '';
+  document.getElementById('seriesDescription').value = series.description || '';
+  document.getElementById('seriesRating').value = series.rating || 0;
+  
+  const container = document.getElementById('episodesContainer');
+  container.innerHTML = '';
+  
+  if (series.episodes && series.episodes.length > 0) {
+    series.episodes.forEach(ep => {
+      const episodeDiv = document.createElement('div');
+      episodeDiv.className = 'episode-item';
+      
+      episodeDiv.innerHTML = `
+        <div class="episode-inputs">
+          <input type="text" value="${ep.title || ''}" placeholder="عنوان الحلقة">
+          <input type="url" value="${ep.link1 || ''}" placeholder="رابط السيرفر 1">
+          <input type="url" value="${ep.link2 || ''}" placeholder="رابط السيرفر 2">
+          <input type="url" value="${ep.link3 || ''}" placeholder="رابط السيرفر 3">
+        </div>
+        <button class="delete-episode" onclick="this.parentElement.remove()">
+          <i class="fas fa-trash"></i>
+        </button>
+      `;
+      container.appendChild(episodeDiv);
     });
+  } else {
+    addNewEpisode();
   }
-  showAddTab();
+  
+  // التبديل للوحة الإضافة
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  
+  document.querySelector('.nav-btn').classList.add('active');
+  document.getElementById('addPanel').classList.add('active');
 }
 
+// حذف مسلسل
 function deleteSeries(id) {
-  if (confirm('هل أنت متأكد؟')) db.ref('series/' + id).remove();
+  if (confirm('هل أنت متأكد من حذف هذا المسلسل؟')) {
+    db.ref('series/' + id).remove()
+      .then(() => alert('تم الحذف بنجاح'))
+      .catch(error => alert('خطأ: ' + error.message));
+  }
 }
 
-window.onload = function() { addEpisode(); };
+// تهيئة الصفحة
+window.onload = function() {
+  addNewEpisode();
+};
 </script>
 
 </body>
