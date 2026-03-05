@@ -2,35 +2,39 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>WebSocket Stream</title>
+<title>Live Stream</title>
 </head>
 
 <body style="background:black;color:white;text-align:center">
 
-<h2>محاولة الاتصال بالبث</h2>
+<h2>اتصال البث</h2>
 
-<button onclick="connect()">تشغيل</button>
+<button onclick="start()">تشغيل</button>
 
 <pre id="log"></pre>
 
 <script>
 
-function connect(){
+function start(){
 
 let ws = new WebSocket("ws://117.55.202.104:60000/live?oid=0200bf7cb0lsfez69dd80tgrjty8nwd6");
 
 ws.onopen = function(){
-document.getElementById("log").innerHTML += "تم الاتصال بالسيرفر\n";
+log("تم الاتصال بالسيرفر");
 };
 
-ws.onmessage = function(event){
-document.getElementById("log").innerHTML += "استلام بيانات\n";
+ws.onmessage = function(e){
+log("تم استلام بيانات بث");
 };
 
 ws.onerror = function(){
-document.getElementById("log").innerHTML += "خطأ بالاتصال\n";
+log("خطأ في الاتصال");
 };
 
+}
+
+function log(text){
+document.getElementById("log").innerHTML += text + "\n";
 }
 
 </script>
