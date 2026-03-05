@@ -3,15 +3,17 @@
 <html b:css='false' b:defaultwidgetversion='2' b:layoutsversion='3' xmlns='http://www.w3.org/1999/xhtml' xmlns:b='http://google.com/2005/gml/b'>
 <head>
 <meta content='width=device-width, initial-scale=1' name='viewport'/>
-<title>حكايتنا AI - مستخرج روابط المسلسلات الذكي</title>
+<title>حكايتنا AI - مستخرج روابط المسلسلات مثل Reqable</title>
 <b:skin><![CDATA[
   :root {
     --primary: #00ff88;
     --secondary: #00d1ff;
     --accent: #ff3366;
     --bg: #080a0f;
-    --card-bg: rgba(22, 27, 34, 0.9);
+    --card-bg: rgba(22, 27, 34, 0.95);
     --border: rgba(255, 255, 255, 0.1);
+    --success: #00ff88;
+    --warning: #ffaa00;
   }
 
   body {
@@ -28,7 +30,7 @@
 
   .ai-container {
     width: 100%;
-    max-width: 1200px;
+    max-width: 900px;
     margin: 0 auto;
     background: var(--card-bg);
     backdrop-filter: blur(12px);
@@ -40,7 +42,6 @@
     overflow: hidden;
   }
 
-  /* خط مضيء في الأعلى */
   .ai-container::after {
     content: '';
     position: absolute;
@@ -51,11 +52,11 @@
 
   .header { 
     text-align: center; 
-    margin-bottom: 30px; 
+    margin-bottom: 25px; 
   }
   
   .header h2 {
-    font-size: 36px;
+    font-size: 32px;
     font-weight: 900;
     margin: 0;
     background: linear-gradient(90deg, var(--primary), var(--secondary));
@@ -70,51 +71,55 @@
     margin-top: 8px; 
   }
 
-  .input-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 15px;
-    margin-bottom: 20px;
+  .badge {
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    color: #000;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    margin: 0 5px;
   }
 
-  .input-field {
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    color: #fff;
-    padding: 15px;
-    font-size: 16px;
-    outline: none;
-    width: 100%;
-    box-sizing: border-box;
-    transition: 0.3s;
+  .input-wrapper { 
+    position: relative; 
+    margin-bottom: 15px; 
   }
-
-  .input-field:focus {
-    border-color: var(--primary);
-    background: rgba(0, 0, 0, 0.5);
-    box-shadow: 0 0 20px rgba(0, 255, 136, 0.1);
-  }
-
+  
   textarea {
     width: 100%;
-    height: 100px;
-    background: rgba(0, 0, 0, 0.3);
+    height: 200px;
+    background: rgba(0, 0, 0, 0.4);
     border: 1px solid var(--border);
     border-radius: 20px;
     color: #fff;
     padding: 18px;
-    font-size: 16px;
+    font-size: 14px;
+    font-family: 'Courier New', monospace;
     outline: none;
     box-sizing: border-box;
-    resize: none;
+    resize: vertical;
     transition: 0.3s;
-    margin-bottom: 20px;
+    direction: ltr;
+    text-align: left;
   }
   
   textarea:focus {
-    border-color: var(--secondary);
-    background: rgba(0, 0, 0, 0.5);
+    border-color: var(--primary);
+    background: rgba(0, 0, 0, 0.6);
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.1);
+  }
+
+  .example-link {
+    text-align: left;
+    direction: ltr;
+    background: rgba(0,255,136,0.1);
+    padding: 10px;
+    border-radius: 10px;
+    margin: 10px 0;
+    font-size: 12px;
+    word-break: break-all;
+    border: 1px dashed var(--primary);
   }
 
   .btn-send {
@@ -132,7 +137,7 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
   }
   
   .btn-send:hover { 
@@ -145,105 +150,128 @@
     opacity: 0.9; 
   }
 
-  .btn-copy {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    color: #fff;
-    padding: 8px 15px;
-    cursor: pointer;
-    transition: 0.3s;
-    font-size: 14px;
-    margin-top: 10px;
-  }
-  
-  .btn-copy:hover {
-    background: var(--accent);
-  }
-
-  #resBox {
-    margin-top: 20px;
-    background: rgba(0, 0, 0, 0.4);
-    border-radius: 20px;
-    padding: 20px;
-    display: none;
-    border-right: 4px solid var(--primary);
-    line-height: 1.8;
-    font-size: 15px;
-    color: #e6edf3;
-    animation: fadeIn 0.5s ease;
-    overflow-x: auto;
-  }
-
-  .server-tabs {
-    display: flex;
-    gap: 10px;
-    margin: 20px 0;
-    flex-wrap: wrap;
-  }
-
-  .server-tab {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid var(--border);
-    border-radius: 30px;
-    padding: 8px 20px;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-
-  .server-tab.active {
-    background: var(--primary);
-    color: #000;
-    border-color: var(--primary);
-  }
-
-  .episode-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 10px;
-    margin-top: 20px;
-    max-height: 400px;
-    overflow-y: auto;
-    padding: 10px;
-  }
-
-  .episode-item {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 10px;
-    text-align: center;
-    cursor: pointer;
-    transition: 0.3s;
-    font-size: 13px;
-  }
-
-  .episode-item:hover {
-    background: var(--accent);
-    transform: scale(1.05);
-  }
-
-  .episode-item.selected {
-    background: var(--primary);
-    color: #000;
-    font-weight: bold;
-  }
-
-  .link-box {
-    background: rgba(0,0,0,0.3);
-    border-radius: 10px;
-    padding: 15px;
-    margin-top: 15px;
-    word-break: break-all;
-    border: 1px dashed var(--secondary);
-  }
-
   .loading {
     display: none;
     text-align: center;
     margin: 20px 0;
     color: var(--primary);
     font-size: 16px;
+    font-weight: bold;
+  }
+
+  #resBox {
+    margin-top: 25px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 20px;
+    padding: 20px;
+    display: none;
+    border-right: 4px solid var(--primary);
+    line-height: 1.8;
+    font-size: 14px;
+    color: #e6edf3;
+    animation: fadeIn 0.5s ease;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+  }
+
+  .info-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 15px;
+    text-align: center;
+  }
+
+  .info-label {
+    color: var(--primary);
+    font-size: 12px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+
+  .info-value {
+    font-size: 18px;
+    font-weight: bold;
+    word-break: break-all;
+  }
+
+  .link-box {
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 12px;
+    padding: 15px;
+    margin: 15px 0;
+    word-break: break-all;
+    border: 1px solid var(--secondary);
+    direction: ltr;
+    text-align: left;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+  }
+
+  .btn-copy {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: #fff;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 14px;
+    margin: 5px;
+  }
+  
+  .btn-copy:hover {
+    background: var(--accent);
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 15px 0;
+  }
+
+  .server-badge {
+    background: rgba(0,255,136,0.2);
+    border: 1px solid var(--primary);
+    border-radius: 30px;
+    padding: 5px 15px;
+    display: inline-block;
+    margin: 3px;
+    font-size: 13px;
+  }
+
+  .episode-selector {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 20px 0;
+  }
+
+  .episode-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 15px;
+    cursor: pointer;
+    transition: 0.3s;
+    min-width: 70px;
+    text-align: center;
+  }
+
+  .episode-btn:hover {
+    background: var(--primary);
+    color: #000;
+  }
+
+  .episode-btn.selected {
+    background: var(--primary);
+    color: #000;
     font-weight: bold;
   }
 
@@ -262,15 +290,6 @@
     border: 1px solid var(--border);
   }
 
-  .badge {
-    background: var(--accent);
-    color: white;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    margin-left: 5px;
-  }
-
   @keyframes fadeIn { 
     from { opacity: 0; transform: translateY(10px); } 
     to { opacity: 1; transform: translateY(0); } 
@@ -283,54 +302,64 @@
     border-radius: 10px;
     border-right: 4px solid var(--accent);
   }
+
+  .success-msg {
+    color: var(--primary);
+    background: rgba(0,255,136,0.1);
+    padding: 15px;
+    border-radius: 10px;
+    border-right: 4px solid var(--primary);
+  }
+
+  .example-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    margin: 0 5px;
+  }
+
+  .example-btn:hover {
+    background: var(--primary);
+    color: #000;
+  }
 ]]></b:skin>
 </head>
 <body>
 
 <div class='ai-container'>
   <div class='header'>
-    <h2>حكايتنا EXTRACTOR ⚡</h2>
-    <p>مستخرج روابط المسلسلات بالذكاء الاصطناعي - اكتب اسم أي مسلسل</p>
+    <h2>حكايتنا Reqable AI ⚡</h2>
+    <p>الصق طلب HTTP من Reqable وأنا استخرج لك روابط المسلسل</p>
   </div>
   
-  <div class='input-grid'>
-    <input type='text' class='input-field' id='seriesName' placeholder='اسم المسلسل (مثال: حكاية روح)' value='حكاية روح'>
-    <input type='number' class='input-field' id='startEp' placeholder='بداية الحلقات' value='1' min='1'>
-    <input type='number' class='input-field' id='endEp' placeholder='نهاية الحلقات' value='8' min='1'>
+  <div class='input-wrapper'>
+    <textarea id='requestInput' placeholder='الصق طلب HTTP من Reqable هنا...&#10;&#10;مثال:&#10;GET /hls/uncltvdalcrt55h3jyvbtu52e5vu3ozgjxjchk7qpyluxusddh4oyc6bjgwq/seg-73-v1-a1.ts HTTP/1.1&#10;Host: s21.mwdy.club'>GET /hls/uncltvdalcrt55h3jyvbtu52e5vu3ozgjxjchk7qpyluxusddh4oyc6bjgwq/seg-73-v1-a1.ts HTTP/1.1
+Host: s21.mwdy.club
+User-Agent: Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36
+Accept: */*
+Referer: https://mwdy.cc/</textarea>
   </div>
   
-  <textarea id='customQuery' placeholder='أو اكتب وصف دقيق للمسلسل... (اختياري)'>مسلسل تركي درامي رومانسي</textarea>
+  <div style='text-align:center; margin-bottom:15px;'>
+    <span class='example-btn' onclick='loadExample1()'>📋 مثال 1 (mwdy)</span>
+    <span class='example-btn' onclick='loadExample2()'>📋 مثال 2 (قصة عشق)</span>
+    <span class='example-btn' onclick='loadExample3()'>📋 مثال 3 (قرمزي)</span>
+    <span class='example-btn' onclick='clearInput()'>🗑️ مسح</span>
+  </div>
   
-  <button class='btn-send' id='btn' onclick='extractSeries()'>
+  <button class='btn-send' id='btn' onclick='extractLinks()'>
     <span>🔍 استخراج الروابط</span>
     <span>⚡</span>
   </button>
   
-  <div class='loading' id='wait'>⚡ جاري البحث عن المسلسل واستخراج الروابط...</div>
+  <div class='loading' id='wait'>⚡ الذكاء الاصطناعي يحلل الطلب...</div>
   
   <div id='resBox'>
     <!-- النتائج ستظهر هنا -->
-  </div>
-  
-  <div class='stats' id='stats' style='display:none;'>
-    <div class='stat-card'>📺 <span id='statName'>-</span></div>
-    <div class='stat-card'>🎬 <span id='statEpisodes'>0</span> حلقة</div>
-    <div class='stat-card'>🌐 <span id='statServers'>0</span> سيرفر</div>
-  </div>
-  
-  <div id='serversContainer' style='display:none;'>
-    <div class='server-tabs' id='serverTabs'></div>
-  </div>
-  
-  <div id='episodesContainer' style='display:none;'>
-    <h4 style='margin:10px 0;'>📋 اختر الحلقة:</h4>
-    <div class='episode-grid' id='episodeGrid'></div>
-  </div>
-  
-  <div id='linkContainer' style='display:none;'>
-    <h4 style='margin:15px 0;'>🔗 رابط المشاهدة:</h4>
-    <div class='link-box' id='videoLink'></div>
-    <button class='btn-copy' id='copyBtn' onclick='copyLink()'>📋 نسخ الرابط</button>
   </div>
 </div>
 
@@ -339,422 +368,379 @@
 <script>
 // <![CDATA[
 
-// قاعدة بيانات السيرفرات الحقيقية (تم جمعها من مواقع حقيقية)
-const SERVER_DATABASE = {
-  "mwdy": {
-    name: "سيرفر mwdy",
-    baseUrl: "https://s{server}.mwdy.club/hls",
-    servers: [21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
-    getM3U8: (serverNum, seriesId) => `https://s${serverNum}.mwdy.club/hls/${seriesId}/index.m3u8`,
-    getTS: (serverNum, seriesId, episode) => `https://s${serverNum}.mwdy.club/hls/${seriesId}/seg-${episode}-v1-a1.ts`
-  },
-  "qrmzi": {
-    name: "سيرفر قرمزي",
-    baseUrl: "https://w1.qrmzi.site/hls",
-    servers: [1, 2, 3],
-    getM3U8: (serverNum, seriesId) => `https://w${serverNum}.qrmzi.site/hls/${seriesId}/master.m3u8`,
-    getTS: (serverNum, seriesId, episode) => `https://w${serverNum}.qrmzi.site/hls/${seriesId}/seg-${episode}.ts`
-  },
-  "3isk": {
-    name: "سيرفر قصة عشق",
-    baseUrl: "https://s3.3isk.tv/hls",
-    servers: [1, 2, 3, 4],
-    getM3U8: (serverNum, seriesId) => `https://s${serverNum}.3isk.tv/hls/${seriesId}/playlist.m3u8`,
-    getTS: (serverNum, seriesId, episode) => `https://s${serverNum}.3isk.tv/hls/${seriesId}/ep${episode}.ts`
+// ========== ذكاء اصطناعي لتحليل طلبات Reqable ==========
+class ReqableAI {
+  constructor() {
+    this.method = "GET";
+    this.host = "";
+    this.path = "";
+    this.headers = {};
+    this.fullUrl = "";
+    this.parsed = false;
   }
-};
 
-// قاعدة بيانات المسلسلات ومعرفاتها الحقيقية (تم جمعها يدوياً)
-const SERIES_DATABASE = {
-  // مسلسلات قصة عشق
-  "حكاية روح": {
-    id: "uncltvdalcrt55h3jyvbtu52e5vu3ozgjxjchk7qpyluxusddh4oyc6bjgwq",
-    servers: ["mwdy"],
-    defaultEpisodes: 8,
-    year: 2025,
-    category: "دراما, رومانسي"
-  },
-  "شراب التوت": {
-    id: "kizilcik-serbeti-2025",
-    servers: ["mwdy", "3isk"],
-    defaultEpisodes: 45,
-    year: 2025,
-    category: "دراما, عائلي"
-  },
-  "الطبيب": {
-    id: "doktor-2026",
-    servers: ["qrmzi", "mwdy"],
-    defaultEpisodes: 40,
-    year: 2026,
-    category: "دراما, طبي"
-  },
-  "ورود وذنوب": {
-    id: "guller-ve-gunahlar",
-    servers: ["qrmzi"],
-    defaultEpisodes: 30,
-    year: 2025,
-    category: "دراما, رومانسي"
-  },
-  "المشردون": {
-    id: "sahipsizler",
-    servers: ["qrmzi"],
-    defaultEpisodes: 35,
-    year: 2025,
-    category: "دراما, اجتماعي"
-  },
-  "المؤسس عثمان": {
-    id: "kurulus-osman",
-    servers: ["mwdy", "3isk"],
-    defaultEpisodes: 150,
-    year: "2020-2026",
-    category: "تاريخي, أكشن"
-  },
-  "قيامة أرطغرل": {
-    id: "dirilis-ertugrul",
-    servers: ["mwdy"],
-    defaultEpisodes: 150,
-    year: "2014-2021",
-    category: "تاريخي, أكشن"
-  },
-  "المنظمة": {
-    id: "teskilat",
-    servers: ["qrmzi"],
-    defaultEpisodes: 80,
-    year: "2021-2026",
-    category: "أكشن, تشويق"
-  },
-  "العشق المشبوه": {
-    id: "kara-para-ask",
-    servers: ["mwdy", "3isk"],
-    defaultEpisodes: 54,
-    year: 2025,
-    category: "أكشن, رومانسي"
-  },
-  "الغرفة 309": {
-    id: "no-309",
-    servers: ["mwdy"],
-    defaultEpisodes: 60,
-    year: 2025,
-    category: "كوميدي, رومانسي"
-  },
-  "حب ابيض اسود": {
-    id: "siyah-beyaz-ask",
-    servers: ["mwdy"],
-    defaultEpisodes: 60,
-    year: 2025,
-    category: "دراما, رومانسي"
-  },
-  "الطائر المبكر": {
-    id: "erkenci-kus",
-    servers: ["mwdy", "3isk"],
-    defaultEpisodes: 51,
-    year: 2025,
-    category: "كوميدي, رومانسي"
-  },
-  "لا تترك يدي": {
-    id: "elimi-birakma",
-    servers: ["qrmzi"],
-    defaultEpisodes: 40,
-    year: 2025,
-    category: "دراما, رومانسي"
-  },
-  "العشق الممنوع": {
-    id: "ask-i-memnu",
-    servers: ["mwdy"],
-    defaultEpisodes: 79,
-    year: 2025,
-    category: "دراما, رومانسي"
-  },
-  "تحت نفس المطر": {
-    id: "ayni-yagmur-altinda",
-    servers: ["qrmzi"],
-    defaultEpisodes: 30,
-    year: 2026,
-    category: "دراما, رومانسي"
-  }
-};
+  // تحليل نص الطلب
+  parseRequest(requestText) {
+    const lines = requestText.trim().split('\n');
+    if (lines.length === 0) return false;
 
-// متغيرات عامة
-let currentSeries = null;
-let currentServer = null;
-let currentEpisode = 1;
-let currentLinks = [];
-
-// دالة البحث الذكي
-function searchSeries(query) {
-  query = query.toLowerCase().trim();
-  
-  // البحث المباشر
-  if (SERIES_DATABASE[query]) {
-    return { exact: SERIES_DATABASE[query], name: query };
-  }
-  
-  // بحث تقريبي
-  let bestMatch = null;
-  let bestScore = 0;
-  
-  for (let name in SERIES_DATABASE) {
-    const series = SERIES_DATABASE[name];
-    const nameLower = name.toLowerCase();
-    
-    // تطابق تام
-    if (nameLower === query) {
-      return { exact: series, name: name };
+    // تحليل السطر الأول
+    const firstLine = lines[0].trim();
+    const firstLineParts = firstLine.split(' ');
+    if (firstLineParts.length >= 2) {
+      this.method = firstLineParts[0];
+      this.path = firstLineParts[1];
     }
-    
-    // يحتوي على
-    if (nameLower.includes(query) || query.includes(nameLower)) {
-      const score = query.length / Math.max(nameLower.length, query.length);
-      if (score > bestScore) {
-        bestScore = score;
-        bestMatch = { series: series, name: name };
-      }
-    }
-    
-    // تشابه الكلمات
-    const words = query.split(' ');
-    for (let word of words) {
-      if (word.length > 2 && nameLower.includes(word)) {
-        const score = 0.7;
-        if (score > bestScore) {
-          bestScore = score;
-          bestMatch = { series: series, name: name };
+
+    // تحليل الهيدرات
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (line.includes(':')) {
+        const colonIndex = line.indexOf(':');
+        const key = line.substring(0, colonIndex).trim().toLowerCase();
+        const value = line.substring(colonIndex + 1).trim();
+        this.headers[key] = value;
+        
+        if (key === 'host') {
+          this.host = value;
         }
+      } else if (line.startsWith('http')) {
+        // إذا كان هناك رابط مباشر في السطر
+        this.fullUrl = line;
       }
     }
+
+    // بناء الرابط الكامل
+    if (!this.fullUrl && this.host && this.path) {
+      const scheme = this.headers['origin']?.startsWith('https') ? 'https' : 'http';
+      this.fullUrl = `${scheme}://${this.host}${this.path}`;
+    }
+
+    this.parsed = true;
+    return true;
   }
-  
-  return bestMatch ? { fuzzy: bestMatch.series, name: bestMatch.name } : null;
+
+  // استخراج معلومات المسلسل
+  extractSeriesInfo() {
+    if (!this.parsed) return null;
+
+    const info = {
+      method: this.method,
+      host: this.host,
+      path: this.path,
+      fullUrl: this.fullUrl,
+      server: null,
+      seriesId: null,
+      episode: null,
+      m3u8Url: null,
+      basePath: null,
+      siteType: 'unknown',
+      possibleServers: []
+    };
+
+    // أنماط البحث الذكية للمواقع المختلفة
+    const patterns = [
+      {
+        name: 'mwdy',
+        pattern: /(?:https?:\/\/)?(s\d+\.mwdy\.club)\/hls\/([a-zA-Z0-9]+)\/seg-(\d+)-v1-a1\.ts/i,
+        m3u8Format: (server, id) => `https://${server}/hls/${id}/index.m3u8`,
+        tsFormat: (server, id, ep) => `https://${server}/hls/${id}/seg-${ep}-v1-a1.ts`
+      },
+      {
+        name: '3isk (قصة عشق)',
+        pattern: /(?:https?:\/\/)?(s\d+\.3isk\.(?:tv|info|cc|online))\/hls\/([a-zA-Z0-9]+)\/seg-(\d+)-v1-a1\.ts/i,
+        m3u8Format: (server, id) => `https://${server}/hls/${id}/index.m3u8`,
+        tsFormat: (server, id, ep) => `https://${server}/hls/${id}/seg-${ep}-v1-a1.ts`
+      },
+      {
+        name: 'qrmzi (قرمزي)',
+        pattern: /(?:https?:\/\/)?(w\d+\.qrmzi\.site)\/hls\/([a-zA-Z0-9]+)\/seg-(\d+)\.ts/i,
+        m3u8Format: (server, id) => `https://${server}/hls/${id}/master.m3u8`,
+        tsFormat: (server, id, ep) => `https://${server}/hls/${id}/seg-${ep}.ts`
+      },
+      {
+        name: 'vidcdn',
+        pattern: /(?:https?:\/\/)?([^\/]+)\/hls\/([a-zA-Z0-9]+)\/seg-(\d+)[^\.]*\.ts/i,
+        m3u8Format: (server, id) => `https://${server}/hls/${id}/playlist.m3u8`,
+        tsFormat: (server, id, ep) => `https://${server}/hls/${id}/seg-${ep}.ts`
+      }
+    ];
+
+    for (const pattern of patterns) {
+      const match = this.fullUrl.match(pattern.pattern);
+      if (match) {
+        info.siteType = pattern.name;
+        info.server = match[1];
+        info.seriesId = match[2];
+        info.episode = parseInt(match[3]);
+        info.m3u8Url = pattern.m3u8Format(info.server, info.seriesId);
+        
+        // توليد سيرفرات بديلة
+        const baseServer = info.server.match(/\d+/)?.[0] || '21';
+        const baseNum = parseInt(baseServer);
+        for (let i = 1; i <= 5; i++) {
+          const altServer = info.server.replace(/\d+/, (baseNum + i).toString());
+          info.possibleServers.push({
+            server: altServer,
+            m3u8: pattern.m3u8Format(altServer, info.seriesId),
+            ts: pattern.tsFormat(altServer, info.seriesId, info.episode)
+          });
+        }
+        break;
+      }
+    }
+
+    return info;
+  }
+
+  // تحليل اسم المسلسل من الرابط (ذكاء اصطناعي)
+  guessSeriesName(seriesId) {
+    // قواعد بيانات أسماء المسلسلات (يمكن توسيعها)
+    const seriesNames = {
+      'uncltvdalcrt55h3jyvbtu52e5vu3ozgjxjchk7qpyluxusddh4oyc6bjgwq': 'حكاية روح',
+      'kizilcik-serbeti-2025': 'شراب التوت',
+      'doktor-2026': 'الطبيب',
+      'guller-ve-gunahlar': 'ورود وذنوب',
+      'sahipsizler': 'المشردون',
+      'kurulus-osman': 'المؤسس عثمان',
+      'dirilis-ertugrul': 'قيامة أرطغرل',
+      'teskilat': 'المنظمة',
+      'kara-para-ask': 'العشق المشبوه',
+      'no-309': 'الغرفة 309'
+    };
+
+    // بحث ذكي في المعرف
+    for (const [id, name] of Object.entries(seriesNames)) {
+      if (seriesId.includes(id) || id.includes(seriesId)) {
+        return name;
+      }
+    }
+
+    // إذا لم نجد، نحاول تحليل المعرف
+    if (seriesId.length > 20) {
+      return "مسلسل غير معروف (معرف طويل)";
+    } else {
+      return seriesId.replace(/-/g, ' ').replace(/\d+/g, '').trim() || "مسلسل غير معروف";
+    }
+  }
 }
 
-// دالة استخراج الروابط
-async function extractSeries() {
-  const seriesInput = document.getElementById('seriesName').value.trim();
-  const customQuery = document.getElementById('customQuery').value.trim();
-  const startEp = parseInt(document.getElementById('startEp').value) || 1;
-  const endEp = parseInt(document.getElementById('endEp').value) || 8;
-  
+// ========== دوال الواجهة ==========
+let currentInfo = null;
+
+function loadExample1() {
+  document.getElementById('requestInput').value = `GET /hls/uncltvdalcrt55h3jyvbtu52e5vu3ozgjxjchk7qpyluxusddh4oyc6bjgwq/seg-73-v1-a1.ts HTTP/1.1
+Host: s21.mwdy.club
+User-Agent: Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36
+Accept: */*
+Referer: https://mwdy.cc/`;
+}
+
+function loadExample2() {
+  document.getElementById('requestInput').value = `GET /hls/3isk1234567890abcdef/seg-5-v1-a1.ts HTTP/1.1
+Host: s5.3isk.tv
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
+Accept: */*
+Referer: https://3isk.tv/`;
+}
+
+function loadExample3() {
+  document.getElementById('requestInput').value = `GET /hls/qrmzi12345/seg-12.ts HTTP/1.1
+Host: w1.qrmzi.site
+User-Agent: Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36
+Accept: */*
+Referer: https://qrmzi.site/`;
+}
+
+function clearInput() {
+  document.getElementById('requestInput').value = '';
+}
+
+function extractLinks() {
+  const requestText = document.getElementById('requestInput').value.trim();
   const box = document.getElementById('resBox');
   const wait = document.getElementById('wait');
   const btn = document.getElementById('btn');
-  const stats = document.getElementById('stats');
-  const serversContainer = document.getElementById('serversContainer');
-  const episodesContainer = document.getElementById('episodesContainer');
-  const linkContainer = document.getElementById('linkContainer');
 
-  if(!seriesInput) {
-    alert('الرجاء إدخال اسم المسلسل');
+  if (!requestText) {
+    alert('الرجاء لصق طلب HTTP من Reqable');
     return;
   }
 
   box.style.display = "none";
-  stats.style.display = "none";
-  serversContainer.style.display = "none";
-  episodesContainer.style.display = "none";
-  linkContainer.style.display = "none";
   wait.style.display = "block";
   btn.disabled = true;
 
-  try {
-    // محاكاة تأخير البحث (لإظهار التفاعل)
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // البحث عن المسلسل
-    const searchResult = searchSeries(seriesInput);
-    
-    if (!searchResult) {
-      // إذا لم نجد المسلسل، نقترح مسلسلات مشابهة
-      const suggestions = Object.keys(SERIES_DATABASE).slice(0, 5);
-      wait.style.display = "none";
+  // محاكاة معالجة الذكاء الاصطناعي
+  setTimeout(() => {
+    try {
+      const ai = new ReqableAI();
+      ai.parseRequest(requestText);
+      const info = ai.extractSeriesInfo();
+
+      if (!info.seriesId) {
+        // محاولة استخراج الرابط مباشرة من النص
+        const urlMatch = requestText.match(/(https?:\/\/[^\s]+)/);
+        if (urlMatch) {
+          ai.fullUrl = urlMatch[1];
+          const reExtract = ai.extractSeriesInfo();
+          if (reExtract.seriesId) {
+            Object.assign(info, reExtract);
+          }
+        }
+      }
+
+      currentInfo = info;
+
+      if (!info.seriesId) {
+        box.style.display = "block";
+        box.innerHTML = `
+          <div class="error-msg">
+            ⚠️ لم يتم العثور على معلومات المسلسل في الطلب.<br><br>
+            <b>الرابط المستخرج:</b><br>
+            <span style="direction:ltr; display:block;">${info.fullUrl || 'غير موجود'}</span>
+          </div>
+        `;
+        wait.style.display = "none";
+        btn.disabled = false;
+        return;
+      }
+
+      // توليد اسم المسلسل
+      const seriesName = ai.guessSeriesName(info.seriesId);
+
+      // عرض النتائج
       box.style.display = "block";
       box.innerHTML = `
-        <div class="error-msg">
-          ⚠️ لم نتمكن من العثور على "${seriesInput}" في قاعدة البيانات.<br><br>
-          <b>مسلسلات مقترحة:</b><br>
-          ${suggestions.map(s => `• ${s}`).join('<br>')}
+        <div class="success-msg">
+          ✅ تم التحليل بنجاح بواسطة الذكاء الاصطناعي!
+        </div>
+        
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="info-label">🌐 السيرفر</div>
+            <div class="info-value">${info.server}</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">🎬 اسم المسلسل</div>
+            <div class="info-value">${seriesName}</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">🔢 رقم الحلقة</div>
+            <div class="info-value">${info.episode || 'غير معروف'}</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">🏷️ نوع الموقع</div>
+            <div class="info-value">${info.siteType}</div>
+          </div>
+        </div>
+
+        <div style="margin:20px 0;">
+          <h4 style="color: var(--primary);">🔗 رابط M3U8 (للمشاهدة):</h4>
+          <div class="link-box" id="m3u8Link">${info.m3u8Url}</div>
+          <button class="btn-copy" onclick="copyText('${info.m3u8Url}')">📋 نسخ رابط M3U8</button>
+        </div>
+
+        <div style="margin:20px 0;">
+          <h4 style="color: var(--secondary);">📥 رابط TS (للتحميل):</h4>
+          <div class="link-box" id="tsLink">https://${info.server}/hls/${info.seriesId}/seg-${info.episode || 1}-v1-a1.ts</div>
+          <button class="btn-copy" onclick="copyText('https://${info.server}/hls/${info.seriesId}/seg-${info.episode || 1}-v1-a1.ts')">📋 نسخ رابط TS</button>
+        </div>
+
+        <div style="margin:20px 0;">
+          <h4 style="color: var(--warning);">🔄 سيرفرات بديلة (قد تعمل):</h4>
+          <div class="btn-group">
+            ${info.possibleServers.map(s => `
+              <span class="server-badge" onclick="useServer('${s.m3u8}', '${s.ts}')">${s.server}</span>
+            `).join('')}
+          </div>
+        </div>
+
+        <div style="margin:20px 0;">
+          <h4 style="color: var(--accent);">🎯 اختيار حلقة أخرى:</h4>
+          <div class="episode-selector" id="episodeSelector">
+            ${Array.from({length: 10}, (_, i) => `
+              <div class="episode-btn" onclick="selectEpisode(${i+1}, '${info.server}', '${info.seriesId}')">${i+1}</div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div style="margin-top:20px; padding:10px; background:rgba(255,255,255,0.03); border-radius:10px;">
+          <b>📊 معلومات إضافية:</b><br>
+          • المسار الكامل: ${info.path}<br>
+          • طريقة الطلب: ${info.method}<br>
+          • الهوست الأصلي: ${info.host}<br>
+          • معرف المسلسل: ${info.seriesId}
         </div>
       `;
-      return;
+
+    } catch (e) {
+      box.style.display = "block";
+      box.innerHTML = `<div class="error-msg">⚠️ خطأ في التحليل: ${e.message}</div>`;
+    } finally {
+      wait.style.display = "none";
+      btn.disabled = false;
     }
-    
-    const series = searchResult.exact || searchResult.fuzzy;
-    const seriesName = searchResult.name;
-    
-    currentSeries = {
-      name: seriesName,
-      id: series.id,
-      servers: series.servers,
-      totalEpisodes: Math.min(endEp, series.defaultEpisodes),
-      category: series.category,
-      year: series.year
-    };
-    
-    // تحديث الإحصائيات
-    document.getElementById('statName').innerText = seriesName;
-    document.getElementById('statEpisodes').innerText = currentSeries.totalEpisodes;
-    document.getElementById('statServers').innerText = series.servers.length;
-    stats.style.display = "flex";
-    
-    // عرض السيرفرات المتاحة
-    showServers(series.servers);
-    
-    // عرض الحلقات
-    showEpisodes(startEp, currentSeries.totalEpisodes);
-    
-    wait.style.display = "none";
-    box.style.display = "block";
-    box.innerHTML = `
-      <b>✅ تم العثور على المسلسل:</b> ${seriesName}<br>
-      <b>📅 السنة:</b> ${series.year || '2025'}<br>
-      <b>🏷️ التصنيف:</b> ${series.category || 'دراما'}<br>
-      <b>🔍 حالة البحث:</b> ${customQuery ? 'باستخدام الوصف المخصص' : 'بحث ذكي'}
-    `;
-    
-  } catch(e) {
-    wait.style.display = "none";
-    box.style.display = "block";
-    box.innerHTML = `<div class="error-msg">⚠️ خطأ في الاستخراج: ${e.message}</div>`;
-  } finally {
-    btn.disabled = false;
-  }
+  }, 1500); // محاكاة تأخير الذكاء الاصطناعي
 }
 
-// عرض السيرفرات
-function showServers(serverTypes) {
-  const serverTabs = document.getElementById('serverTabs');
-  serverTabs.innerHTML = '';
-  
-  serverTypes.forEach((type, index) => {
-    const server = SERVER_DATABASE[type];
-    if (!server) return;
-    
-    const tab = document.createElement('div');
-    tab.className = 'server-tab' + (index === 0 ? ' active' : '');
-    tab.innerText = server.name;
-    tab.onclick = () => selectServer(type, tab);
-    serverTabs.appendChild(tab);
-  });
-  
-  document.getElementById('serversContainer').style.display = 'block';
-  
-  // اختيار أول سيرفر افتراضياً
-  if (serverTypes.length > 0) {
-    currentServer = serverTypes[0];
-  }
-}
-
-// اختيار سيرفر
-function selectServer(serverType, element) {
-  document.querySelectorAll('.server-tab').forEach(tab => {
-    tab.classList.remove('active');
-  });
-  element.classList.add('active');
-  currentServer = serverType;
-  
-  // تحديث الرابط إذا كانت هناك حلقة محددة
-  if (currentEpisode) {
-    generateLink(currentEpisode);
-  }
-}
-
-// عرض الحلقات
-function showEpisodes(start, end) {
-  const episodeGrid = document.getElementById('episodeGrid');
-  episodeGrid.innerHTML = '';
-  
-  for (let ep = start; ep <= end; ep++) {
-    const epElement = document.createElement('div');
-    epElement.className = 'episode-item' + (ep === currentEpisode ? ' selected' : '');
-    epElement.innerText = `حلقة ${ep}`;
-    epElement.onclick = () => selectEpisode(ep, epElement);
-    episodeGrid.appendChild(epElement);
-  }
-  
-  document.getElementById('episodesContainer').style.display = 'block';
-}
-
-// اختيار حلقة
-function selectEpisode(ep, element) {
-  document.querySelectorAll('.episode-item').forEach(item => {
-    item.classList.remove('selected');
-  });
-  element.classList.add('selected');
-  currentEpisode = ep;
-  generateLink(ep);
-}
-
-// توليد رابط المشاهدة
-function generateLink(episode) {
-  if (!currentSeries || !currentServer) return;
-  
-  const server = SERVER_DATABASE[currentServer];
-  if (!server) return;
-  
-  const seriesId = currentSeries.id;
-  const links = [];
-  
-  // توليد روابط من عدة سيرفرات فرعية
-  server.servers.forEach(serverNum => {
-    links.push({
-      server: serverNum,
-      m3u8: server.getM3U8(serverNum, seriesId),
-      ts: server.getTS(serverNum, seriesId, episode)
-    });
-  });
-  
-  currentLinks = links;
-  
-  // عرض الروابط
-  const linkBox = document.getElementById('videoLink');
-  linkBox.innerHTML = '';
-  
-  links.forEach((link, index) => {
-    linkBox.innerHTML += `
-      <div style="margin-bottom: 15px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px;">
-        <b style="color: var(--primary);">سيرفر ${link.server}:</b><br>
-        <span style="font-size: 12px; color: #888;">M3U8:</span><br>
-        <span style="word-break: break-all;">${link.m3u8}</span><br><br>
-        <span style="font-size: 12px; color: #888;">TS (للمشغل العادي):</span><br>
-        <span style="word-break: break-all;">${link.ts}</span>
-      </div>
-    `;
-  });
-  
-  document.getElementById('linkContainer').style.display = 'block';
-}
-
-// نسخ الرابط
-function copyLink() {
-  if (currentLinks.length === 0) return;
-  
-  // نسخ جميع الروابط
-  let copyText = '';
-  currentLinks.forEach(link => {
-    copyText += `سيرفر ${link.server} M3U8:\n${link.m3u8}\nسيرفر ${link.server} TS:\n${link.ts}\n\n`;
-  });
-  
-  navigator.clipboard.writeText(copyText).then(() => {
-    alert('✅ تم نسخ جميع الروابط!');
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    alert('✅ تم النسخ!');
   }).catch(() => {
     alert('❌ فشل النسخ');
   });
 }
 
-// إضافة مسلسلات جديدة للبحث
-const apiURL = "https://script.google.com/macros/s/AKfycbxm3go6B__rKJ8OTS2vtFva1YczUlgJUxHK-LtOH7FqMxwWLExABXlLtOROho_pcNdp/exec";
-
-// وظيفة إضافية للبحث عبر API (احتياطي)
-async function searchViaAPI(query) {
-  try {
-    const r = await fetch(apiURL + "?msg=" + encodeURIComponent("ابحث عن مسلسل " + query + " واعطني رابط"));
-    const t = await r.text();
-    return t;
-  } catch(e) {
-    return null;
+function useServer(m3u8, ts) {
+  document.getElementById('m3u8Link').innerText = m3u8;
+  document.getElementById('tsLink').innerText = ts;
+  
+  // تحديث أزرار النسخ
+  const copyBtns = document.querySelectorAll('.btn-copy');
+  if (copyBtns.length >= 2) {
+    copyBtns[0].setAttribute('onclick', `copyText('${m3u8}')`);
+    copyBtns[1].setAttribute('onclick', `copyText('${ts}')`);
   }
 }
 
-// ]]> 
+function selectEpisode(ep, server, seriesId) {
+  // تحديث أزرار الحلقات
+  document.querySelectorAll('.episode-btn').forEach(btn => {
+    btn.classList.remove('selected');
+  });
+  event.target.classList.add('selected');
+  
+  // تحديث الروابط
+  const m3u8 = `https://${server}/hls/${seriesId}/index.m3u8`;
+  const ts = `https://${server}/hls/${seriesId}/seg-${ep}-v1-a1.ts`;
+  
+  document.getElementById('m3u8Link').innerText = m3u8;
+  document.getElementById('tsLink').innerText = ts;
+  
+  // تحديث أزرار النسخ
+  const copyBtns = document.querySelectorAll('.btn-copy');
+  if (copyBtns.length >= 2) {
+    copyBtns[0].setAttribute('onclick', `copyText('${m3u8}')`);
+    copyBtns[1].setAttribute('onclick', `copyText('${ts}')`);
+  }
+}
+
+// دالة إضافية لتحليل النص واستخراج الروابط مباشرة
+function extractUrlsFromText(text) {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  return text.match(urlRegex) || [];
+}
+
+// ربط API خارجي اختياري (للتوسع)
+const apiURL = "https://script.google.com/macros/s/AKfycbxm3go6B__rKJ8OTS2vtFva1YczUlgJUxHK-LtOH7FqMxwWLExABXlLtOROho_pcNdp/exec";
+
+async function askAI() {
+  // هذه الدالة محتفظ بها من القالب الأصلي للتوافق
+  console.log('AI function ready');
+}
+
+// ]]>
 </script>
 
 </body>
