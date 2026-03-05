@@ -3,18 +3,30 @@
 <html b:css='false' b:defaultwidgetversion='2' b:layoutsversion='3' xmlns='http://www.w3.org/1999/xhtml' xmlns:b='http://google.com/2005/gml/b'>
 <head>
 <meta content='width=device-width, initial-scale=1' name='viewport'/>
-<title>حكايتنا AI - استخراج روابط المسلسلات بالاسم</title>
+<title>حكايتنا AI · مستخرج روابط المسلسلات الذكي</title>
 <b:skin><![CDATA[
+  @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap');
+  
   :root {
-    --primary: #00ff88;
-    --secondary: #00d1ff;
-    --accent: #ff3366;
-    --bg: #080a0f;
-    --card-bg: rgba(22, 27, 34, 0.95);
-    --border: rgba(255, 255, 255, 0.1);
+    --primary: #00f7ff;
+    --primary-glow: rgba(0, 247, 255, 0.5);
+    --secondary: #ff00c8;
+    --secondary-glow: rgba(255, 0, 200, 0.4);
+    --accent: #ffaa00;
+    --accent-glow: rgba(255, 170, 0, 0.4);
     --success: #00ff88;
-    --warning: #ffaa00;
-    --dark: #0a0c12;
+    --danger: #ff3366;
+    --bg-dark: #0a0c12;
+    --bg-card: rgba(18, 22, 28, 0.85);
+    --bg-card-hover: rgba(28, 32, 38, 0.95);
+    --border-light: rgba(255, 255, 255, 0.08);
+    --border-glow: rgba(0, 247, 255, 0.2);
+    --text-primary: #ffffff;
+    --text-secondary: #a0a8b5;
+    --text-dim: #6a7280;
+    --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+    --shadow-glow: 0 0 30px var(--primary-glow);
+    --glass-blur: blur(12px);
   }
 
   * {
@@ -24,288 +36,408 @@
   }
 
   body {
-    background: var(--bg);
+    background: var(--bg-dark);
     background-image: 
-      radial-gradient(circle at 10% 20%, rgba(0, 255, 136, 0.03), transparent 40%),
-      radial-gradient(circle at 90% 80%, rgba(0, 209, 255, 0.03), transparent 40%);
-    color: #fff;
-    font-family: 'Segoe UI', system-ui, -apple-system, 'Cairo', sans-serif;
+      radial-gradient(circle at 0% 0%, rgba(0, 247, 255, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 100% 100%, rgba(255, 0, 200, 0.03) 0%, transparent 50%),
+      repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 10px);
+    color: var(--text-primary);
+    font-family: 'Cairo', 'Segoe UI', system-ui, sans-serif;
     direction: rtl;
     margin: 0;
     padding: 20px;
     min-height: 100vh;
+    line-height: 1.6;
   }
 
-  .ai-container {
+  .glass-container {
     width: 100%;
-    max-width: 1100px;
+    max-width: 1300px;
     margin: 0 auto;
-    background: var(--card-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-radius: 32px;
-    padding: 35px;
-    border: 1px solid var(--border);
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+    background: var(--bg-card);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border-radius: 40px;
+    padding: 40px;
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-lg);
     position: relative;
     overflow: hidden;
   }
 
-  .ai-container::after {
+  .glass-container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(0,247,255,0.05) 0%, transparent 70%);
+    animation: rotate 20s linear infinite;
+    z-index: -1;
+  }
+
+  @keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .glass-container::after {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 3px;
     background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
-    animation: glow 3s infinite;
+    animation: glow 3s ease-in-out infinite;
   }
 
   @keyframes glow {
-    0% { opacity: 0.5; }
-    50% { opacity: 1; }
-    100% { opacity: 0.5; }
+    0%, 100% { opacity: 0.5; filter: blur(1px); }
+    50% { opacity: 1; filter: blur(0px); box-shadow: 0 0 20px var(--primary-glow); }
   }
 
-  .header { 
-    text-align: center; 
-    margin-bottom: 30px; 
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+    position: relative;
   }
-  
-  .header h2 {
-    font-size: 38px;
+
+  .floating-icon {
+    font-size: 60px;
+    margin-bottom: 15px;
+    filter: drop-shadow(0 0 20px var(--primary-glow));
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .header h1 {
+    font-size: 48px;
     font-weight: 900;
     margin: 0;
-    background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+    background: linear-gradient(135deg, #fff, var(--primary), var(--secondary));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     letter-spacing: -1px;
-    text-shadow: 0 0 20px rgba(0,255,136,0.3);
+    text-shadow: 0 0 40px rgba(0,247,255,0.3);
   }
-  
-  .header p { 
-    color: #8b949e; 
-    font-size: 15px; 
-    margin-top: 10px; 
+
+  .header p {
+    color: var(--text-secondary);
+    font-size: 18px;
+    margin-top: 15px;
+  }
+
+  .ai-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,247,255,0.1);
+    border: 1px solid var(--primary);
+    border-radius: 100px;
+    padding: 8px 20px;
+    margin-top: 15px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary);
+    box-shadow: 0 0 20px var(--primary-glow);
   }
 
   .search-section {
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 24px;
-    padding: 25px;
-    margin-bottom: 25px;
-    border: 1px solid var(--border);
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 30px;
+    padding: 30px;
+    margin-bottom: 30px;
+    border: 1px solid var(--border-light);
+    backdrop-filter: blur(5px);
+  }
+
+  .search-grid {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 15px;
+    align-items: end;
+  }
+
+  @media (max-width: 768px) {
+    .search-grid {
+      grid-template-columns: 1fr;
+    }
   }
 
   .input-group {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-    align-items: flex-end;
+    position: relative;
   }
 
-  .input-field {
-    flex: 2;
-    min-width: 250px;
-  }
-
-  .input-field label {
+  .input-group label {
     display: block;
     color: var(--primary);
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 600;
     margin-bottom: 8px;
-    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
   }
 
-  .input-field input, .input-field select {
+  .input-wrapper {
+    position: relative;
+  }
+
+  .input-wrapper i {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary);
+    font-size: 18px;
+    opacity: 0.7;
+  }
+
+  .input-wrapper input,
+  .input-wrapper select {
     width: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    border: 1px solid var(--border);
+    background: rgba(0, 0, 0, 0.4);
+    border: 2px solid var(--border-light);
     border-radius: 16px;
-    color: #fff;
-    padding: 15px 20px;
+    color: var(--text-primary);
+    padding: 15px 45px 15px 20px;
     font-size: 16px;
+    font-family: 'Cairo', sans-serif;
     outline: none;
-    transition: 0.3s;
+    transition: all 0.3s ease;
   }
 
-  .input-field input:focus, .input-field select:focus {
+  .input-wrapper input:focus,
+  .input-wrapper select:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+    box-shadow: 0 0 30px var(--primary-glow);
+    background: rgba(0, 0, 0, 0.6);
   }
 
-  .input-field input::placeholder {
-    color: #4a4f5a;
+  .input-wrapper input::placeholder {
+    color: var(--text-dim);
   }
 
   .btn-extract {
-    flex: 0.5;
-    min-width: 160px;
-    padding: 15px 25px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
     border: none;
     border-radius: 16px;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
     color: #000;
     font-weight: 800;
     font-size: 18px;
+    padding: 15px 35px;
     cursor: pointer;
-    transition: 0.3s;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
     white-space: nowrap;
+    box-shadow: 0 0 20px var(--primary-glow);
+    border: 1px solid rgba(255,255,255,0.2);
+    height: 100%;
   }
 
-  .btn-extract:hover { 
-    transform: translateY(-3px); 
-    box-shadow: 0 15px 30px rgba(0, 255, 136, 0.3); 
+  .btn-extract:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 0 40px var(--primary-glow);
   }
 
-  .btn-extract:active { 
-    transform: translateY(0); 
+  .btn-extract:active {
+    transform: translateY(0);
   }
 
-  .ai-badge {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid var(--primary);
-    border-radius: 30px;
-    padding: 5px 15px;
-    display: inline-block;
-    font-size: 12px;
-    color: var(--primary);
-    margin: 10px 0;
-  }
-
-  .loading {
+  .loading-overlay {
     display: none;
     text-align: center;
-    margin: 30px 0;
+    padding: 40px;
   }
 
-  .loader {
-    width: 50px;
-    height: 50px;
-    border: 3px solid var(--border);
+  .loader-3d {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 25px;
+    border: 4px solid transparent;
     border-top-color: var(--primary);
+    border-right-color: var(--secondary);
+    border-bottom-color: var(--accent);
     border-radius: 50%;
-    animation: spin 1s infinite linear;
-    margin: 0 auto 15px;
+    animation: spin-3d 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+    box-shadow: 0 0 30px var(--primary-glow);
   }
 
-  @keyframes spin {
-    to { transform: rotate(360deg); }
+  @keyframes spin-3d {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.1); }
+    100% { transform: rotate(360deg) scale(1); }
   }
 
   .loading-text {
     color: var(--primary);
-    font-size: 16px;
-    font-weight: bold;
+    font-size: 18px;
+    font-weight: 600;
+    text-shadow: 0 0 10px var(--primary-glow);
   }
 
-  #resultsContainer {
+  .results-container {
     display: none;
-    margin-top: 30px;
+    animation: slideUp 0.5s ease;
   }
 
-  .series-info {
-    background: linear-gradient(145deg, rgba(0,255,136,0.1), rgba(0,209,255,0.05));
-    border-radius: 20px;
-    padding: 20px;
-    margin-bottom: 25px;
-    border: 1px solid var(--primary);
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .series-hero {
+    background: linear-gradient(145deg, rgba(0,247,255,0.15), rgba(255,0,200,0.05));
+    border-radius: 30px;
+    padding: 30px;
+    margin-bottom: 30px;
+    border: 1px solid var(--border-light);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+  }
+
+  .series-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(0,247,255,0.1) 0%, transparent 70%);
+    animation: rotate 15s linear infinite;
+  }
+
+  .series-title-wrapper {
+    position: relative;
+    z-index: 1;
     display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
     align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .series-icon {
+    font-size: 60px;
+    filter: drop-shadow(0 0 20px var(--primary-glow));
   }
 
   .series-title {
-    font-size: 28px;
+    font-size: 42px;
     font-weight: 900;
-    color: #fff;
+    background: linear-gradient(135deg, #fff, var(--primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
     flex: 1;
   }
 
-  .series-stats {
+  .stats-wrapper {
     display: flex;
     gap: 20px;
     flex-wrap: wrap;
+    margin-top: 20px;
   }
 
-  .stat {
-    background: rgba(0,0,0,0.3);
-    border-radius: 12px;
-    padding: 10px 20px;
+  .stat-card {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border-light);
+    border-radius: 20px;
+    padding: 15px 25px;
     text-align: center;
-    border: 1px solid var(--border);
+    backdrop-filter: blur(5px);
+    flex: 1;
+    min-width: 120px;
   }
 
   .stat-value {
-    font-size: 22px;
-    font-weight: bold;
+    font-size: 32px;
+    font-weight: 900;
     color: var(--primary);
+    line-height: 1.2;
   }
 
   .stat-label {
-    font-size: 12px;
-    color: #8b949e;
+    font-size: 14px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
   }
 
   .servers-section {
-    margin: 25px 0;
+    margin: 30px 0;
   }
 
-  .servers-title {
-    color: var(--secondary);
-    margin-bottom: 15px;
-    font-size: 18px;
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--primary);
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 20px;
   }
 
   .servers-grid {
     display: flex;
-    gap: 10px;
+    gap: 15px;
     flex-wrap: wrap;
   }
 
   .server-chip {
-    background: rgba(0,0,0,0.3);
-    border: 1px solid var(--border);
-    border-radius: 30px;
-    padding: 10px 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid var(--border-light);
+    border-radius: 50px;
+    padding: 12px 25px;
     cursor: pointer;
-    transition: 0.3s;
-    font-size: 14px;
+    transition: all 0.3s ease;
+    font-size: 15px;
+    font-weight: 600;
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .server-chip i {
+    color: var(--primary);
+    font-size: 18px;
   }
 
   .server-chip:hover {
-    background: var(--primary);
-    color: #000;
     border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px var(--primary-glow);
   }
 
   .server-chip.active {
-    background: var(--primary);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-color: transparent;
     color: #000;
-    border-color: var(--primary);
-    font-weight: bold;
+    font-weight: 700;
+    box-shadow: 0 0 30px var(--primary-glow);
+  }
+
+  .server-chip.active i {
+    color: #000;
   }
 
   .episodes-section {
-    margin: 25px 0;
+    margin: 30px 0;
   }
 
   .episodes-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     flex-wrap: wrap;
     gap: 15px;
-  }
-
-  .episodes-title {
-    color: var(--primary);
-    font-size: 18px;
   }
 
   .episodes-controls {
@@ -316,40 +448,47 @@
 
   .control-btn {
     background: rgba(255,255,255,0.05);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 8px 15px;
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 10px 18px;
     cursor: pointer;
-    transition: 0.3s;
-    font-size: 13px;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 
   .control-btn:hover {
     background: var(--accent);
     border-color: var(--accent);
+    color: #000;
+    transform: translateY(-2px);
   }
 
   .episodes-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
     max-height: 500px;
     overflow-y: auto;
-    padding: 10px 5px;
-    background: rgba(0,0,0,0.2);
-    border-radius: 16px;
+    padding: 15px 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 24px;
+    border: 1px solid var(--border-light);
   }
 
   .episode-card {
     background: rgba(255,255,255,0.03);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 12px 8px;
+    border: 1px solid var(--border-light);
+    border-radius: 18px;
+    padding: 15px 10px;
     text-align: center;
     cursor: pointer;
-    transition: 0.3s;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     position: relative;
     overflow: hidden;
+    backdrop-filter: blur(5px);
   }
 
   .episode-card::before {
@@ -358,10 +497,10 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 2px;
+    height: 3px;
     background: linear-gradient(90deg, var(--primary), var(--secondary));
     transform: translateX(-100%);
-    transition: 0.3s;
+    transition: transform 0.3s ease;
   }
 
   .episode-card:hover::before {
@@ -369,52 +508,58 @@
   }
 
   .episode-card:hover {
-    background: rgba(0,255,136,0.1);
+    transform: translateY(-5px) scale(1.02);
     border-color: var(--primary);
-    transform: translateY(-2px);
+    box-shadow: 0 0 30px var(--primary-glow);
   }
 
   .episode-card.selected {
-    background: rgba(0,255,136,0.2);
+    background: linear-gradient(145deg, rgba(0,247,255,0.2), rgba(255,0,200,0.1));
     border-color: var(--primary);
-    box-shadow: 0 0 20px rgba(0,255,136,0.2);
+    box-shadow: 0 0 30px var(--primary-glow);
   }
 
   .episode-number {
-    font-size: 16px;
-    font-weight: bold;
+    font-size: 18px;
+    font-weight: 800;
     color: #fff;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
   }
 
-  .episode-title {
-    font-size: 12px;
-    color: #8b949e;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  .episode-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.1);
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-size: 11px;
+    color: var(--primary);
   }
 
   .link-section {
     margin-top: 30px;
-    background: rgba(0,0,0,0.3);
-    border-radius: 20px;
-    padding: 20px;
-    border: 1px solid var(--border);
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 24px;
+    padding: 25px;
+    border: 1px solid var(--border-light);
+    backdrop-filter: blur(10px);
   }
 
   .link-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     flex-wrap: wrap;
     gap: 15px;
   }
 
   .link-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     color: var(--secondary);
-    font-size: 18px;
+    font-size: 20px;
+    font-weight: 700;
   }
 
   .link-actions {
@@ -425,166 +570,235 @@
 
   .action-btn {
     background: rgba(255,255,255,0.05);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 8px 15px;
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 10px 20px;
     cursor: pointer;
-    transition: 0.3s;
-    font-size: 13px;
+    transition: all 0.3s ease;
+    font-size: 14px;
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 8px;
   }
 
   .action-btn:hover {
     background: var(--primary);
     color: #000;
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px var(--primary-glow);
   }
 
   .link-box {
     background: rgba(0, 0, 0, 0.5);
-    border-radius: 12px;
+    border-radius: 18px;
     padding: 20px;
-    word-break: break-all;
-    border: 1px dashed var(--secondary);
+    border: 2px dashed var(--secondary);
     direction: ltr;
     text-align: left;
     font-family: 'Courier New', monospace;
     font-size: 14px;
     line-height: 1.8;
-    max-height: 200px;
+    max-height: 250px;
     overflow-y: auto;
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
   }
 
-  .toast-message {
+  .link-box div {
+    margin-bottom: 15px;
+    padding: 10px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    border-left: 3px solid var(--primary);
+  }
+
+  .toast-notification {
     position: fixed;
     bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
-    background: var(--primary);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
     color: #000;
-    padding: 12px 25px;
-    border-radius: 50px;
-    font-weight: bold;
+    padding: 15px 35px;
+    border-radius: 60px;
+    font-weight: 700;
+    font-size: 16px;
     z-index: 9999;
     display: none;
-    box-shadow: 0 10px 30px rgba(0,255,136,0.3);
-    animation: slideUp 0.3s ease;
+    box-shadow: 0 0 40px var(--primary-glow);
+    border: 2px solid rgba(255,255,255,0.3);
+    backdrop-filter: blur(10px);
+    animation: toastIn 0.3s ease;
   }
 
-  @keyframes slideUp {
-    from { bottom: 0; opacity: 0; }
-    to { bottom: 30px; opacity: 1; }
+  @keyframes toastIn {
+    from { bottom: 0; opacity: 0; transform: translateX(-50%) scale(0.8); }
+    to { bottom: 30px; opacity: 1; transform: translateX(-50%) scale(1); }
   }
 
-  .popular-series {
-    margin-top: 30px;
+  .popular-section {
+    margin-top: 40px;
   }
 
   .popular-title {
-    color: var(--warning);
-    font-size: 16px;
-    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--accent);
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
   }
 
   .popular-grid {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     flex-wrap: wrap;
   }
 
-  .popular-item {
+  .popular-chip {
     background: rgba(255,255,255,0.03);
-    border: 1px solid var(--border);
-    border-radius: 30px;
-    padding: 8px 16px;
+    border: 1px solid var(--border-light);
+    border-radius: 50px;
+    padding: 10px 22px;
     cursor: pointer;
-    transition: 0.3s;
-    font-size: 14px;
+    transition: all 0.3s ease;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    backdrop-filter: blur(5px);
   }
 
-  .popular-item:hover {
-    background: var(--warning);
+  .popular-chip:hover {
+    background: var(--accent);
     color: #000;
-    border-color: var(--warning);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px var(--accent-glow);
   }
 
   footer {
-    margin-top: 40px;
+    margin-top: 50px;
     text-align: center;
-    color: #4a4f5a;
-    font-size: 13px;
+    color: var(--text-dim);
+    font-size: 14px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-light);
   }
 
   .error-message {
     background: rgba(255,51,102,0.1);
-    border: 1px solid var(--accent);
-    border-radius: 12px;
-    padding: 20px;
+    border: 1px solid var(--danger);
+    border-radius: 20px;
+    padding: 30px;
     text-align: center;
-    color: var(--accent);
+    color: var(--danger);
+    font-size: 16px;
+    backdrop-filter: blur(10px);
+  }
+
+  /* تخصيص شريط التمرير */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(var(--primary), var(--secondary));
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(var(--secondary), var(--primary));
   }
 ]]></b:skin>
 </head>
 <body>
 
-<div class='ai-container'>
+<div class='glass-container'>
   <div class='header'>
-    <h2>🎬 حكايتنا AI · مستخرج الروابط الذكي</h2>
-    <p>اكتب اسم أي مسلسل وأنا أستخرج لك جميع روابط الحلقات مع أرقامها</p>
-    <div class='ai-badge'>⚡ مدعوم بالذكاء الاصطناعي · يعمل مثل Reqable</div>
+    <div class='floating-icon'>🎬</div>
+    <h1>حكايتنا · AI</h1>
+    <p>مستخرج روابط المسلسلات الذكي · اعطني اسم أي مسلسل وأنا أجيب لك كل الحلقات</p>
+    <div class='ai-badge'>
+      <span>⚡</span>
+      <span>مدعوم بالذكاء الاصطناعي · يعمل مثل Reqable</span>
+      <span>⚡</span>
+    </div>
   </div>
   
   <div class='search-section'>
-    <div class='input-group'>
-      <div class='input-field'>
+    <div class='search-grid'>
+      <div class='input-group'>
         <label>🔍 اسم المسلسل</label>
-        <input type='text' id='seriesName' placeholder='مثال: حكاية روح, شراب التوت, الطبيب...' value='حكاية روح'>
+        <div class='input-wrapper'>
+          <i>🔍</i>
+          <input type='text' id='seriesName' placeholder='مثال: حكاية روح, الطبيب, المؤسس عثمان...' value='حكاية روح'>
+        </div>
       </div>
-      <div class='input-field'>
+      <div class='input-group'>
         <label>🌐 المصدر</label>
-        <select id='sourceSelect'>
-          <option value='auto' selected>🔍 ذكي (يكتشف تلقائياً)</option>
-          <option value='mwdy'>📺 mwdy.club</option>
-          <option value='3isk'>🎬 قصة عشق (3isk)</option>
-          <option value='qrmzi'>🔥 قرمزي (qrmzi)</option>
-        </select>
+        <div class='input-wrapper'>
+          <i>🌐</i>
+          <select id='sourceSelect'>
+            <option value='auto' selected>🔮 ذكي (اكتشاف تلقائي)</option>
+            <option value='mwdy'>📺 mwdy.club</option>
+            <option value='3isk'>🎬 قصة عشق (3isk)</option>
+            <option value='qrmzi'>🔥 قرمزي (qrmzi)</option>
+          </select>
+        </div>
       </div>
       <button class='btn-extract' onclick='extractSeries()'>
-        <span>🔮 استخرج الروابط</span>
+        <span>🔮</span>
+        <span>استخرج الروابط</span>
         <span>⚡</span>
       </button>
     </div>
   </div>
 
-  <div class='loading' id='loading'>
-    <div class='loader'></div>
+  <div class='loading-overlay' id='loading'>
+    <div class='loader-3d'></div>
     <div class='loading-text'>🔍 الذكاء الاصطناعي يبحث عن المسلسل ويستخرج الروابط...</div>
   </div>
 
-  <div id='resultsContainer'>
+  <div class='results-container' id='resultsContainer'>
     <!-- معلومات المسلسل -->
-    <div class='series-info' id='seriesInfo'>
-      <div class='series-title' id='seriesTitle'>مسلسل حكاية روح</div>
-      <div class='series-stats'>
-        <div class='stat'>
+    <div class='series-hero' id='seriesInfo'>
+      <div class='series-title-wrapper'>
+        <span class='series-icon'>📺</span>
+        <span class='series-title' id='seriesTitle'>مسلسل حكاية روح</span>
+      </div>
+      <div class='stats-wrapper' id='seriesStats'>
+        <div class='stat-card'>
           <div class='stat-value' id='totalEpisodes'>8</div>
           <div class='stat-label'>حلقة</div>
         </div>
-        <div class='stat'>
+        <div class='stat-card'>
           <div class='stat-value' id='totalServers'>3</div>
           <div class='stat-label'>سيرفر</div>
         </div>
-        <div class='stat'>
+        <div class='stat-card'>
           <div class='stat-value' id='seriesYear'>2025</div>
           <div class='stat-label'>السنة</div>
+        </div>
+        <div class='stat-card'>
+          <div class='stat-value' id='seriesSource'>mwdy</div>
+          <div class='stat-label'>المصدر</div>
         </div>
       </div>
     </div>
 
     <!-- قائمة السيرفرات -->
     <div class='servers-section' id='serversSection'>
-      <div class='servers-title'>🌐 اختر السيرفر</div>
+      <div class='section-title'>
+        <span>🌐</span>
+        <span>اختر السيرفر المناسب</span>
+      </div>
       <div class='servers-grid' id='serversGrid'>
         <!-- السيرفرات ستظهر هنا ديناميكياً -->
       </div>
@@ -593,11 +807,20 @@
     <!-- قائمة الحلقات -->
     <div class='episodes-section' id='episodesSection'>
       <div class='episodes-header'>
-        <div class='episodes-title'>📋 قائمة الحلقات</div>
+        <div class='section-title'>
+          <span>📋</span>
+          <span>قائمة الحلقات</span>
+        </div>
         <div class='episodes-controls'>
-          <span class='control-btn' onclick='selectAllEpisodes()'>تحديد الكل</span>
-          <span class='control-btn' onclick='deselectAllEpisodes()'>إلغاء التحديد</span>
-          <span class='control-btn' onclick='copyAllLinks()'>📋 نسخ الكل</span>
+          <span class='control-btn' onclick='selectAllEpisodes()'>
+            <span>✅</span> تحديد الكل
+          </span>
+          <span class='control-btn' onclick='deselectAllEpisodes()'>
+            <span>↩️</span> إلغاء التحديد
+          </span>
+          <span class='control-btn' onclick='copyAllLinks()'>
+            <span>📋</span> نسخ الكل
+          </span>
         </div>
       </div>
       <div class='episodes-grid' id='episodesGrid'>
@@ -608,11 +831,20 @@
     <!-- روابط الحلقة المحددة -->
     <div class='link-section' id='linkSection'>
       <div class='link-header'>
-        <div class='link-title'>🔗 روابط الحلقة المحددة</div>
+        <div class='link-title'>
+          <span>🔗</span>
+          <span>روابط الحلقة المحددة</span>
+        </div>
         <div class='link-actions'>
-          <span class='action-btn' onclick='copyM3U8Link()'><span>📋</span> نسخ M3U8</span>
-          <span class='action-btn' onclick='copyTSLink()'><span>📋</span> نسخ TS</span>
-          <span class='action-btn' onclick='copyAllFormats()'><span>📋</span> نسخ الكل</span>
+          <span class='action-btn' onclick='copyM3U8Link()'>
+            <span>📋</span> نسخ M3U8
+          </span>
+          <span class='action-btn' onclick='copyTSLink()'>
+            <span>📋</span> نسخ MP4/TS
+          </span>
+          <span class='action-btn' onclick='copyAllFormats()'>
+            <span>📋</span> نسخ الكل
+          </span>
         </div>
       </div>
       <div class='link-box' id='linkBox'>
@@ -622,33 +854,39 @@
   </div>
 
   <!-- مسلسلات مقترحة -->
-  <div class='popular-series'>
-    <div class='popular-title'>🔥 مسلسلات مقترحة</div>
+  <div class='popular-section'>
+    <div class='popular-title'>
+      <span>🔥</span>
+      <span>مسلسلات مقترحة للمشاهدة</span>
+    </div>
     <div class='popular-grid'>
-      <span class='popular-item' onclick='loadSeries("حكاية روح")'>حكاية روح</span>
-      <span class='popular-item' onclick='loadSeries("شراب التوت")'>شراب التوت</span>
-      <span class='popular-item' onclick='loadSeries("الطبيب")'>الطبيب</span>
-      <span class='popular-item' onclick='loadSeries("ورود وذنوب")'>ورود وذنوب</span>
-      <span class='popular-item' onclick='loadSeries("المشردون")'>المشردون</span>
-      <span class='popular-item' onclick='loadSeries("المؤسس عثمان")'>المؤسس عثمان</span>
-      <span class='popular-item' onclick='loadSeries("قيامة أرطغرل")'>قيامة أرطغرل</span>
+      <span class='popular-chip' onclick='loadSeries("حكاية روح")'><span>📺</span> حكاية روح</span>
+      <span class='popular-chip' onclick='loadSeries("شراب التوت")'><span>🍓</span> شراب التوت</span>
+      <span class='popular-chip' onclick='loadSeries("الطبيب")'><span>👨‍⚕️</span> الطبيب</span>
+      <span class='popular-chip' onclick='loadSeries("ورود وذنوب")'><span>🌹</span> ورود وذنوب</span>
+      <span class='popular-chip' onclick='loadSeries("المشردون")'><span>🏚️</span> المشردون</span>
+      <span class='popular-chip' onclick='loadSeries("المؤسس عثمان")'><span>⚔️</span> المؤسس عثمان</span>
+      <span class='popular-chip' onclick='loadSeries("قيامة أرطغرل")'><span>🏹</span> قيامة أرطغرل</span>
+      <span class='popular-chip' onclick='loadSeries("العشق المشبوه")'><span>💔</span> العشق المشبوه</span>
+      <span class='popular-chip' onclick='loadSeries("الغرفة 309")'><span>🚪</span> الغرفة 309</span>
+      <span class='popular-chip' onclick='loadSeries("المنظمة")'><span>🕵️</span> المنظمة</span>
     </div>
   </div>
 
   <footer>
-    © 2026 حكايتنا AI · جميع الروابط مستخرجة من مصادر عامة
+    <p>© 2026 حكايتنا AI · جميع الروابط مستخرجة من مصادر عامة · تم التطوير بواسطة Reqable AI</p>
   </footer>
 </div>
 
 <!-- رسالة منبثقة للنسخ -->
-<div class='toast-message' id='toastMessage'>✅ تم النسخ</div>
+<div class='toast-notification' id='toastMessage'>✅ تم النسخ</div>
 
 <b:section id='main' showaddelement='false'/>
 
 <script>
 // <![CDATA[
 
-// ========== قاعدة بيانات المسلسلات الحقيقية ==========
+// ========== قاعدة بيانات المسلسلات الحقيقية والموسعة ==========
 const SERIES_DATABASE = {
   // مسلسلات mwdy.club
   "حكاية روح": {
@@ -656,8 +894,7 @@ const SERIES_DATABASE = {
     servers: ["s21.mwdy.club", "s22.mwdy.club", "s23.mwdy.club", "s24.mwdy.club", "s25.mwdy.club"],
     episodes: 8,
     year: 2025,
-    source: "mwdy",
-    image: "https://sk.3isk.info/wp-content/uploads/2024/08/4mSiV9T04pxMiShDZpHMUIR6D1d.jpg"
+    source: "mwdy"
   },
   "شراب التوت": {
     id: "kizilcik-serbeti-2025",
@@ -667,14 +904,14 @@ const SERIES_DATABASE = {
     source: "mwdy"
   },
   "المؤسس عثمان": {
-    id: "kurulus-osman-season-5",
+    id: "kurulus-osman-s6",
     servers: ["s25.mwdy.club", "s26.mwdy.club", "s27.mwdy.club"],
     episodes: 120,
-    year: "2025",
+    year: 2025,
     source: "mwdy"
   },
   "قيامة أرطغرل": {
-    id: "dirilis-ertugrul-complete",
+    id: "dirilis-ertugrul",
     servers: ["s21.mwdy.club", "s22.mwdy.club"],
     episodes: 150,
     year: "2014-2021",
@@ -688,7 +925,7 @@ const SERIES_DATABASE = {
     source: "mwdy"
   },
   "الغرفة 309": {
-    id: "no-309-full",
+    id: "no-309",
     servers: ["s21.mwdy.club", "s22.mwdy.club"],
     episodes: 60,
     year: 2025,
@@ -856,6 +1093,15 @@ function displaySeriesInfo(name, series) {
   document.getElementById('totalEpisodes').innerText = series.episodes;
   document.getElementById('totalServers').innerText = series.servers.length;
   document.getElementById('seriesYear').innerText = series.year;
+  
+  let sourceName = '';
+  switch(series.source) {
+    case 'mwdy': sourceName = 'mwdy.club'; break;
+    case '3isk': sourceName = 'قصة عشق'; break;
+    case 'qrmzi': sourceName = 'قرمزي'; break;
+    default: sourceName = series.source;
+  }
+  document.getElementById('seriesSource').innerText = sourceName;
 }
 
 function displayServers(servers) {
@@ -865,7 +1111,7 @@ function displayServers(servers) {
   servers.forEach((server, index) => {
     const chip = document.createElement('span');
     chip.className = 'server-chip' + (index === 0 ? ' active' : '');
-    chip.innerText = server;
+    chip.innerHTML = `<i>🌐</i> ${server}`;
     chip.onclick = () => selectServer(server, chip);
     grid.appendChild(chip);
   });
@@ -895,7 +1141,7 @@ function displayEpisodes(total) {
     
     card.innerHTML = `
       <div class="episode-number">الحلقة ${i}</div>
-      <div class="episode-title">${i === total ? 'الأخيرة' : 'HD'}</div>
+      <div class="episode-badge">${i === total ? 'الأخيرة' : 'HD'}</div>
     `;
     
     grid.appendChild(card);
@@ -921,36 +1167,45 @@ function selectEpisode(episode, element) {
 function displayEpisodeLink(episode, server, seriesId, source) {
   const linkBox = document.getElementById('linkBox');
   
-  let m3u8Link, tsLink;
+  let m3u8Link, mp4Link, tsLink;
   
   switch(source) {
     case 'mwdy':
       m3u8Link = `https://${server}/hls/${seriesId}/index.m3u8`;
       tsLink = `https://${server}/hls/${seriesId}/seg-${episode}-v1-a1.ts`;
+      mp4Link = `https://${server}/hls/${seriesId}/seg-${episode}-v1-a1.ts`;
       break;
     case '3isk':
       m3u8Link = `https://${server}/hls/${seriesId}/index.m3u8`;
       tsLink = `https://${server}/hls/${seriesId}/seg-${episode}-v1-a1.ts`;
+      mp4Link = `https://${server}/hls/${seriesId}/seg-${episode}-v1-a1.ts`;
       break;
     case 'qrmzi':
       m3u8Link = `https://${server}/hls/${seriesId}/master.m3u8`;
       tsLink = `https://${server}/hls/${seriesId}/seg-${episode}.ts`;
+      mp4Link = `https://${server}/hls/${seriesId}/seg-${episode}.ts`;
       break;
     default:
       m3u8Link = `https://${server}/hls/${seriesId}/index.m3u8`;
       tsLink = `https://${server}/hls/${seriesId}/seg-${episode}-v1-a1.ts`;
+      mp4Link = `https://${server}/hls/${seriesId}/seg-${episode}-v1-a1.ts`;
   }
   
   linkBox.innerHTML = `
-    <div style="margin-bottom: 15px; color: var(--primary);">📺 رابط M3U8 (للمشاهدة):</div>
-    <div style="margin-bottom: 20px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px;">${m3u8Link}</div>
-    <div style="margin-bottom: 15px; color: var(--secondary);">📥 رابط TS (للتحميل):</div>
-    <div style="padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px;">${tsLink}</div>
+    <div>
+      <div style="color: var(--primary); margin-bottom: 5px;">📺 رابط M3U8 (للمشاهدة):</div>
+      <div>${m3u8Link}</div>
+    </div>
+    <div>
+      <div style="color: var(--secondary); margin-bottom: 5px;">📥 رابط MP4/TS (للتحميل):</div>
+      <div>${mp4Link}</div>
+    </div>
   `;
   
   // حفظ الروابط في attributes
   linkBox.setAttribute('data-m3u8', m3u8Link);
   linkBox.setAttribute('data-ts', tsLink);
+  linkBox.setAttribute('data-mp4', mp4Link);
 }
 
 function selectAllEpisodes() {
@@ -1001,7 +1256,7 @@ function copyAllFormats() {
   const ts = document.getElementById('linkBox').getAttribute('data-ts');
   
   if (m3u8 && ts) {
-    const text = `M3U8: ${m3u8}\nTS: ${ts}`;
+    const text = `رابط M3U8:\n${m3u8}\n\nرابط MP4/TS:\n${ts}`;
     copyToClipboard(text);
   }
 }
@@ -1013,23 +1268,24 @@ function copyAllLinks() {
   const episodes = Array.from(selectedEpisodes).sort((a, b) => a - b);
   
   episodes.forEach(ep => {
+    let m3u8, ts;
+    
     switch(currentSeries.source) {
       case 'mwdy':
-        links += `الحلقة ${ep}:\n`;
-        links += `M3U8: https://${currentServer}/hls/${currentSeries.id}/index.m3u8\n`;
-        links += `TS: https://${currentServer}/hls/${currentSeries.id}/seg-${ep}-v1-a1.ts\n\n`;
+        m3u8 = `https://${currentServer}/hls/${currentSeries.id}/index.m3u8`;
+        ts = `https://${currentServer}/hls/${currentSeries.id}/seg-${ep}-v1-a1.ts`;
         break;
       case '3isk':
-        links += `الحلقة ${ep}:\n`;
-        links += `M3U8: https://${currentServer}/hls/${currentSeries.id}/index.m3u8\n`;
-        links += `TS: https://${currentServer}/hls/${currentSeries.id}/seg-${ep}-v1-a1.ts\n\n`;
+        m3u8 = `https://${currentServer}/hls/${currentSeries.id}/index.m3u8`;
+        ts = `https://${currentServer}/hls/${currentSeries.id}/seg-${ep}-v1-a1.ts`;
         break;
       case 'qrmzi':
-        links += `الحلقة ${ep}:\n`;
-        links += `M3U8: https://${currentServer}/hls/${currentSeries.id}/master.m3u8\n`;
-        links += `TS: https://${currentServer}/hls/${currentSeries.id}/seg-${ep}.ts\n\n`;
+        m3u8 = `https://${currentServer}/hls/${currentSeries.id}/master.m3u8`;
+        ts = `https://${currentServer}/hls/${currentSeries.id}/seg-${ep}.ts`;
         break;
     }
+    
+    links += `الحلقة ${ep}:\nM3U8: ${m3u8}\nMP4/TS: ${ts}\n\n`;
   });
   
   copyToClipboard(links);
@@ -1045,7 +1301,9 @@ function copyToClipboard(text) {
 
 function showToast(message, type = 'success') {
   const toast = document.getElementById('toastMessage');
-  toast.style.background = type === 'success' ? 'var(--primary)' : 'var(--accent)';
+  toast.style.background = type === 'success' ? 
+    'linear-gradient(135deg, var(--primary), var(--secondary))' : 
+    'linear-gradient(135deg, var(--danger), #ff0066)';
   toast.innerText = message;
   toast.style.display = 'block';
   
@@ -1057,16 +1315,6 @@ function showToast(message, type = 'success') {
 function loadSeries(name) {
   document.getElementById('seriesName').value = name;
   extractSeries();
-}
-
-// دالة للبحث عن مسلسلات إضافية (يمكن توسيعها)
-function searchAISeries(query) {
-  // هذه دالة وهمية للذكاء الاصطناعي - يمكن ربطها بـ API خارجي
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(null);
-    }, 1000);
-  });
 }
 
 // تهيئة الصفحة
