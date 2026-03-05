@@ -1498,6 +1498,53 @@ function deleteSeries(id) {
 window.onload = function() {
   addNewEpisode();
 };
+// أضف هذا الرابط الثابت للـ API
+const apiURL = "https://script.google.com/macros/s/AKfycbwRXHG4lT7OUruDPunZ9tN_M0LRucDvH_yqfq2wvAqIslDh2PxVwduresaz18G1xcJ8/exec";
+
+// دالة للتواصل مع Google Apps Script
+async function queryAI(message) {
+  try {
+    const response = await fetch(apiURL + "?msg=" + encodeURIComponent(message));
+    const data = await response.json();
+    return data.response || "لم أفهم طلبك";
+  } catch (error) {
+    console.error("خطأ في الاتصال بالـ API:", error);
+    return "❌ حدث خطأ في الاتصال بالمساعد الذكي";
+  }
+}
+
+// تعديل دالة processChatMessage لاستخدام API
+async function processChatMessage(message) {
+  const lowerMsg = message.toLowerCase();
+  
+  // التحقق من طلب إضافة مسلسل بصيغة JSON (محلياً)
+  if (message.includes('"title"') && message.includes('"episodes"')) {
+    try {
+      const jsonMatch = message.match(/\{.*\}/s);
+      if (jsonMatch) {
+        const seriesData = JSON.parse(jsonMatch[0]);
+        addSeriesFromAI(seriesData);
+        return;
+      }
+    } catch (e) {
+      addMessage('bot', '❌ عذراً، صيغة JSON غير صحيحة. تأكد من الصيغة وأعد المحاولة.');
+      return;
+    }
+  }
+  
+  // استخدام API للردود الذكية
+  addMessage('bot', '🤔 جاري التفكير...');
+  
+  // استدعاء API
+  const aiResponse = await queryAI(message);
+  
+  // حذف رسالة "جاري التفكير"
+  const chatMessages = document.getElementById('chatMessages');
+  chatMessages.removeChild(chatMessages.lastChild);
+  
+  // إضافة الرد
+  addMessage('bot', aiResponse);
+}
 </script>
 
 </body>
