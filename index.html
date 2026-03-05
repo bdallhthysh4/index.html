@@ -2,43 +2,150 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>بث مباشر</title>
+<title>البث المباشر</title>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <style>
+
 body{
-background:black;
+margin:0;
+background:#0f0f0f;
+font-family:Tahoma;
 color:white;
 text-align:center;
-font-family:Arial;
 }
-video{
+
+header{
+background:#1c1c1c;
+padding:15px;
+font-size:22px;
+font-weight:bold;
+box-shadow:0 0 10px #000;
+}
+
+.container{
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+padding:30px;
+}
+
+.player-box{
 width:90%;
 max-width:900px;
-margin-top:20px;
+background:#000;
+border-radius:12px;
+overflow:hidden;
+box-shadow:0 0 20px rgba(0,0,0,0.6);
 }
-</style>
 
+video{
+width:100%;
+height:auto;
+background:black;
+}
+
+.status{
+margin-top:15px;
+background:#1a1a1a;
+padding:10px 15px;
+border-radius:8px;
+font-size:16px;
+}
+
+.loader{
+margin-top:10px;
+border:4px solid #333;
+border-top:4px solid #00ff9d;
+border-radius:50%;
+width:30px;
+height:30px;
+animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+0%{transform:rotate(0deg);}
+100%{transform:rotate(360deg);}
+}
+
+button{
+margin-top:15px;
+padding:10px 20px;
+background:#00c853;
+border:none;
+color:white;
+border-radius:8px;
+font-size:16px;
+cursor:pointer;
+}
+
+button:hover{
+background:#00e676;
+}
+
+</style>
 </head>
+
 <body>
 
-<h2>📺 البث المباشر</h2>
+<header>
+📺 مشاهدة البث المباشر
+</header>
 
-<video id="video" controls autoplay></video>
+<div class="container">
+
+<div class="player-box">
+<video id="player" controls autoplay></video>
+</div>
+
+<div class="status" id="status">
+جاري الاتصال بالبث...
+</div>
+
+<div class="loader"></div>
+
+<button onclick="startStream()">إعادة تشغيل البث</button>
+
+</div>
 
 <script>
 
-var video = document.getElementById('video');
-var videoSrc = "PUT_M3U8_LINK_HERE";
+const video = document.getElementById("player");
+const status = document.getElementById("status");
+
+function startStream(){
+
+status.innerHTML="🔄 جاري محاولة تشغيل البث...";
+
+let stream="http://117.55.202.104:60000/live?oid=0200bf7cb0lsfez69dd80tgrjty8nwd6";
 
 if(Hls.isSupported()){
 
-var hls = new Hls();
-hls.loadSource(videoSrc);
+let hls = new Hls();
+
+hls.loadSource(stream);
 hls.attachMedia(video);
 
+hls.on(Hls.Events.MANIFEST_PARSED,function(){
+status.innerHTML="✅ البث يعمل الآن";
+video.play();
+});
+
+hls.on(Hls.Events.ERROR,function(){
+status.innerHTML="⚠️ تعذر تشغيل البث";
+});
+
+}else{
+
+video.src = stream;
+
 }
+
+}
+
+startStream();
 
 </script>
 
