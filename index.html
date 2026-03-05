@@ -1,151 +1,90 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>البث المباشر</title>
-
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<title>Live Stream</title>
 
 <style>
-
 body{
-margin:0;
 background:#0f0f0f;
-font-family:Tahoma;
 color:white;
+font-family:sans-serif;
 text-align:center;
 }
 
-header{
-background:#1c1c1c;
-padding:15px;
-font-size:22px;
-font-weight:bold;
-box-shadow:0 0 10px #000;
-}
-
-.container{
-display:flex;
-justify-content:center;
-align-items:center;
-flex-direction:column;
-padding:30px;
-}
-
-.player-box{
-width:90%;
-max-width:900px;
+#player{
+width:80%;
+margin:auto;
 background:#000;
-border-radius:12px;
-overflow:hidden;
-box-shadow:0 0 20px rgba(0,0,0,0.6);
+padding:20px;
+border-radius:10px;
 }
 
 video{
 width:100%;
-height:auto;
 background:black;
 }
-
-.status{
-margin-top:15px;
-background:#1a1a1a;
-padding:10px 15px;
-border-radius:8px;
-font-size:16px;
-}
-
-.loader{
-margin-top:10px;
-border:4px solid #333;
-border-top:4px solid #00ff9d;
-border-radius:50%;
-width:30px;
-height:30px;
-animation:spin 1s linear infinite;
-}
-
-@keyframes spin{
-0%{transform:rotate(0deg);}
-100%{transform:rotate(360deg);}
-}
-
-button{
-margin-top:15px;
-padding:10px 20px;
-background:#00c853;
-border:none;
-color:white;
-border-radius:8px;
-font-size:16px;
-cursor:pointer;
-}
-
-button:hover{
-background:#00e676;
-}
-
 </style>
+
 </head>
 
 <body>
 
-<header>
-📺 مشاهدة البث المباشر
-</header>
+<h2>📺 Live Stream</h2>
 
-<div class="container">
+<div id="player">
 
-<div class="player-box">
-<video id="player" controls autoplay></video>
-</div>
+<video id="video" controls autoplay></video>
 
-<div class="status" id="status">
-جاري الاتصال بالبث...
-</div>
-
-<div class="loader"></div>
-
-<button onclick="startStream()">إعادة تشغيل البث</button>
+<p id="status">Connecting...</p>
 
 </div>
 
 <script>
 
-const video = document.getElementById("player");
+const ws = new WebSocket("ws://117.55.202.104:60000/live?oid=0200bf7cb0lsfez69dd80tgrjty8nwd6");
+
+const video = document.getElementById("video");
 const status = document.getElementById("status");
 
-function startStream(){
+ws.binaryType = "arraybuffer";
 
-status.innerHTML="🔄 جاري محاولة تشغيل البث...";
+let mediaSource = new MediaSource();
+video.src = URL.createObjectURL(mediaSource);
 
-let stream="http://117.55.202.104:60000/live?oid=0200bf7cb0lsfez69dd80tgrjty8nwd6";
+mediaSource.addEventListener("sourceopen", () => {
 
-if(Hls.isSupported()){
+let sourceBuffer = mediaSource.addSourceBuffer('video/mp4; codecs="hvc1"');
 
-let hls = new Hls();
+ws.onmessage = function(event){
 
-hls.loadSource(stream);
-hls.attachMedia(video);
+if(event.data instanceof ArrayBuffer){
 
-hls.on(Hls.Events.MANIFEST_PARSED,function(){
-status.innerHTML="✅ البث يعمل الآن";
-video.play();
-});
-
-hls.on(Hls.Events.ERROR,function(){
-status.innerHTML="⚠️ تعذر تشغيل البث";
-});
-
-}else{
-
-video.src = stream;
+sourceBuffer.appendBuffer(new Uint8Array(event.data));
 
 }
 
 }
 
-startStream();
+});
+
+ws.onopen = () => {
+
+status.innerText = "Connected to stream";
+
+};
+
+ws.onerror = () => {
+
+status.innerText = "Stream error";
+
+};
+
+ws.onclose = () => {
+
+status.innerText = "Disconnected";
+
+};
 
 </script>
 
