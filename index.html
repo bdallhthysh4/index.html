@@ -1054,6 +1054,9 @@ let seriesData = [];
 let editMode = false;
 let editId = null;
 
+// رابط API (استخدم الرابط الصحيح)
+const apiURL = "https://script.google.com/macros/s/AKfycbwRXHG4lT7OUruDPunZ9tN_M0LRucDvH_yqfq2wvAqIslDh2PxVwduresaz18G1xcJ8/exec";
+
 // التحقق من كلمة المرور
 function checkAdminLogin() {
   const password = document.getElementById('adminPassword').value;
@@ -1106,18 +1109,29 @@ function sendChatMessage() {
   processChatMessage(message);
 }
 
-// معالجة رسائل الشات
-function processChatMessage(message) {
+// دالة للتواصل مع Google Apps Script
+async function queryAI(message) {
+  try {
+    const response = await fetch(apiURL + "?msg=" + encodeURIComponent(message));
+    const data = await response.json();
+    return data.response || "لم أفهم طلبك";
+  } catch (error) {
+    console.error("خطأ في الاتصال بالـ API:", error);
+    return "❌ حدث خطأ في الاتصال بالمساعد الذكي. تأكد من الرابط.";
+  }
+}
+
+// معالجة رسائل الشات (دالة واحدة فقط)
+async function processChatMessage(message) {
   const lowerMsg = message.toLowerCase();
   
   // التحقق من طلب إضافة مسلسل بصيغة JSON
   if (message.includes('"title"') && message.includes('"episodes"')) {
     try {
-      // محاولة استخراج JSON من الرسالة
       const jsonMatch = message.match(/\{.*\}/s);
       if (jsonMatch) {
-        const seriesData = JSON.parse(jsonMatch[0]);
-        addSeriesFromAI(seriesData);
+        const seriesDataJson = JSON.parse(jsonMatch[0]);
+        addSeriesFromAI(seriesDataJson);
         return;
       }
     } catch (e) {
@@ -1126,31 +1140,29 @@ function processChatMessage(message) {
     }
   }
   
-  // التحقق من وجود رابط مسلسل
-  if (message.includes('http') && (message.includes('.mp4') || message.includes('.m3u8'))) {
-    addMessage('bot', '📽️ جاري تحليل الرابط وإضافة المسلسل...');
-    // يمكن إضافة منطق تحليل الروابط هنا
-    return;
-  }
-  
-  // ردود ذكية على الأسئلة
+  // ردود سريعة محلية (بدون انتظار API)
   if (lowerMsg.includes('السلام عليكم') || lowerMsg.includes('سلام')) {
     addMessage('bot', 'وعليكم السلام ورحمة الله وبركاته! كيف يمكنني مساعدتك؟');
+    return;
   }
   else if (lowerMsg.includes('كيف حالك')) {
     addMessage('bot', 'أنا بخير الحمدلله، دائمًا مستعد لخدمتك!');
+    return;
   }
   else if (lowerMsg.includes('شكرا')) {
     addMessage('bot', 'العفو، هذا واجبي. هل تريد إضافة مسلسل جديد؟');
+    return;
   }
   else if (lowerMsg.includes('مساعدة') || lowerMsg.includes('مساعده')) {
-    addMessage('bot', '🔹 يمكنني مساعدتك في:\n• إضافة مسلسل جديد\n• إضافة حلقات دفعة واحدة\n• البحث عن مسلسل\n• إعطاء إحصائيات\n\nأرسل لي رابط المسلسل أو بياناته وسأقوم بإضافته!');
+    addMessage('bot', '🔹 يمكنني مساعدتك في:\n• إضافة مسلسل جديد (أرسل JSON)\n• إضافة حلقات دفعة واحدة\n• البحث عن مسلسل\n• إعطاء إحصائيات\n\nمثال JSON:\n{"title": "اسم المسلسل", "category": "تركي", "image": "رابط", "episodes": [{"title": "1", "link1": "رابط"}]}');
+    return;
   }
   else if (lowerMsg.includes('احصائيات') || lowerMsg.includes('إحصائيات')) {
     const totalSeries = seriesData.length;
     let totalEpisodes = 0;
     seriesData.forEach(s => totalEpisodes += (s.episodes ? s.episodes.length : 0));
     addMessage('bot', `📊 الإحصائيات:\n• عدد المسلسلات: ${totalSeries}\n• عدد الحلقات: ${totalEpisodes}`);
+    return;
   }
   else if (lowerMsg.includes('ابحث عن') || lowerMsg.includes('بحث')) {
     const searchTerm = message.replace(/ابحث عن|بحث/gi, '').trim();
@@ -1168,10 +1180,21 @@ function processChatMessage(message) {
         addMessage('bot', '❌ لا توجد نتائج للبحث.');
       }
     }
+    return;
   }
-  else {
-    addMessage('bot', '🤔 لم أفهم طلبك. يمكنك كتابة "مساعدة" لمعرفة ما يمكنني فعله.');
-  }
+  
+  // إذا لم يجد رد محلي، استخدم API
+  addMessage('bot', '🤔 جاري التفكير...');
+  
+  // استدعاء API
+  const aiResponse = await queryAI(message);
+  
+  // حذف رسالة "جاري التفكير"
+  const chatMessages = document.getElementById('chatMessages');
+  chatMessages.removeChild(chatMessages.lastChild);
+  
+  // إضافة الرد
+  addMessage('bot', aiResponse);
 }
 
 // إضافة مسلسل من الذكاء الاصطناعي
@@ -1498,53 +1521,6 @@ function deleteSeries(id) {
 window.onload = function() {
   addNewEpisode();
 };
-// أضف هذا الرابط الثابت للـ API
-const apiURL = "https://script.google.com/macros/s/AKfycbwRXHG4lT7OUruDPunZ9tN_M0LRucDvH_yqfq2wvAqIslDh2PxVwduresaz18G1xcJ8/exec";
-
-// دالة للتواصل مع Google Apps Script
-async function queryAI(message) {
-  try {
-    const response = await fetch(apiURL + "?msg=" + encodeURIComponent(message));
-    const data = await response.json();
-    return data.response || "لم أفهم طلبك";
-  } catch (error) {
-    console.error("خطأ في الاتصال بالـ API:", error);
-    return "❌ حدث خطأ في الاتصال بالمساعد الذكي";
-  }
-}
-
-// تعديل دالة processChatMessage لاستخدام API
-async function processChatMessage(message) {
-  const lowerMsg = message.toLowerCase();
-  
-  // التحقق من طلب إضافة مسلسل بصيغة JSON (محلياً)
-  if (message.includes('"title"') && message.includes('"episodes"')) {
-    try {
-      const jsonMatch = message.match(/\{.*\}/s);
-      if (jsonMatch) {
-        const seriesData = JSON.parse(jsonMatch[0]);
-        addSeriesFromAI(seriesData);
-        return;
-      }
-    } catch (e) {
-      addMessage('bot', '❌ عذراً، صيغة JSON غير صحيحة. تأكد من الصيغة وأعد المحاولة.');
-      return;
-    }
-  }
-  
-  // استخدام API للردود الذكية
-  addMessage('bot', '🤔 جاري التفكير...');
-  
-  // استدعاء API
-  const aiResponse = await queryAI(message);
-  
-  // حذف رسالة "جاري التفكير"
-  const chatMessages = document.getElementById('chatMessages');
-  chatMessages.removeChild(chatMessages.lastChild);
-  
-  // إضافة الرد
-  addMessage('bot', aiResponse);
-}
 </script>
 
 </body>
