@@ -3,10 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <title>بث مباشر</title>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
 <style>
 body{
-background:#000;
-color:#fff;
+background:black;
+color:white;
 text-align:center;
 font-family:Arial;
 }
@@ -14,50 +17,29 @@ video{
 width:90%;
 max-width:900px;
 margin-top:20px;
-border-radius:10px;
-}
-button{
-padding:10px 20px;
-font-size:18px;
-background:#e50914;
-color:#fff;
-border:none;
-border-radius:6px;
-cursor:pointer;
 }
 </style>
+
 </head>
 <body>
 
-<h2>📺 بث مباشر</h2>
+<h2>📺 البث المباشر</h2>
 
 <video id="video" controls autoplay></video>
-<br><br>
-<button onclick="startStream()">تشغيل البث</button>
 
 <script>
-function startStream(){
 
-let video = document.getElementById("video");
+var video = document.getElementById('video');
+var videoSrc = "PUT_M3U8_LINK_HERE";
 
-let ws = new WebSocket("ws://117.55.202.104:60000/live?oid=0200bf7cb0lsfez69dd80tgrjty8nwd6");
+if(Hls.isSupported()){
 
-ws.binaryType = "arraybuffer";
-
-let mediaSource = new MediaSource();
-video.src = URL.createObjectURL(mediaSource);
-
-mediaSource.addEventListener("sourceopen", function(){
-
-let sourceBuffer = mediaSource.addSourceBuffer('video/mp4; codecs="avc1.64001e, mp4a.40.2"');
-
-ws.onmessage = function(event){
-sourceBuffer.appendBuffer(new Uint8Array(event.data));
-};
-
-});
+var hls = new Hls();
+hls.loadSource(videoSrc);
+hls.attachMedia(video);
 
 }
+
 </script>
 
 </body>
