@@ -1,42 +1,63 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>Live Stream</title>
+<title>بث مباشر</title>
+<style>
+body{
+background:#000;
+color:#fff;
+text-align:center;
+font-family:Arial;
+}
+video{
+width:90%;
+max-width:900px;
+margin-top:20px;
+border-radius:10px;
+}
+button{
+padding:10px 20px;
+font-size:18px;
+background:#e50914;
+color:#fff;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+</style>
 </head>
+<body>
 
-<body style="background:black;color:white;text-align:center">
+<h2>📺 بث مباشر</h2>
 
-<h2>اتصال البث</h2>
-
-<button onclick="start()">تشغيل</button>
-
-<pre id="log"></pre>
+<video id="video" controls autoplay></video>
+<br><br>
+<button onclick="startStream()">تشغيل البث</button>
 
 <script>
+function startStream(){
 
-function start(){
+let video = document.getElementById("video");
 
 let ws = new WebSocket("ws://117.55.202.104:60000/live?oid=0200bf7cb0lsfez69dd80tgrjty8nwd6");
 
-ws.onopen = function(){
-log("تم الاتصال بالسيرفر");
+ws.binaryType = "arraybuffer";
+
+let mediaSource = new MediaSource();
+video.src = URL.createObjectURL(mediaSource);
+
+mediaSource.addEventListener("sourceopen", function(){
+
+let sourceBuffer = mediaSource.addSourceBuffer('video/mp4; codecs="avc1.64001e, mp4a.40.2"');
+
+ws.onmessage = function(event){
+sourceBuffer.appendBuffer(new Uint8Array(event.data));
 };
 
-ws.onmessage = function(e){
-log("تم استلام بيانات بث");
-};
-
-ws.onerror = function(){
-log("خطأ في الاتصال");
-};
+});
 
 }
-
-function log(text){
-document.getElementById("log").innerHTML += text + "\n";
-}
-
 </script>
 
 </body>
