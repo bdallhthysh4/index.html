@@ -997,6 +997,9 @@ const db = firebase.database();
 let seriesData = [];
 let currentEditId = null;
 
+// رابط API الذكي (الذي طلبت إضافته)
+const SMART_API_URL = "https://script.google.com/macros/s/AKfycbwRXHG4lT7OUruDPunZ9tN_M0LRucDvH_yqfq2wvAqIslDh2PxVwduresaz18G1xcJ8/exec";
+
 // ========== نظام التنبيهات ==========
 function showAlert(type, message) {
   const alert = document.getElementById(type + 'Alert');
@@ -1085,7 +1088,7 @@ function updateStats() {
   document.getElementById('totalViews').textContent = totalViews.toLocaleString();
 }
 
-// ========== نظام الشات الذكي المتطور ==========
+// ========== نظام الشات الذكي المتطور (مع دمج API) ==========
 function addBotMessage(text) {
   const chatMessages = document.getElementById('chatMessages');
   const messageDiv = document.createElement('div');
@@ -1131,22 +1134,27 @@ function sendMessage() {
   addUserMessage(message);
   input.value = '';
   
-  // معالجة الرسالة
-  processAICommand(message);
+  // معالجة الرسالة عبر الذكاء المحلي أولاً، ثم عبر API إذا لزم الأمر
+  processLocalAICommand(message);
 }
 
-async function processAICommand(message) {
+// معالج الأوامر المحلية (المضمنة) أولاً
+async function processLocalAICommand(message) {
   const lowerMsg = message.toLowerCase();
+  
+  // ===== الأوامر المحلية السريعة (لا تحتاج API) =====
   
   // أمر: إضافة مسلسل
   if (lowerMsg.includes('ضيف مسلسل') || lowerMsg.includes('إضافة مسلسل')) {
-    addBotMessage('📝 من فضلك أدخل بيانات المسلسل بهذه الصيغة:\n\n{"title":"اسم المسلسل","category":"التصنيف","image":"رابط الصورة"}');
+    addBotMessage('📝 من فضلك أدخل بيانات المسلسل بهذه الصيغة:\n\n```json\n{"title":"اسم المسلسل","category":"التصنيف","image":"رابط الصورة"}\n```');
+    return;
   }
   
   // أمر: إضافة حلقات
   else if (lowerMsg.includes('ضيف حلقات') || lowerMsg.includes('إضافة حلقات')) {
     const seriesList = seriesData.map(s => `• ${s.title}`).join('\n');
     addBotMessage(`📋 اختر المسلسل من هذه القائمة:\n\n${seriesList}\n\nثم أرسل: حلقات لـ [اسم المسلسل]`);
+    return;
   }
   
   // معالجة إضافة حلقات لمسلسل معين
@@ -1174,6 +1182,7 @@ async function processAICommand(message) {
     } else {
       addBotMessage(`❌ لم أجد مسلسل باسم "${seriesName}"`);
     }
+    return;
   }
   
   // أمر: عرض الإحصائيات
@@ -1182,6 +1191,7 @@ async function processAICommand(message) {
     const totalViews = seriesData.reduce((acc, s) => acc + (s.views || 0), 0);
     
     addBotMessage(`📊 **الإحصائيات**\n\n• المسلسلات: ${seriesData.length}\n• الحلقات: ${totalEpisodes}\n• المشاهدات: ${totalViews.toLocaleString()}`);
+    return;
   }
   
   // أمر: حذف مسلسل
@@ -1202,6 +1212,7 @@ async function processAICommand(message) {
     } else {
       addBotMessage(`❌ لم أجد مسلسل باسم "${seriesName}"`);
     }
+    return;
   }
   
   // أمر: البحث
@@ -1218,6 +1229,7 @@ async function processAICommand(message) {
     } else {
       addBotMessage(`❌ لا توجد نتائج لـ "${searchTerm}"`);
     }
+    return;
   }
   
   // معالجة JSON (إضافة مسلسل)
@@ -1257,20 +1269,33 @@ async function processAICommand(message) {
     } catch (e) {
       addBotMessage('❌ صيغة JSON غير صحيحة');
     }
+    return;
   }
   
-  // ردود عامة
-  else if (lowerMsg.includes('السلام') || lowerMsg.includes('سلام')) {
-    addBotMessage('وعليكم السلام ورحمة الله وبركاته! كيف يمكنني مساعدتك؟');
-  }
-  else if (lowerMsg.includes('شكرا')) {
-    addBotMessage('العفو، هذا واجبي! 🎬');
-  }
-  else if (lowerMsg.includes('مساعدة') || lowerMsg.includes('مساعده')) {
-    addBotMessage(`🔹 **الأوامر المتاحة:**\n\n• إضافة مسلسل [اسم]\n• حذف مسلسل [اسم]\n• إضافة حلقات لـ [اسم]\n• إحصائيات\n• بحث عن [كلمة]\n\nأو أرسل بيانات المسلسل بصيغة JSON`);
-  }
+  // ردود عامة (نستخدم API الذكي هنا)
   else {
-    addBotMessage('🤔 لم أفهم طلبك. اكتب "مساعدة" لرؤية الأوامر المتاحة.');
+    // إظهار مؤشر الكتابة
+    addBotMessage('🤔 جاري التفكير...');
+    
+    // استدعاء API الذكي
+    try {
+      const response = await fetch(SMART_API_URL + "?msg=" + encodeURIComponent(message));
+      const data = await response.json();
+      
+      // حذف رسالة "جاري التفكير"
+      const chatMessages = document.getElementById('chatMessages');
+      chatMessages.removeChild(chatMessages.lastChild);
+      
+      // إضافة الرد الذكي
+      addBotMessage(data.response || "عذراً، لم أستطع فهم طلبك.");
+    } catch (error) {
+      // حذف رسالة "جاري التفكير"
+      const chatMessages = document.getElementById('chatMessages');
+      chatMessages.removeChild(chatMessages.lastChild);
+      
+      console.error("خطأ في الاتصال بالـ API:", error);
+      addBotMessage("❌ حدث خطأ في الاتصال بالمساعد الذكي. الرجاء المحاولة لاحقاً.");
+    }
   }
 }
 
