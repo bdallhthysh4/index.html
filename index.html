@@ -1,17 +1,10 @@
-https://omg10.com/4/10683421
-
-
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Worm GPT</title>
-
 <style>
-
 *{
 margin:0;
 padding:0;
@@ -26,8 +19,6 @@ height:100vh;
 display:flex;
 flex-direction:column;
 }
-
-/* header */
 
 .header{
 height:60px;
@@ -45,8 +36,6 @@ color:#ff0033;
 letter-spacing:1px;
 }
 
-/* chat */
-
 .chat{
 flex:1;
 overflow-y:auto;
@@ -56,8 +45,6 @@ flex-direction:column;
 gap:15px;
 }
 
-/* messages */
-
 .msg{
 max-width:75%;
 padding:14px 16px;
@@ -65,6 +52,7 @@ border-radius:16px;
 font-size:15px;
 line-height:1.6;
 animation:fade .3s;
+white-space:pre-wrap;
 }
 
 .user{
@@ -79,8 +67,6 @@ border:1px solid #1f1f1f;
 align-self:flex-start;
 border-bottom-left-radius:5px;
 }
-
-/* input */
 
 .input-area{
 padding:15px;
@@ -120,30 +106,60 @@ button:hover{
 background:#ff224d;
 }
 
-/* loading */
-
 .typing{
 color:#ff0033;
 font-size:14px;
 padding:10px;
+display:flex;
+align-items:center;
+gap:5px;
 }
 
-/* animation */
+.dot-flashing {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: #ff0033;
+  color: #ff0033;
+  animation: dot-flashing 1s infinite linear alternate;
+  animation-delay: 0.5s;
+}
+
+.dot-flashing::before, .dot-flashing::after {
+  content: '';
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: #ff0033;
+  color: #ff0033;
+  animation: dot-flashing 1s infinite alternate;
+}
+
+.dot-flashing::before {
+  left: -15px;
+  animation-delay: 0s;
+}
+
+.dot-flashing::after {
+  left: 15px;
+  animation-delay: 1s;
+}
+
+@keyframes dot-flashing {
+  0% { background-color: #ff0033; }
+  50%, 100% { background-color: rgba(255, 0, 51, 0.2); }
+}
 
 @keyframes fade{
-from{
-opacity:0;
-transform:translateY(10px);
+from{ opacity:0; transform:translateY(10px); }
+to{ opacity:1; transform:translateY(0); }
 }
-to{
-opacity:1;
-transform:translateY(0);
-}
-}
-
 </style>
 </head>
-
 <body>
 
 <div class="header">
@@ -153,92 +169,116 @@ transform:translateY(0);
 <div class="chat" id="chat"></div>
 
 <div class="input-area">
-
-<textarea id="msg" placeholder="اكتب رسالتك..."></textarea>
-
+<textarea id="msg" placeholder="اكتب رسالتك..." rows="1"></textarea>
 <button onclick="send()">إرسال</button>
-
 </div>
 
 <script>
+const API_URL = "https://script.google.com/macros/s/AKfycbyBnz9_aZ672wvRLzcuVeNiig2I18sWZc9om73Cw0zNh8zRoo9FgAnhq7i7fv_GeMoS/exec";
+const API_KEY = "DarkAI-DeepAI-EFF939A9130A0ABAE3A7414D";
+const chat = document.getElementById("chat");
+let timeoutId = null;
 
-const API_URL="https://script.google.com/macros/s/AKfycbyBnz9_aZ672wvRLzcuVeNiig2I18sWZc9om73Cw0zNh8zRoo9FgAnhq7i7fv_GeMoS/exec";
+// ضبط ارتفاع textarea تلقائياً
+const textarea = document.getElementById('msg');
+textarea.addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = (this.scrollHeight) + 'px';
+});
 
-const API_KEY="DarkAI-DeepAI-EFF939A9130A0ABAE3A7414D";
-
-const chat=document.getElementById("chat");
-
-function addMessage(text,type){
-
-const div=document.createElement("div");
-
-div.className="msg "+type;
-
-div.innerText=text;
-
-chat.appendChild(div);
-
-chat.scrollTop=chat.scrollHeight;
-
+function addMessage(text, type) {
+  const div = document.createElement("div");
+  div.className = "msg " + type;
+  
+  // تنسيق النص (دعم الأكواد)
+  let formattedText = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\n/g, '<br>');
+  
+  div.innerHTML = formattedText;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
 }
 
-async function send(){
-
-const input=document.getElementById("msg");
-
-const text=input.value.trim();
-
-if(!text)return;
-
-addMessage(text,"user");
-
-input.value="";
-
-const typing=document.createElement("div");
-
-typing.className="typing";
-
-typing.innerText="Worm GPT يفكر...";
-
-chat.appendChild(typing);
-
-chat.scrollTop=chat.scrollHeight;
-
-try{
-
-const res=await fetch(API_URL+"?msg="+encodeURIComponent(text)+"&key="+API_KEY);
-
-const data=await res.text();
-
-typing.remove();
-
-let reply=data;
-
-try{
-
-const json=JSON.parse(data);
-
-if(json.response){
-
-reply=json.response;
-
+function showTyping() {
+  const typing = document.createElement("div");
+  typing.className = "typing";
+  typing.id = "typing-indicator";
+  typing.innerHTML = 'Worm GPT يفكر <div class="dot-flashing"></div>';
+  chat.appendChild(typing);
+  chat.scrollTop = chat.scrollHeight;
+  
+  // timeout للأمان (30 ثانية)
+  timeoutId = setTimeout(() => {
+    const typingElem = document.getElementById("typing-indicator");
+    if (typingElem) typingElem.remove();
+    addMessage("⚠️ انتهت مهلة الانتظار. حاول مرة أخرى.", "bot");
+  }, 30000);
 }
 
-}catch(e){}
-
-addMessage(reply,"bot");
-
-}catch(e){
-
-typing.remove();
-
-addMessage("حدث خطأ في الاتصال","bot");
-
+function hideTyping() {
+  const typing = document.getElementById("typing-indicator");
+  if (typing) typing.remove();
+  if (timeoutId) clearTimeout(timeoutId);
 }
 
+async function send() {
+  const input = document.getElementById("msg");
+  const text = input.value.trim();
+  if (!text) return;
+
+  addMessage(text, "user");
+  input.value = "";
+  input.style.height = '50px'; // إعادة تعيين الارتفاع
+  
+  showTyping();
+
+  try {
+    // استخدام AbortController للتحكم بالمهلة
+    const controller = new AbortController();
+    const timeoutId2 = setTimeout(() => controller.abort(), 25000); // 25 ثانية
+    
+    const res = await fetch(API_URL + "?msg=" + encodeURIComponent(text) + "&key=" + API_KEY, {
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId2);
+    
+    const data = await res.text();
+    hideTyping();
+    
+    let reply = data;
+    try {
+      const json = JSON.parse(data);
+      if (json.response) reply = json.response;
+    } catch(e) {
+      // إذا مش JSON، استخدم النص مباشرة
+    }
+    
+    addMessage(reply, "bot");
+    
+  } catch(e) {
+    hideTyping();
+    let errorMsg = "حدث خطأ في الاتصال";
+    if (e.name === 'AbortError') {
+      errorMsg = "⚠️ استغرقت العملية وقتاً طويلاً. حاول مرة أخرى.";
+    } else if (e.message) {
+      errorMsg += ": " + e.message;
+    }
+    addMessage(errorMsg, "bot");
+  }
 }
+
+// إرسال بالضغط على Enter
+textarea.addEventListener('keypress', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    send();
+  }
+});
 
 </script>
-
 </body>
 </html>
