@@ -1,240 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html b:css='false' b:defaultmessages='false' b:layouts='false' b:responsive='true' xmlns='http://www.w3.org/1999/xhtml' xmlns:b='http://google.com/2005/gml/b' xmlns:data='http://www.google.com/2005/gml/data' xmlns:expr='http://www.google.com/2005/gml/expr'>
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta content='width=device-width, initial-scale=1' name='viewport'/>
+  <meta content='no-referrer' name='referrer'/>
+  <title>حكايتنا VIP 🎬</title>
 
-<title>Worm GPT</title>
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+  
+  <b:skin><![CDATA[
+    :root { --plyr-color-main: #e50914; }
+    body { margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; direction: rtl; }
 
-<style>
+    /* تنسيقات المشغل */
+    .plyr { direction: ltr !important; border-radius: 15px; }
+    .plyr__volume { display: none !important; } 
+    .plyr__menu__container { max-height: 160px; overflow-y: auto; z-index: 10000 !important; }
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Segoe UI;
-}
+    .video-card {
+      position: relative; width: 95%; max-width: 1000px;
+      margin: 20px auto; border-radius: 15px;
+      overflow: hidden; background: #000;
+      box-shadow: 0 0 60px rgba(229, 9, 20, 0.4);
+    }
 
-body{
-background:#050505;
-color:white;
-height:100vh;
-display:flex;
-flex-direction:column;
-}
+    /* كرت الحلقة القادمة */
+    #next-episode-card {
+      position: absolute; bottom: 80px; left: 20px;
+      background: rgba(0, 0, 0, 0.85); border: 1px solid #e50914;
+      padding: 12px 20px; border-radius: 12px; z-index: 1000;
+      display: none; direction: rtl; backdrop-filter: blur(5px);
+    }
 
-/* header */
+    #brightness-overlay {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: black; opacity: 0; pointer-events: none; z-index: 10;
+    }
 
-.header{
-height:60px;
-background:#0c0c0c;
-display:flex;
-align-items:center;
-padding:0 20px;
-border-bottom:1px solid #1a1a1a;
-}
+    .player-logo {
+      position: absolute; top: 20px; left: 20px; z-index: 11;
+      font-weight: 900; font-size: 20px; pointer-events: none;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
+    }
 
-.logo{
-font-size:22px;
-font-weight:900;
-color:#ff0033;
-letter-spacing:1px;
-}
+    .circle-indicator {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100px; height: 100px;
+      background: rgba(0,0,0,0.8); border-radius: 50%;
+      z-index: 10000; display: none;
+      align-items: center; justify-content: center;
+      flex-direction: column; pointer-events: none;
+    }
+    .circle-label { font-size: 18px; font-weight: bold; color: #fff; }
+    .circle-icon { font-size: 11px; color: #ccc; }
 
-/* chat */
-
-.chat{
-flex:1;
-overflow-y:auto;
-padding:20px;
-display:flex;
-flex-direction:column;
-gap:15px;
-}
-
-/* messages */
-
-.msg{
-max-width:75%;
-padding:14px 16px;
-border-radius:16px;
-font-size:15px;
-line-height:1.6;
-animation:fade .3s;
-}
-
-.user{
-background:#ff0033;
-align-self:flex-end;
-border-bottom-right-radius:5px;
-}
-
-.bot{
-background:#111;
-border:1px solid #1f1f1f;
-align-self:flex-start;
-border-bottom-left-radius:5px;
-}
-
-/* input */
-
-.input-area{
-padding:15px;
-background:#0c0c0c;
-border-top:1px solid #1a1a1a;
-display:flex;
-gap:10px;
-}
-
-textarea{
-flex:1;
-height:50px;
-background:#111;
-border:1px solid #222;
-border-radius:10px;
-color:white;
-padding:10px;
-resize:none;
-outline:none;
-}
-
-textarea:focus{
-border-color:#ff0033;
-}
-
-button{
-width:70px;
-border:none;
-border-radius:10px;
-background:#ff0033;
-color:white;
-font-weight:bold;
-cursor:pointer;
-}
-
-button:hover{
-background:#ff224d;
-}
-
-/* loading */
-
-.typing{
-color:#ff0033;
-font-size:14px;
-padding:10px;
-}
-
-/* animation */
-
-@keyframes fade{
-from{
-opacity:0;
-transform:translateY(10px);
-}
-to{
-opacity:1;
-transform:translateY(0);
-}
-}
-
-</style>
+    .main-section { display: none !important; }
+  ]]></b:skin>
 </head>
 
 <body>
 
-<div class="header">
-<div class="logo">Worm GPT</div>
-</div>
+  <div class="video-card" id="gesture-area">
+    <div class="player-logo" id="main-logo">
+      <span style="color:#fff">حكايتنا</span> <span style="color:#e50914">VIP</span>
+    </div>
+    
+    <div id="next-episode-card">
+        <div style="font-size: 13px; color: #eee; margin-bottom: 4px;">الحلقة القادمة خلال:</div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span id="next-timer" style="font-size: 24px; font-weight: 900; color: #e50914;">20</span>
+            <button onclick="cancelAutoNext()" style="background: #333; color: #fff; border: none; padding: 4px 10px; border-radius: 5px; font-size: 11px; cursor: pointer;">إلغاء</button>
+        </div>
+    </div>
 
-<div class="chat" id="chat"></div>
+    <div id="brightness-overlay"></div>
+    <div class="circle-indicator" id="ui-indicator">
+        <div class="circle-icon" id="ui-type">الصوت</div>
+        <div class="circle-label" id="ui-percent">100%</div>
+        <svg style="position:absolute; width:100px; height:100px; transform: rotate(-90deg);">
+            <circle cx="50" cy="50" r="45" stroke="rgba(255,255,255,0.2)" stroke-width="4" fill="transparent" />
+            <circle id="progress-bar" cx="50" cy="50" r="45" stroke="#fff" stroke-width="4" fill="transparent" 
+                    stroke-dasharray="282.7" stroke-dashoffset="0" stroke-linecap="round" />
+        </svg>
+    </div>
+    
+    <video id="player" playsinline="" controls="">
+      <source id="video-source" src="https://vid5.zvde-dsn-01.site/file/wp-alooytv/uploads/2023/Al.Motawahesh.S01/01.jpg" type="video/mp4" />
+    </video>
+  </div>
 
-<div class="input-area">
+  <b:section class='main-section' id='main' showaddelement='no'/>
 
-<textarea id="msg" placeholder="اكتب رسالتك..."></textarea>
+  <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+  <script>
+  //<![CDATA[
+    const player = new Plyr('#player', {
+      controls: ['play-large', 'play', 'progress', 'current-time', 'settings', 'fullscreen'],
+      tooltips: { controls: true, seek: true },
+      i18n: { play: 'تشغيل', pause: 'إيقاف', settings: 'الإعدادات', speed: 'السرعة' }
+    });
 
-<button onclick="send()">إرسال</button>
+    const gestureArea = document.getElementById('gesture-area');
+    const brightnessOverlay = document.getElementById('brightness-overlay');
+    const uiIndicator = document.getElementById('ui-indicator');
+    const uiPercent = document.getElementById('ui-percent');
+    const uiType = document.getElementById('ui-type');
+    const progressBar = document.getElementById('progress-bar');
+    const nextCard = document.getElementById('next-episode-card');
+    const nextTimerLabel = document.getElementById('next-timer');
 
-</div>
+    let startY, startVal, isRightSide, isMoving = false;
+    let currentBrightness = 0; 
+    let autoNextCancelled = false;
+    const circleLen = 282.7;
 
-<script>
+    // --- نظام الحلقات التلقائي ---
+    player.on('timeupdate', () => {
+        if (autoNextCancelled || !player.duration) return;
+        
+        const timeLeft = Math.floor(player.duration - player.currentTime);
+        
+        if (timeLeft <= 20 && timeLeft > 0) {
+            nextCard.style.display = 'block';
+            nextTimerLabel.innerText = timeLeft;
+        } else {
+            nextCard.style.display = 'none';
+        }
+    });
 
-const API_URL="https://script.google.com/macros/s/AKfycbwpcalYCmbYJHINn1ms49HhqEWl6N7nz5Tm95eet6Xfh-8UWg21KUAG7Ntd3wRHRznO/exec";
+    player.on('ended', () => {
+        if (!autoNextCancelled) {
+            playNextEpisode();
+        }
+        autoNextCancelled = false; 
+    });
 
-const API_KEY="DarkAI-DeepAI-EFF939A9130A0ABAE3A7414D";
+    function cancelAutoNext() {
+        autoNextCancelled = true;
+        nextCard.style.display = 'none';
+    }
 
-const chat=document.getElementById("chat");
+    function playNextEpisode() {
+        const currentUrl = player.source;
+        // استخراج الرابط الحالي لتوليد الرابط التالي تلقائياً
+        const nextUrl = currentUrl.replace(/(\d+)(?=\.\w+$)/, (match) => {
+            let nextNum = parseInt(match) + 1;
+            return nextNum < 10 ? '0' + nextNum : nextNum;
+        });
 
-function addMessage(text,type){
+        if (nextUrl !== currentUrl) {
+            player.source = { type: 'video', sources: [{ src: nextUrl, type: 'video/mp4' }] };
+            player.play();
+        } else {
+            nextCard.style.display = 'none';
+        }
+    }
 
-const div=document.createElement("div");
+    // --- الإيماءات (الصوت والإضاءة) ---
+    function updateCircle(percent) {
+        const offset = circleLen - (percent / 100) * circleLen;
+        progressBar.style.strokeDashoffset = offset;
+        uiPercent.innerText = Math.round(percent) + "%";
+    }
 
-div.className="msg "+type;
+    gestureArea.addEventListener('touchstart', (e) => {
+      isMoving = false;
+      const rect = gestureArea.getBoundingClientRect();
+      startY = e.touches[0].clientY;
+      const touchX = e.touches[0].clientX - rect.left;
+      isRightSide = touchX > rect.width / 2;
+      startVal = isRightSide ? (1 - currentBrightness) : player.volume;
+    }, {passive: true});
 
-div.innerText=text;
+    gestureArea.addEventListener('touchmove', (e) => {
+      const distY = startY - e.touches[0].clientY;
+      if (Math.abs(distY) > 30) {
+        isMoving = true;
+        uiIndicator.style.display = 'flex';
+        if (e.cancelable) e.preventDefault();
 
-chat.appendChild(div);
+        const deltaY = distY / 250; 
+        if (isRightSide) {
+          uiType.innerText = "الإضاءة";
+          let newVal = Math.max(0.1, Math.min(1, startVal + deltaY));
+          currentBrightness = 1 - newVal;
+          brightnessOverlay.style.opacity = currentBrightness;
+          updateCircle(newVal * 100);
+        } else {
+          uiType.innerText = "الصوت";
+          let newVal = Math.max(0, Math.min(1, startVal + deltaY));
+          player.volume = newVal;
+          updateCircle(newVal * 100);
+        }
+      }
+    }, {passive: false});
 
-chat.scrollTop=chat.scrollHeight;
+    gestureArea.addEventListener('touchend', () => {
+      setTimeout(() => { uiIndicator.style.display = 'none'; }, 500);
+    });
 
-}
+    // مزامنة العناصر مع ملء الشاشة
+    const syncUI = () => {
+        const container = document.querySelector('.plyr');
+        if(container) {
+            container.appendChild(uiIndicator);
+            container.appendChild(brightnessOverlay);
+            container.appendChild(document.getElementById('main-logo'));
+            container.appendChild(nextCard);
+        }
+    };
+    player.on('enterfullscreen', syncUI);
+    player.on('ready', syncUI);
 
-async function send(){
-
-const input=document.getElementById("msg");
-
-const text=input.value.trim();
-
-if(!text)return;
-
-addMessage(text,"user");
-
-input.value="";
-
-const typing=document.createElement("div");
-
-typing.className="typing";
-
-typing.innerText="Worm GPT يفكر...";
-
-chat.appendChild(typing);
-
-chat.scrollTop=chat.scrollHeight;
-
-try{
-
-const res=await fetch(API_URL+"?msg="+encodeURIComponent(text)+"&key="+API_KEY);
-
-const data=await res.text();
-
-typing.remove();
-
-let reply=data;
-
-try{
-
-const json=JSON.parse(data);
-
-if(json.response){
-
-reply=json.response;
-
-}
-
-}catch(e){}
-
-addMessage(reply,"bot");
-
-}catch(e){
-
-typing.remove();
-
-addMessage("حدث خطأ في الاتصال","bot");
-
-}
-
-}
-
-</script>
-
+  //]]>
+  </script>
 </body>
 </html>
