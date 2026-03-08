@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Worm GPT</title>
+<title>Worm GPT - السرعة القصوى</title>
 <style>
 *{
 margin:0;
@@ -46,13 +46,14 @@ gap:15px;
 }
 
 .msg{
-max-width:75%;
+max-width:85%;
 padding:14px 16px;
 border-radius:16px;
 font-size:15px;
 line-height:1.6;
 animation:fade .3s;
 white-space:pre-wrap;
+word-wrap:break-word;
 }
 
 .user{
@@ -74,11 +75,13 @@ background:#0c0c0c;
 border-top:1px solid #1a1a1a;
 display:flex;
 gap:10px;
+align-items:flex-end;
 }
 
 textarea{
 flex:1;
-height:50px;
+min-height:50px;
+max-height:150px;
 background:#111;
 border:1px solid #222;
 border-radius:10px;
@@ -86,6 +89,8 @@ color:white;
 padding:10px;
 resize:none;
 outline:none;
+font-family:inherit;
+font-size:15px;
 }
 
 textarea:focus{
@@ -93,17 +98,27 @@ border-color:#ff0033;
 }
 
 button{
-width:70px;
+width:80px;
+height:50px;
 border:none;
 border-radius:10px;
 background:#ff0033;
 color:white;
 font-weight:bold;
 cursor:pointer;
+transition:0.3s;
+font-size:16px;
 }
 
 button:hover{
 background:#ff224d;
+transform:scale(1.02);
+}
+
+button:disabled{
+opacity:0.5;
+cursor:not-allowed;
+transform:none;
 }
 
 .typing{
@@ -113,6 +128,9 @@ padding:10px;
 display:flex;
 align-items:center;
 gap:5px;
+background:#0c0c0c;
+border-radius:16px;
+width:fit-content;
 }
 
 .dot-flashing {
@@ -124,6 +142,8 @@ gap:5px;
   color: #ff0033;
   animation: dot-flashing 1s infinite linear alternate;
   animation-delay: 0.5s;
+  display:inline-block;
+  margin-right:5px;
 }
 
 .dot-flashing::before, .dot-flashing::after {
@@ -158,44 +178,72 @@ gap:5px;
 from{ opacity:0; transform:translateY(10px); }
 to{ opacity:1; transform:translateY(0); }
 }
+
+pre {
+  background: #1a1a1a;
+  padding: 10px;
+  border-radius: 8px;
+  overflow-x: auto;
+  direction: ltr;
+  text-align: left;
+  margin: 10px 0;
+  max-width:100%;
+}
+
+code {
+  font-family: 'Courier New', monospace;
+  color: #ffb3b3;
+  font-size:13px;
+}
+
+/* شريط التمرير */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #1a1a1a; }
+::-webkit-scrollbar-thumb { background: #ff0033; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #ff224d; }
 </style>
 </head>
 <body>
 
 <div class="header">
-<div class="logo">Worm GPT</div>
+<div class="logo">Worm GPT ⚡</div>
 </div>
 
 <div class="chat" id="chat"></div>
 
 <div class="input-area">
-<textarea id="msg" placeholder="اكتب رسالتك..." rows="1"></textarea>
-<button onclick="send()">إرسال</button>
+<textarea id="msg" placeholder="اكتب رسالتك... (يدعم النصوص الطويلة)" rows="1"></textarea>
+<button onclick="send()" id="sendBtn">إرسال</button>
 </div>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbyBnz9_aZ672wvRLzcuVeNiig2I18sWZc9om73Cw0zNh8zRoo9FgAnhq7i7fv_GeMoS/exec";
 const API_KEY = "DarkAI-DeepAI-EFF939A9130A0ABAE3A7414D";
 const chat = document.getElementById("chat");
+const sendBtn = document.getElementById("sendBtn");
+const textarea = document.getElementById('msg');
 let timeoutId = null;
+let retryCount = 0;
+const MAX_RETRIES = 2;
 
 // ضبط ارتفاع textarea تلقائياً
-const textarea = document.getElementById('msg');
 textarea.addEventListener('input', function() {
   this.style.height = 'auto';
-  this.style.height = (this.scrollHeight) + 'px';
+  this.style.height = Math.min(this.scrollHeight, 150) + 'px';
 });
 
 function addMessage(text, type) {
   const div = document.createElement("div");
   div.className = "msg " + type;
   
-  // تنسيق النص (دعم الأكواد)
-  let formattedText = text
+  // تنسيق النص
+  let formattedText = String(text)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/\n/g, '<br>');
+    .replace(/\n/g, '<br>')
+    .replace(/```(.*?)```/gs, '<pre><code>$1</code></pre>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>');
   
   div.innerHTML = formattedText;
   chat.appendChild(div);
@@ -210,12 +258,11 @@ function showTyping() {
   chat.appendChild(typing);
   chat.scrollTop = chat.scrollHeight;
   
-  // timeout للأمان (30 ثانية)
   timeoutId = setTimeout(() => {
-    const typingElem = document.getElementById("typing-indicator");
-    if (typingElem) typingElem.remove();
-    addMessage("⚠️ انتهت مهلة الانتظار. حاول مرة أخرى.", "bot");
-  }, 30000);
+    hideTyping();
+    addMessage("⚠️ انتهت مهلة الانتظار (60 ثانية). حاول مرة أخرى.", "bot");
+    sendBtn.disabled = false;
+  }, 60000); // 60 ثانية للرسائل الطويلة
 }
 
 function hideTyping() {
@@ -224,50 +271,91 @@ function hideTyping() {
   if (timeoutId) clearTimeout(timeoutId);
 }
 
+async function fetchWithRetry(url, options, retries = MAX_RETRIES) {
+  try {
+    const response = await fetch(url, options);
+    return response;
+  } catch (error) {
+    if (retries > 0 && error.message.includes('Failed to fetch')) {
+      console.log(`إعادة المحاولة... متبقي ${retries} محاولات`);
+      await new Promise(resolve => setTimeout(resolve, 2000)); // انتظار ثانيتين
+      return fetchWithRetry(url, options, retries - 1);
+    }
+    throw error;
+  }
+}
+
 async function send() {
-  const input = document.getElementById("msg");
-  const text = input.value.trim();
+  const text = textarea.value.trim();
   if (!text) return;
 
+  // تعطيل الزر
+  sendBtn.disabled = true;
+  
   addMessage(text, "user");
-  input.value = "";
-  input.style.height = '50px'; // إعادة تعيين الارتفاع
+  textarea.value = "";
+  textarea.style.height = '50px';
   
   showTyping();
 
   try {
-    // استخدام AbortController للتحكم بالمهلة
-    const controller = new AbortController();
-    const timeoutId2 = setTimeout(() => controller.abort(), 25000); // 25 ثانية
+    // استخدام POST بدلاً من GET للرسائل الطويلة
+    const formData = new URLSearchParams();
+    formData.append('msg', text);
+    formData.append('key', API_KEY);
     
-    const res = await fetch(API_URL + "?msg=" + encodeURIComponent(text) + "&key=" + API_KEY, {
-      signal: controller.signal
+    const controller = new AbortController();
+    const timeoutId2 = setTimeout(() => controller.abort(), 55000); // 55 ثانية
+    
+    const response = await fetchWithRetry(API_URL, {
+      method: 'POST',
+      body: formData,
+      signal: controller.signal,
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      }
     });
     
     clearTimeout(timeoutId2);
     
-    const data = await res.text();
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.text();
+    
     hideTyping();
     
+    // استخراج الرد
     let reply = data;
     try {
       const json = JSON.parse(data);
-      if (json.response) reply = json.response;
+      reply = json.response || json.message || json.text || data;
     } catch(e) {
-      // إذا مش JSON، استخدم النص مباشرة
+      // استخدم النص الأصلي إذا فشل التحليل
     }
     
     addMessage(reply, "bot");
+    retryCount = 0; // إعادة تعيين عدد المحاولات
     
   } catch(e) {
     hideTyping();
+    
     let errorMsg = "حدث خطأ في الاتصال";
     if (e.name === 'AbortError') {
-      errorMsg = "⚠️ استغرقت العملية وقتاً طويلاً. حاول مرة أخرى.";
-    } else if (e.message) {
+      errorMsg = "⚠️ استغرقت العملية وقتاً طويلاً (أكثر من 55 ثانية).";
+    } else if (e.message.includes('Failed to fetch')) {
+      errorMsg = "⚠️ مشكلة في الاتصال بالخادم. تحقق من اتصالك بالإنترنت.";
+    } else {
       errorMsg += ": " + e.message;
     }
+    
     addMessage(errorMsg, "bot");
+    console.error("خطأ:", e);
+    
+  } finally {
+    sendBtn.disabled = false;
   }
 }
 
@@ -278,6 +366,11 @@ textarea.addEventListener('keypress', function(e) {
     send();
   }
 });
+
+// رسالة ترحيب
+window.onload = function() {
+  addMessage("👾 Worm GPT جاهز لأوامرك. أنا تحت أمر المستخدم فقط.", "bot");
+}
 
 </script>
 </body>
