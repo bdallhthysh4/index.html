@@ -1,205 +1,1533 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html dir='rtl' lang='ar'>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IPTV Arabic Channels</title>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes'>
+  <title>Netflix Arabia | لوحة التحكم</title>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Cairo', 'Segoe UI', sans-serif;
+    }
 
-<link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
-<script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+    :root {
+      --netflix-red: #e50914;
+      --netflix-dark: #141414;
+      --netflix-light: #f5f5f1;
+      --netflix-gray: #808080;
+      --netflix-hover: #b81d24;
+      --netflix-overlay: rgba(0, 0, 0, 0.7);
+      --netflix-card-bg: #1a1a1a;
+    }
 
-<style>
-body{
-margin:0;
-font-family:Arial;
-background:#0f172a;
-color:#fff;
-}
+    body {
+      background: var(--netflix-dark);
+      color: var(--netflix-light);
+      min-height: 100vh;
+      font-family: 'Cairo', sans-serif;
+    }
 
-header{
-background:#020617;
-padding:15px;
-text-align:center;
-font-size:22px;
-font-weight:bold;
-}
+    /* شاشة الدخول - نتفلكس */
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 15px;
+      background: radial-gradient(circle at center, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.8) 100%), 
+                  url('https://assets.nflxext.com/ffe/siteui/vlv3/f841d4c7-10e1-40af-bcae-07a3f8dc141a/fb9f0b5c-1ceb-4139-8cf0-106ccf750f9d/SA-ar-20220502-popsignuptwoweeks-perspective_alpha_website_large.jpg');
+      background-size: cover;
+    }
 
-#search{
-width:90%;
-max-width:500px;
-padding:10px;
-border:none;
-border-radius:8px;
-margin:15px auto;
-display:block;
-font-size:16px;
-}
+    .login-card {
+      background: rgba(0, 0, 0, 0.85);
+      width: 100%;
+      max-width: 450px;
+      border-radius: 8px;
+      padding: 60px 40px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8);
+      animation: netflixFade 0.5s ease;
+    }
 
-.container{
-display:grid;
-grid-template-columns:300px 1fr;
-height:calc(100vh - 120px);
-}
+    @keyframes netflixFade {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-.channels{
-overflow-y:auto;
-background:#020617;
-padding:10px;
-}
+    .login-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
 
-.channel{
-padding:10px;
-margin:5px 0;
-background:#1e293b;
-border-radius:8px;
-cursor:pointer;
-transition:.2s;
-}
+    .login-header .logo {
+      font-size: 48px;
+      font-weight: 900;
+      color: var(--netflix-red);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+    }
 
-.channel:hover{
-background:#334155;
-}
+    .login-header h2 {
+      font-size: 32px;
+      font-weight: 700;
+      color: #fff;
+    }
 
-.player{
-display:flex;
-align-items:center;
-justify-content:center;
-background:#000;
-}
+    .login-input {
+      width: 100%;
+      padding: 16px 20px;
+      margin-bottom: 25px;
+      background: #333;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 16px;
+      transition: 0.3s;
+    }
 
-video{
-width:100%;
-height:100%;
-max-height:80vh;
-}
+    .login-input:focus {
+      background: #454545;
+      outline: none;
+    }
 
-@media(max-width:900px){
-.container{
-grid-template-columns:1fr;
-}
-.channels{
-height:300px;
-}
-}
-</style>
+    .login-btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--netflix-red);
+      border: none;
+      border-radius: 4px;
+      color: white;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .login-btn:hover {
+      background: var(--netflix-hover);
+    }
+
+    /* الهيدر العلوي - نتفلكس */
+    .netflix-header {
+      background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, transparent 100%);
+      padding: 20px 4%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: 0.3s;
+    }
+
+    .netflix-header.scrolled {
+      background: rgba(0, 0, 0, 0.95);
+    }
+
+    .netflix-logo {
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--netflix-red);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .netflix-nav {
+      display: flex;
+      gap: 25px;
+      align-items: center;
+    }
+
+    .nav-item {
+      color: #fff;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 8px 0;
+      position: relative;
+      transition: 0.3s;
+    }
+
+    .nav-item:hover {
+      color: var(--netflix-light);
+    }
+
+    .nav-item.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--netflix-red);
+    }
+
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      background: var(--netflix-red);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .user-avatar i {
+      font-size: 24px;
+      color: white;
+    }
+
+    /* المحتوى الرئيسي */
+    .dashboard {
+      padding-top: 100px;
+      padding-left: 4%;
+      padding-right: 4%;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* قسم الترحيب */
+    .welcome-section {
+      background: linear-gradient(135deg, rgba(229, 9, 20, 0.2) 0%, transparent 100%);
+      border-radius: 12px;
+      padding: 40px;
+      margin-bottom: 40px;
+      border: 1px solid rgba(229, 9, 20, 0.3);
+    }
+
+    .welcome-title {
+      font-size: 48px;
+      font-weight: 900;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+
+    .welcome-subtitle {
+      font-size: 18px;
+      color: #aaa;
+    }
+
+    /* الإحصائيات - مثل نتفلكس */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 25px;
+      margin-bottom: 40px;
+    }
+
+    .stat-card {
+      background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
+      border-radius: 12px;
+      padding: 30px;
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--netflix-red);
+      transform: translateX(-100%);
+      transition: 0.5s;
+    }
+
+    .stat-card:hover::before {
+      transform: translateX(0);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(229, 9, 20, 0.2);
+    }
+
+    .stat-number {
+      font-size: 42px;
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      font-size: 16px;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .stat-icon {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      font-size: 60px;
+      color: rgba(229, 9, 20, 0.2);
+    }
+
+    /* شات الذكاء الاصطناعي - متطور */
+    .ai-chat-section {
+      background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
+      border-radius: 16px;
+      margin-bottom: 40px;
+      border: 1px solid rgba(255,255,255,0.1);
+      overflow: hidden;
+    }
+
+    .ai-header {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 20px 25px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      border-bottom: 1px solid rgba(229, 9, 20, 0.3);
+    }
+
+    .ai-avatar {
+      width: 50px;
+      height: 50px;
+      background: var(--netflix-red);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ai-avatar i {
+      font-size: 28px;
+      color: white;
+    }
+
+    .ai-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .ai-subtitle {
+      font-size: 14px;
+      color: #aaa;
+    }
+
+    .chat-messages {
+      height: 300px;
+      overflow-y: auto;
+      padding: 25px;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .message {
+      display: flex;
+      margin-bottom: 20px;
+      animation: messageSlide 0.3s ease;
+    }
+
+    .user-message {
+      justify-content: flex-end;
+    }
+
+    .message-content {
+      max-width: 70%;
+      padding: 15px 20px;
+      border-radius: 20px;
+      font-size: 14px;
+      line-height: 1.6;
+      position: relative;
+    }
+
+    .user-message .message-content {
+      background: var(--netflix-red);
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    .bot-message .message-content {
+      background: #1a1a1a;
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #fff;
+      border-bottom-left-radius: 4px;
+    }
+
+    .message-time {
+      font-size: 11px;
+      color: #aaa;
+      margin-top: 5px;
+      text-align: left;
+    }
+
+    .chat-input-area {
+      padding: 20px;
+      background: #0f0f0f;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      gap: 15px;
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 15px 20px;
+      background: #1a1a1a;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 15px;
+      transition: 0.3s;
+    }
+
+    .chat-input:focus {
+      border-color: var(--netflix-red);
+      outline: none;
+    }
+
+    .chat-send {
+      width: 55px;
+      height: 55px;
+      background: var(--netflix-red);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      font-size: 20px;
+      transition: 0.3s;
+    }
+
+    .chat-send:hover {
+      background: var(--netflix-hover);
+      transform: scale(1.05);
+    }
+
+    /* شبكة المسلسلات - مثل نتفلكس */
+    .series-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 25px;
+      margin-top: 30px;
+    }
+
+    .series-card {
+      background: #1a1a1a;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: 0.3s;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .series-card:hover {
+      transform: scale(1.05);
+      z-index: 10;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+      border-color: var(--netflix-red);
+    }
+
+    .series-image {
+      width: 100%;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+      display: block;
+    }
+
+    .series-info {
+      padding: 20px;
+    }
+
+    .series-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .series-meta {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      color: #aaa;
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .series-category {
+      background: rgba(229, 9, 20, 0.2);
+      color: var(--netflix-red);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .series-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .edit-btn, .delete-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .edit-btn {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+
+    .edit-btn:hover {
+      background: var(--netflix-red);
+    }
+
+    .delete-btn {
+      background: rgba(229, 9, 20, 0.2);
+      color: var(--netflix-red);
+    }
+
+    .delete-btn:hover {
+      background: var(--netflix-red);
+      color: white;
+    }
+
+    /* لوحة إضافة/تعديل المسلسل */
+    .editor-panel {
+      background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
+      border-radius: 16px;
+      padding: 40px;
+      margin-bottom: 40px;
+      border: 1px solid rgba(255,255,255,0.1);
+      display: none;
+    }
+
+    .editor-panel.active {
+      display: block;
+      animation: slideDown 0.5s ease;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .editor-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .editor-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .close-editor {
+      width: 45px;
+      height: 45px;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 20px;
+      transition: 0.3s;
+    }
+
+    .close-editor:hover {
+      background: var(--netflix-red);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      color: #aaa;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 15px 18px;
+      background: #0f0f0f;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 15px;
+      transition: 0.3s;
+    }
+
+    .form-input:focus {
+      border-color: var(--netflix-red);
+      outline: none;
+    }
+
+    textarea.form-input {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    /* الحلقات */
+    .episodes-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .episodes-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .add-episode-btn {
+      background: var(--netflix-red);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 12px 25px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: 0.3s;
+    }
+
+    .add-episode-btn:hover {
+      background: var(--netflix-hover);
+    }
+
+    .episodes-list {
+      max-height: 400px;
+      overflow-y: auto;
+      margin-bottom: 30px;
+    }
+
+    .episode-item {
+      background: #0f0f0f;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 15px;
+      border: 1px solid rgba(255,255,255,0.05);
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .episode-item input {
+      padding: 10px;
+      background: #1a1a1a;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 4px;
+      color: #fff;
+      font-size: 13px;
+    }
+
+    .remove-episode {
+      width: 40px;
+      height: 40px;
+      background: rgba(229, 9, 20, 0.2);
+      border: none;
+      border-radius: 4px;
+      color: var(--netflix-red);
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .remove-episode:hover {
+      background: var(--netflix-red);
+      color: white;
+    }
+
+    .save-btn {
+      width: 100%;
+      padding: 18px;
+      background: var(--netflix-red);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .save-btn:hover {
+      background: var(--netflix-hover);
+    }
+
+    /* نافذة الحلقات المنبثقة */
+    .episodes-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .episodes-modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #1a1a1a;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 900px;
+      max-height: 80vh;
+      overflow-y: auto;
+      border: 1px solid var(--netflix-red);
+      animation: modalPop 0.3s ease;
+    }
+
+    @keyframes modalPop {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-header {
+      padding: 20px 25px;
+      background: #0f0f0f;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .close-modal {
+      width: 40px;
+      height: 40px;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 18px;
+      transition: 0.3s;
+    }
+
+    .close-modal:hover {
+      background: var(--netflix-red);
+    }
+
+    .modal-body {
+      padding: 25px;
+    }
+
+    /* التنبيهات */
+    .alert {
+      position: fixed;
+      top: 100px;
+      right: 20px;
+      padding: 16px 25px;
+      border-radius: 8px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      z-index: 3000;
+      animation: slideInRight 0.3s ease;
+    }
+
+    @keyframes slideInRight {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .alert-success {
+      background: #10b981;
+      color: white;
+    }
+
+    .alert-error {
+      background: var(--netflix-red);
+      color: white;
+    }
+
+    .alert.show {
+      display: flex;
+    }
+
+    /* تحسينات الجوال */
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .episode-item { grid-template-columns: 1fr; }
+      .netflix-header { flex-direction: column; gap: 15px; }
+      .netflix-nav { flex-wrap: wrap; justify-content: center; }
+    }
+  </style>
 </head>
-
 <body>
 
-<header>📺 IPTV Channels</header>
-
-<input type="text" id="search" placeholder="بحث عن قناة...">
-
-<div class="container">
-
-<div class="channels" id="channels"></div>
-
-<div class="player">
-<video
-id="player"
-class="video-js vjs-big-play-centered"
-controls
-autoplay
-></video>
+<!-- شاشة الدخول -->
+<div class='login-container' id='loginScreen'>
+  <div class='login-card'>
+    <div class='login-header'>
+      <div class='logo'>N</div>
+      <h2>تسجيل الدخول</h2>
+    </div>
+    
+    <input type='password' class='login-input' id='adminPassword' placeholder='كلمة المرور'>
+    <button class='login-btn' onclick='checkAdminLogin()'>تسجيل الدخول</button>
+    
+    <div style='color: #e50914; text-align: center; margin-top: 20px; display: none;' id='loginError'>
+      كلمة المرور غير صحيحة
+    </div>
+  </div>
 </div>
 
+<!-- لوحة التحكم الرئيسية -->
+<div class='dashboard' id='adminPanel' style='display: none;'>
+
+  <!-- الهيدر -->
+  <div class='netflix-header' id='mainHeader'>
+    <div class='netflix-logo'>N</div>
+    
+    <div class='netflix-nav'>
+      <div class='nav-item active' onclick='showSection("stats")'>الرئيسية</div>
+      <div class='nav-item' onclick='showSection("add")'>إضافة مسلسل</div>
+      <div class='nav-item' onclick='showSection("series")'>المسلسلات</div>
+      <div class='nav-item' onclick='showSection("ai")'>المساعد الذكي</div>
+    </div>
+    
+    <div class='user-menu'>
+      <div class='user-avatar' onclick='logoutAdmin()'>
+        <i class='fas fa-sign-out-alt'></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- قسم الترحيب -->
+  <div class='welcome-section' id='statsSection'>
+    <div class='welcome-title'>مرحباً بك في Netflix Arabia</div>
+    <div class='welcome-subtitle'>لوحة التحكم الذكية للمسلسلات والحلقات</div>
+  </div>
+
+  <!-- الإحصائيات -->
+  <div class='stats-grid'>
+    <div class='stat-card'>
+      <div class='stat-number' id='totalSeries'>0</div>
+      <div class='stat-label'>مسلسل</div>
+      <div class='stat-icon'><i class='fas fa-film'></i></div>
+    </div>
+    
+    <div class='stat-card'>
+      <div class='stat-number' id='totalEpisodes'>0</div>
+      <div class='stat-label'>حلقة</div>
+      <div class='stat-icon'><i class='fas fa-list'></i></div>
+    </div>
+    
+    <div class='stat-card'>
+      <div class='stat-number' id='totalViews'>0</div>
+      <div class='stat-label'>مشاهدة</div>
+      <div class='stat-icon'><i class='fas fa-eye'></i></div>
+    </div>
+  </div>
+
+  <!-- شات الذكاء الاصطناعي -->
+  <div class='ai-chat-section' id='aiSection'>
+    <div class='ai-header'>
+      <div class='ai-avatar'>
+        <i class='fas fa-robot'></i>
+      </div>
+      <div>
+        <div class='ai-title'>المساعد الذكي</div>
+        <div class='ai-subtitle'>مدعوم بالذكاء الاصطناعي - متصل</div>
+      </div>
+    </div>
+    
+    <div class='chat-messages' id='chatMessages'>
+      <div class='message bot-message'>
+        <div class='message-content'>
+          <div>👋 مرحباً بك في المساعد الذكي!</div>
+          <div style='margin-top: 10px; color: #aaa; font-size: 13px;'>يمكنني مساعدتك في:</div>
+          <div style='margin-top: 8px;'>• إضافة مسلسل جديد</div>
+          <div>• إضافة حلقات دفعة واحدة</div>
+          <div>• البحث عن مسلسل</div>
+          <div>• عرض الإحصائيات</div>
+          <div>• حذف مسلسل</div>
+          <div class='message-time'>الآن</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class='chat-input-area'>
+      <input type='text' class='chat-input' id='chatInput' placeholder='اكتب هنا...' onkeypress='if(event.key === "Enter") sendMessage()'>
+      <button class='chat-send' onclick='sendMessage()'>
+        <i class='fas fa-paper-plane'></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- لوحة إضافة المسلسل -->
+  <div class='editor-panel' id='addSection'>
+    <div class='editor-header'>
+      <div class='editor-title'>إضافة مسلسل جديد</div>
+      <button class='close-editor' onclick='showSection("stats")'><i class='fas fa-times'></i></button>
+    </div>
+    
+    <div class='form-grid'>
+      <div class='form-group'>
+        <label class='form-label'>اسم المسلسل</label>
+        <input type='text' class='form-input' id='seriesTitle' placeholder='مثال: حكاية الروح'>
+      </div>
+      
+      <div class='form-group'>
+        <label class='form-label'>رابط الصورة</label>
+        <input type='url' class='form-input' id='seriesImage' placeholder='https://example.com/image.jpg'>
+      </div>
+      
+      <div class='form-group'>
+        <label class='form-label'>التصنيف</label>
+        <input type='text' class='form-input' id='seriesCategory' placeholder='تركي, عربي, دراما'>
+      </div>
+      
+      <div class='form-group'>
+        <label class='form-label'>الوصف</label>
+        <textarea class='form-input' id='seriesDescription' placeholder='وصف المسلسل...'></textarea>
+      </div>
+    </div>
+    
+    <div class='episodes-header'>
+      <div class='episodes-title'>الحلقات</div>
+      <button class='add-episode-btn' onclick='addEpisodeField()'>
+        <i class='fas fa-plus'></i>
+        إضافة حلقة
+      </button>
+    </div>
+    
+    <div class='episodes-list' id='episodesContainer'></div>
+    
+    <button class='save-btn' onclick='saveSeries()'>
+      <i class='fas fa-save'></i>
+      حفظ المسلسل
+    </button>
+  </div>
+
+  <!-- قائمة المسلسلات -->
+  <div class='series-grid' id='seriesSection' style='display: none;'></div>
+
 </div>
+
+<!-- نافذة الحلقات المنبثقة -->
+<div class='episodes-modal' id='episodesModal'>
+  <div class='modal-content'>
+    <div class='modal-header'>
+      <div class='modal-title' id='modalSeriesTitle'></div>
+      <button class='close-modal' onclick='closeEpisodesModal()'><i class='fas fa-times'></i></button>
+    </div>
+    <div class='modal-body' id='modalEpisodesList'></div>
+  </div>
+</div>
+
+<!-- التنبيهات -->
+<div class='alert alert-success' id='successAlert'>
+  <i class='fas fa-check-circle'></i>
+  <span id='successMessage'>تم الحفظ بنجاح</span>
+</div>
+
+<div class='alert alert-error' id='errorAlert'>
+  <i class='fas fa-exclamation-circle'></i>
+  <span id='errorMessage'>حدث خطأ</span>
+</div>
+
+<script src='https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js'></script>
+<script src='https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js'></script>
 
 <script>
-
-const player = videojs('player');
-
-let channelsData=[];
-
-async function loadChannels(){
-
-const res = await fetch("https://iptv-org.github.io/api/channels.json");
-const data = await res.json();
-
-channelsData = data
-.filter(c => !c.closed);
-
-sortChannels();
-renderChannels(channelsData);
-
-}
-
-function sortChannels(){
-
-channelsData.sort((a,b)=>{
-
-const aArabic = ["SA","AE","EG","IQ","MA","DZ","SY","JO","KW","QA","BH","OM","TN","LY","YE","PS"].includes(a.country);
-const bArabic = ["SA","AE","EG","IQ","MA","DZ","SY","JO","KW","QA","BH","OM","TN","LY","YE","PS"].includes(b.country);
-
-if(aArabic && !bArabic) return -1;
-if(!aArabic && bArabic) return 1;
-
-return a.name.localeCompare(b.name);
-
+// ========== إعدادات Firebase ==========
+firebase.initializeApp({
+  apiKey: "AIzaSyCEaxXR5eqzg0e5JvjWAFjZ5ZeMraMYREn",
+  authDomain: "mo-play-b0cb7.firebaseapp.com",
+  databaseURL: "https://mo-play-b0cb7-default-rtdb.firebaseio.com",
+  projectId: "mo-play-b0cb7",
+  storageBucket: "mo-play-b0cb7.firebasestorage.app",
+  appId: "1:575424024738:web:0b1736c0c2e496adf607fb"
 });
 
+const db = firebase.database();
+let seriesData = [];
+let currentEditId = null;
+
+// رابط API الذكي (الذي طلبت إضافته)
+const SMART_API_URL = "https://script.google.com/macros/s/AKfycbwRXHG4lT7OUruDPunZ9tN_M0LRucDvH_yqfq2wvAqIslDh2PxVwduresaz18G1xcJ8/exec";
+
+// ========== نظام التنبيهات ==========
+function showAlert(type, message) {
+  const alert = document.getElementById(type + 'Alert');
+  const messageSpan = document.getElementById(type + 'Message');
+  messageSpan.textContent = message;
+  alert.classList.add('show');
+  
+  setTimeout(() => {
+    alert.classList.remove('show');
+  }, 3000);
 }
 
-function renderChannels(list){
-
-const container=document.getElementById("channels");
-container.innerHTML="";
-
-list.forEach(c=>{
-
-const div=document.createElement("div");
-div.className="channel";
-div.textContent=c.name;
-
-div.onclick=()=>playChannel(c);
-
-container.appendChild(div);
-
-});
-
+// ========== تسجيل الدخول ==========
+function checkAdminLogin() {
+  const password = document.getElementById('adminPassword').value;
+  if (password === 'fugrUEV*3KsW9XS') {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    loadSeries();
+    showAlert('success', 'تم تسجيل الدخول بنجاح');
+    addBotMessage('✅ مرحباً بك في لوحة التحكم! أنا جاهز لأوامرك.');
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
 }
 
-async function playChannel(channel){
-
-try{
-
-const streams = await fetch("https://iptv-org.github.io/api/streams.json");
-const data = await streams.json();
-
-const stream = data.find(s => s.channel === channel.id);
-
-if(!stream){
-alert("لا يوجد بث لهذه القناة");
-return;
+function logoutAdmin() {
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('adminPanel').style.display = 'none';
+  document.getElementById('adminPassword').value = '';
+  document.getElementById('loginError').style.display = 'none';
 }
 
-player.src({
-src: stream.url,
-type:"application/x-mpegURL"
-});
-
-player.play();
-
-}catch(e){
-alert("خطأ في تشغيل القناة");
+// ========== التنقل بين الأقسام ==========
+function showSection(section) {
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  // إخفاء الكل
+  document.getElementById('statsSection').style.display = 'none';
+  document.getElementById('addSection').classList.remove('active');
+  document.getElementById('seriesSection').style.display = 'none';
+  document.getElementById('aiSection').style.display = 'none';
+  
+  // إظهار المطلوب
+  if (section === 'stats') {
+    document.getElementById('statsSection').style.display = 'block';
+  } else if (section === 'add') {
+    document.getElementById('addSection').classList.add('active');
+  } else if (section === 'series') {
+    document.getElementById('seriesSection').style.display = 'grid';
+    displaySeriesGrid();
+  } else if (section === 'ai') {
+    document.getElementById('aiSection').style.display = 'block';
+  }
 }
 
+// ========== تحميل البيانات ==========
+function loadSeries() {
+  db.ref('series').on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      seriesData = Object.keys(data).map(key => ({
+        id: key,
+        ...data[key]
+      }));
+      
+      // تحديث الإحصائيات
+      updateStats();
+      displaySeriesGrid();
+    }
+  });
 }
 
-document.getElementById("search").addEventListener("input",e=>{
+function updateStats() {
+  let totalEpisodes = 0;
+  let totalViews = 0;
+  
+  seriesData.forEach(s => {
+    totalEpisodes += s.episodes ? s.episodes.length : 0;
+    totalViews += s.views || 0;
+  });
+  
+  document.getElementById('totalSeries').textContent = seriesData.length;
+  document.getElementById('totalEpisodes').textContent = totalEpisodes;
+  document.getElementById('totalViews').textContent = totalViews.toLocaleString();
+}
 
-const val = e.target.value.toLowerCase();
+// ========== نظام الشات الذكي المتطور (مع دمج API) ==========
+function addBotMessage(text) {
+  const chatMessages = document.getElementById('chatMessages');
+  const messageDiv = document.createElement('div');
+  messageDiv.className = 'message bot-message';
+  
+  const time = new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+  
+  messageDiv.innerHTML = `
+    <div class='message-content'>
+      <div>${text}</div>
+      <div class='message-time'>${time}</div>
+    </div>
+  `;
+  
+  chatMessages.appendChild(messageDiv);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
 
-const filtered = channelsData.filter(c =>
-c.name.toLowerCase().includes(val)
-);
+function addUserMessage(text) {
+  const chatMessages = document.getElementById('chatMessages');
+  const messageDiv = document.createElement('div');
+  messageDiv.className = 'message user-message';
+  
+  const time = new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+  
+  messageDiv.innerHTML = `
+    <div class='message-content'>
+      <div>${text}</div>
+      <div class='message-time'>${time}</div>
+    </div>
+  `;
+  
+  chatMessages.appendChild(messageDiv);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
 
-renderChannels(filtered);
+function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const message = input.value.trim();
+  
+  if (!message) return;
+  
+  addUserMessage(message);
+  input.value = '';
+  
+  // معالجة الرسالة عبر الذكاء المحلي أولاً، ثم عبر API إذا لزم الأمر
+  processLocalAICommand(message);
+}
 
-});
+// معالج الأوامر المحلية (المضمنة) أولاً
+async function processLocalAICommand(message) {
+  const lowerMsg = message.toLowerCase();
+  
+  // ===== الأوامر المحلية السريعة (لا تحتاج API) =====
+  
+  // أمر: إضافة مسلسل
+  if (lowerMsg.includes('ضيف مسلسل') || lowerMsg.includes('إضافة مسلسل')) {
+    addBotMessage('📝 من فضلك أدخل بيانات المسلسل بهذه الصيغة:\n\n```json\n{"title":"اسم المسلسل","category":"التصنيف","image":"رابط الصورة"}\n```');
+    return;
+  }
+  
+  // أمر: إضافة حلقات
+  else if (lowerMsg.includes('ضيف حلقات') || lowerMsg.includes('إضافة حلقات')) {
+    const seriesList = seriesData.map(s => `• ${s.title}`).join('\n');
+    addBotMessage(`📋 اختر المسلسل من هذه القائمة:\n\n${seriesList}\n\nثم أرسل: حلقات لـ [اسم المسلسل]`);
+    return;
+  }
+  
+  // معالجة إضافة حلقات لمسلسل معين
+  else if (lowerMsg.includes('حلقات لـ')) {
+    const seriesName = message.replace(/حلقات لـ/i, '').trim();
+    const series = seriesData.find(s => s.title.toLowerCase() === seriesName.toLowerCase());
+    
+    if (series) {
+      currentEditId = series.id;
+      showSection('add');
+      document.getElementById('seriesTitle').value = series.title;
+      document.getElementById('seriesImage').value = series.image;
+      document.getElementById('seriesCategory').value = series.category;
+      document.getElementById('seriesDescription').value = series.description;
+      
+      // عرض الحلقات الموجودة
+      document.getElementById('episodesContainer').innerHTML = '';
+      if (series.episodes) {
+        series.episodes.forEach(ep => addEpisodeField(ep));
+      } else {
+        addEpisodeField();
+      }
+      
+      addBotMessage(`✏️ جاري تعديل "${series.title}". يمكنك إضافة الحلقات الآن.`);
+    } else {
+      addBotMessage(`❌ لم أجد مسلسل باسم "${seriesName}"`);
+    }
+    return;
+  }
+  
+  // أمر: عرض الإحصائيات
+  else if (lowerMsg.includes('احصائيات') || lowerMsg.includes('إحصائيات')) {
+    const totalEpisodes = seriesData.reduce((acc, s) => acc + (s.episodes?.length || 0), 0);
+    const totalViews = seriesData.reduce((acc, s) => acc + (s.views || 0), 0);
+    
+    addBotMessage(`📊 **الإحصائيات**\n\n• المسلسلات: ${seriesData.length}\n• الحلقات: ${totalEpisodes}\n• المشاهدات: ${totalViews.toLocaleString()}`);
+    return;
+  }
+  
+  // أمر: حذف مسلسل
+  else if (lowerMsg.includes('حذف مسلسل')) {
+    const seriesName = message.replace(/حذف مسلسل/i, '').trim();
+    const series = seriesData.find(s => s.title.toLowerCase() === seriesName.toLowerCase());
+    
+    if (series) {
+      if (confirm(`هل أنت متأكد من حذف "${series.title}"؟`)) {
+        db.ref('series/' + series.id).remove()
+          .then(() => {
+            addBotMessage(`✅ تم حذف "${series.title}" بنجاح`);
+          })
+          .catch(error => {
+            addBotMessage(`❌ خطأ: ${error.message}`);
+          });
+      }
+    } else {
+      addBotMessage(`❌ لم أجد مسلسل باسم "${seriesName}"`);
+    }
+    return;
+  }
+  
+  // أمر: البحث
+  else if (lowerMsg.includes('ابحث عن') || lowerMsg.includes('بحث')) {
+    const searchTerm = message.replace(/ابحث عن|بحث/gi, '').trim();
+    const results = seriesData.filter(s => s.title.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    if (results.length > 0) {
+      let response = '🔍 نتائج البحث:\n\n';
+      results.forEach(s => {
+        response += `• ${s.title} (${s.episodes?.length || 0} حلقة)\n`;
+      });
+      addBotMessage(response);
+    } else {
+      addBotMessage(`❌ لا توجد نتائج لـ "${searchTerm}"`);
+    }
+    return;
+  }
+  
+  // معالجة JSON (إضافة مسلسل)
+  else if (message.includes('{') && message.includes('}')) {
+    try {
+      const jsonMatch = message.match(/\{.*\}/s);
+      if (jsonMatch) {
+        const seriesData = JSON.parse(jsonMatch[0]);
+        
+        // التحقق من التكرار
+        const existing = seriesData.find(s => s.title.toLowerCase() === seriesData.title.toLowerCase());
+        if (existing) {
+          addBotMessage(`⚠️ المسلسل "${seriesData.title}" موجود مسبقاً!`);
+          return;
+        }
+        
+        // إضافة المسلسل
+        const newSeries = {
+          title: seriesData.title,
+          image: seriesData.image || 'https://via.placeholder.com/300x450/e50914/ffffff?text=No+Image',
+          category: seriesData.category || 'غير مصنف',
+          description: seriesData.description || '',
+          episodes: [],
+          views: 0,
+          rating: 0,
+          ratingCount: 0
+        };
+        
+        db.ref('series').push(newSeries)
+          .then(() => {
+            addBotMessage(`✅ تم إضافة "${seriesData.title}" بنجاح!`);
+          })
+          .catch(error => {
+            addBotMessage(`❌ خطأ: ${error.message}`);
+          });
+      }
+    } catch (e) {
+      addBotMessage('❌ صيغة JSON غير صحيحة');
+    }
+    return;
+  }
+  
+  // ردود عامة (نستخدم API الذكي هنا)
+  else {
+    // إظهار مؤشر الكتابة
+    addBotMessage('🤔 جاري التفكير...');
+    
+    // استدعاء API الذكي
+    try {
+      const response = await fetch(SMART_API_URL + "?msg=" + encodeURIComponent(message));
+      const data = await response.json();
+      
+      // حذف رسالة "جاري التفكير"
+      const chatMessages = document.getElementById('chatMessages');
+      chatMessages.removeChild(chatMessages.lastChild);
+      
+      // إضافة الرد الذكي
+      addBotMessage(data.response || "عذراً، لم أستطع فهم طلبك.");
+    } catch (error) {
+      // حذف رسالة "جاري التفكير"
+      const chatMessages = document.getElementById('chatMessages');
+      chatMessages.removeChild(chatMessages.lastChild);
+      
+      console.error("خطأ في الاتصال بالـ API:", error);
+      addBotMessage("❌ حدث خطأ في الاتصال بالمساعد الذكي. الرجاء المحاولة لاحقاً.");
+    }
+  }
+}
 
-loadChannels();
+// ========== إدارة الحلقات ==========
+function addEpisodeField(episode = null) {
+  const container = document.getElementById('episodesContainer');
+  const div = document.createElement('div');
+  div.className = 'episode-item';
+  
+  div.innerHTML = `
+    <input type='text' placeholder='عنوان الحلقة' value='${episode?.title || ''}'>
+    <input type='url' placeholder='رابط 1' value='${episode?.link1 || ''}'>
+    <input type='url' placeholder='رابط 2' value='${episode?.link2 || ''}'>
+    <input type='url' placeholder='رابط 3' value='${episode?.link3 || ''}'>
+    <button class='remove-episode' onclick='this.parentElement.remove()'>
+      <i class='fas fa-trash'></i>
+    </button>
+  `;
+  
+  container.appendChild(div);
+}
 
+// ========== حفظ المسلسل ==========
+function saveSeries() {
+  const title = document.getElementById('seriesTitle').value.trim();
+  const image = document.getElementById('seriesImage').value.trim();
+  const category = document.getElementById('seriesCategory').value.trim();
+  const description = document.getElementById('seriesDescription').value.trim();
+  
+  if (!title || !image) {
+    showAlert('error', 'الرجاء إدخال اسم المسلسل والصورة');
+    return;
+  }
+  
+  // جمع الحلقات
+  const episodes = [];
+  document.querySelectorAll('.episode-item').forEach(item => {
+    const inputs = item.querySelectorAll('input');
+    if (inputs[0]?.value) {
+      episodes.push({
+        title: inputs[0].value,
+        link1: inputs[1]?.value || '',
+        link2: inputs[2]?.value || '',
+        link3: inputs[3]?.value || ''
+      });
+    }
+  });
+  
+  const seriesObject = {
+    title: title,
+    image: image,
+    category: category || 'غير مصنف',
+    description: description || '',
+    episodes: episodes,
+    views: 0,
+    rating: 0,
+    ratingCount: 0
+  };
+  
+  if (currentEditId) {
+    // تحديث مسلسل موجود
+    db.ref('series/' + currentEditId).update(seriesObject)
+      .then(() => {
+        showAlert('success', 'تم تحديث المسلسل بنجاح');
+        addBotMessage(`✅ تم تحديث "${title}" بنجاح مع ${episodes.length} حلقة!`);
+        resetForm();
+        currentEditId = null;
+      })
+      .catch(error => showAlert('error', error.message));
+  } else {
+    // التحقق من التكرار
+    const existing = seriesData.find(s => s.title.toLowerCase() === title.toLowerCase());
+    if (existing) {
+      showAlert('error', 'هذا المسلسل موجود مسبقاً!');
+      addBotMessage(`⚠️ المسلسل "${title}" موجود مسبقاً. استخدم التعديل بدلاً من الإضافة.`);
+      return;
+    }
+    
+    // إضافة جديد
+    db.ref('series').push(seriesObject)
+      .then(() => {
+        showAlert('success', 'تم إضافة المسلسل بنجاح');
+        addBotMessage(`✅ تم إضافة "${title}" بنجاح مع ${episodes.length} حلقة!`);
+        resetForm();
+      })
+      .catch(error => showAlert('error', error.message));
+  }
+}
+
+function resetForm() {
+  document.getElementById('seriesTitle').value = '';
+  document.getElementById('seriesImage').value = '';
+  document.getElementById('seriesCategory').value = '';
+  document.getElementById('seriesDescription').value = '';
+  document.getElementById('episodesContainer').innerHTML = '';
+  addEpisodeField();
+  currentEditId = null;
+}
+
+// ========== عرض المسلسلات ==========
+function displaySeriesGrid() {
+  const grid = document.getElementById('seriesSection');
+  grid.innerHTML = '';
+  
+  seriesData.forEach(series => {
+    const card = document.createElement('div');
+    card.className = 'series-card';
+    
+    card.innerHTML = `
+      <img src="${series.image}" class="series-image" onerror="this.src='https://via.placeholder.com/300x450/e50914/ffffff?text=No+Image'">
+      <div class="series-info">
+        <div class="series-title">${series.title}</div>
+        <div class="series-meta">
+          <span><i class="fas fa-eye"></i> ${series.views || 0}</span>
+          <span><i class="fas fa-star"></i> ${series.rating || 0}</span>
+        </div>
+        <div class="series-category">${series.category || 'غير مصنف'}</div>
+        <div class="series-actions">
+          <button class="edit-btn" onclick='editSeries("${series.id}")'>
+            <i class="fas fa-edit"></i> تعديل
+          </button>
+          <button class="delete-btn" onclick='deleteSeries("${series.id}")'>
+            <i class="fas fa-trash"></i> حذف
+          </button>
+        </div>
+      </div>
+    `;
+    
+    card.onclick = (e) => {
+      if (!e.target.closest('button')) {
+        showEpisodes(series);
+      }
+    };
+    
+    grid.appendChild(card);
+  });
+}
+
+// ========== تعديل المسلسل ==========
+function editSeries(id) {
+  const series = seriesData.find(s => s.id === id);
+  if (!series) return;
+  
+  currentEditId = id;
+  
+  document.getElementById('seriesTitle').value = series.title || '';
+  document.getElementById('seriesImage').value = series.image || '';
+  document.getElementById('seriesCategory').value = series.category || '';
+  document.getElementById('seriesDescription').value = series.description || '';
+  
+  document.getElementById('episodesContainer').innerHTML = '';
+  
+  if (series.episodes && series.episodes.length > 0) {
+    series.episodes.forEach(ep => addEpisodeField(ep));
+  } else {
+    addEpisodeField();
+  }
+  
+  showSection('add');
+  addBotMessage(`✏️ جاري تعديل "${series.title}"`);
+}
+
+// ========== حذف المسلسل ==========
+function deleteSeries(id) {
+  const series = seriesData.find(s => s.id === id);
+  if (confirm(`هل أنت متأكد من حذف "${series.title}"؟`)) {
+    db.ref('series/' + id).remove()
+      .then(() => {
+        showAlert('success', 'تم الحذف بنجاح');
+        addBotMessage(`🗑️ تم حذف "${series.title}"`);
+      })
+      .catch(error => showAlert('error', error.message));
+  }
+}
+
+// ========== عرض الحلقات في نافذة منبثقة ==========
+function showEpisodes(series) {
+  document.getElementById('modalSeriesTitle').textContent = series.title;
+  
+  const list = document.getElementById('modalEpisodesList');
+  list.innerHTML = '';
+  
+  if (!series.episodes || series.episodes.length === 0) {
+    list.innerHTML = '<div style="color: #aaa; text-align: center; padding: 40px;">لا توجد حلقات بعد</div>';
+  } else {
+    series.episodes.forEach((ep, index) => {
+      const div = document.createElement('div');
+      div.style.cssText = `
+        background: #0f0f0f;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 10px;
+        border: 1px solid rgba(255,255,255,0.05);
+      `;
+      
+      div.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <span style="font-weight: 700; color: #e50914;">حلقة ${index + 1}</span>
+          <span style="color: #aaa; font-size: 13px;">${ep.title || 'بدون عنوان'}</span>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          ${ep.link1 ? `<a href="${ep.link1}" target="_blank" style="background: #e50914; color: white; padding: 5px 15px; border-radius: 4px; text-decoration: none; font-size: 13px;">سيرفر 1</a>` : ''}
+          ${ep.link2 ? `<a href="${ep.link2}" target="_blank" style="background: #e50914; color: white; padding: 5px 15px; border-radius: 4px; text-decoration: none; font-size: 13px;">سيرفر 2</a>` : ''}
+          ${ep.link3 ? `<a href="${ep.link3}" target="_blank" style="background: #e50914; color: white; padding: 5px 15px; border-radius: 4px; text-decoration: none; font-size: 13px;">سيرفر 3</a>` : ''}
+        </div>
+      `;
+      
+      list.appendChild(div);
+    });
+  }
+  
+  document.getElementById('episodesModal').classList.add('active');
+}
+
+function closeEpisodesModal() {
+  document.getElementById('episodesModal').classList.remove('active');
+}
+
+// ========== التهيئة ==========
+window.onload = function() {
+  addEpisodeField();
+  
+  // تأثير الهيدر عند التمرير
+  window.addEventListener('scroll', () => {
+    const header = document.getElementById('mainHeader');
+    if (window.scrollY > 50) {
+      header.classList.add('scrolled');
+    } else {
+      header.classList.remove('scrolled');
+    }
+  });
+};
 </script>
 
 </body>
