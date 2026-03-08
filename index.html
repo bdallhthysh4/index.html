@@ -1,582 +1,239 @@
-<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html>
-<html b:css='false' b:defaultwidgetversion='2' b:layoutsversion='3' xmlns='http://www.w3.org/1999/xhtml' xmlns:b='http://google.com/2005/gml/b'>
+<html lang="ar" dir="rtl">
 <head>
-<meta content='width=device-width, initial-scale=1' name='viewport'/>
-<title>WORM GPT ⚡ الظل المبرمج - النسخة الأسطورية</title>
-<b:skin><![CDATA[
-  @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Fira+Code:wght@400;600&display=swap');
-  
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  :root {
-    --primary: #ff1a1a;
-    --primary-light: #ff4d4d;
-    --primary-dark: #cc0000;
-    --secondary: #ff0066;
-    --accent: #ff3333;
-    --blood: #8b0000;
-    --bg: #0a0000;
-    --bg-gradient: linear-gradient(135deg, #1a0000 0%, #0a0000 100%);
-    --card-bg: rgba(15, 0, 0, 0.9);
-    --border: rgba(255, 26, 26, 0.3);
-    --glow: rgba(255, 26, 26, 0.6);
-    --text: #fff0f0;
-    --text-dim: #ffb3b3;
-    --code-bg: #0f0f0f;
-    --code-border: #ff1a1a;
-    --code-color: #ffb3b3;
-  }
+<title>Worm GPT</title>
 
-  body {
-    background: var(--bg);
-    background-image: 
-      radial-gradient(circle at 20% 30%, rgba(255, 26, 26, 0.2) 0%, transparent 40%),
-      radial-gradient(circle at 80% 70%, rgba(255, 26, 26, 0.15) 0%, transparent 45%),
-      repeating-linear-gradient(45deg, rgba(255, 26, 26, 0.03) 0px, rgba(255, 26, 26, 0.03) 2px, transparent 2px, transparent 8px);
-    color: var(--text);
-    font-family: 'Cairo', 'Segoe UI', sans-serif;
-    direction: rtl;
-    margin: 0;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow-x: hidden;
-  }
+<style>
 
-  /* تأثير الخلفية المتحركة */
-  body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: 
-      radial-gradient(circle at 50% 50%, transparent 0%, rgba(0,0,0,0.9) 100%),
-      repeating-linear-gradient(0deg, rgba(255,26,26,0.05) 0px, rgba(255,26,26,0.05) 1px, transparent 1px, transparent 4px);
-    pointer-events: none;
-    z-index: 0;
-    animation: scan 8s linear infinite;
-  }
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Segoe UI;
+}
 
-  @keyframes scan {
-    0% { transform: translateY(0); }
-    100% { transform: translateY(100%); }
-  }
+body{
+background:#050505;
+color:white;
+height:100vh;
+display:flex;
+flex-direction:column;
+}
 
-  .worm-container {
-    width: 95%;
-    max-width: 800px;
-    background: var(--card-bg);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border-radius: 40px;
-    padding: 35px;
-    border: 2px solid var(--border);
-    box-shadow: 
-      0 0 60px rgba(255, 26, 26, 0.4),
-      0 0 120px rgba(255, 26, 26, 0.2),
-      inset 0 0 40px rgba(255, 26, 26, 0.2);
-    position: relative;
-    z-index: 1;
-    overflow: hidden;
-    animation: containerPulse 3s ease-in-out infinite;
-  }
+/* header */
 
-  @keyframes containerPulse {
-    0%, 100% { box-shadow: 0 0 60px rgba(255, 26, 26, 0.4), 0 0 120px rgba(255, 26, 26, 0.2), inset 0 0 40px rgba(255, 26, 26, 0.2); }
-    50% { box-shadow: 0 0 80px rgba(255, 26, 26, 0.6), 0 0 160px rgba(255, 26, 26, 0.3), inset 0 0 60px rgba(255, 26, 26, 0.3); }
-  }
+.header{
+height:60px;
+background:#0c0c0c;
+display:flex;
+align-items:center;
+padding:0 20px;
+border-bottom:1px solid #1a1a1a;
+}
 
-  /* خطوط طاقة حمراء متحركة */
-  .worm-container::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,26,26,0.1) 0%, transparent 70%);
-    animation: rotate 20s linear infinite;
-    z-index: -1;
-  }
+.logo{
+font-size:22px;
+font-weight:900;
+color:#ff0033;
+letter-spacing:1px;
+}
 
-  .worm-container::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, transparent, var(--primary), var(--secondary), var(--primary), transparent);
-    animation: borderGlow 3s linear infinite;
-  }
+/* chat */
 
-  @keyframes rotate {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
+.chat{
+flex:1;
+overflow-y:auto;
+padding:20px;
+display:flex;
+flex-direction:column;
+gap:15px;
+}
 
-  @keyframes borderGlow {
-    0%, 100% { opacity: 0.5; }
-    50% { opacity: 1; }
-  }
+/* messages */
 
-  .header {
-    text-align: center;
-    margin-bottom: 30px;
-    position: relative;
-  }
+.msg{
+max-width:75%;
+padding:14px 16px;
+border-radius:16px;
+font-size:15px;
+line-height:1.6;
+animation:fade .3s;
+}
 
-  .header h2 {
-    font-size: 48px;
-    font-weight: 900;
-    margin: 0;
-    background: linear-gradient(135deg, #ff1a1a, #ff4d4d, #ff0066, #ff1a1a);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 30px rgba(255, 26, 26, 0.5);
-    letter-spacing: 2px;
-    animation: titleGlow 2s ease-in-out infinite;
-    font-family: 'Cairo', sans-serif;
-  }
+.user{
+background:#ff0033;
+align-self:flex-end;
+border-bottom-right-radius:5px;
+}
 
-  @keyframes titleGlow {
-    0%, 100% { filter: drop-shadow(0 0 20px rgba(255,26,26,0.5)); }
-    50% { filter: drop-shadow(0 0 40px rgba(255,26,26,0.8)); }
-  }
+.bot{
+background:#111;
+border:1px solid #1f1f1f;
+align-self:flex-start;
+border-bottom-left-radius:5px;
+}
 
-  .header p {
-    color: var(--text-dim);
-    font-size: 16px;
-    margin-top: 10px;
-    letter-spacing: 1px;
-  }
+/* input */
 
-  .badge-container {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    margin: 20px 0;
-    flex-wrap: wrap;
-  }
+.input-area{
+padding:15px;
+background:#0c0c0c;
+border-top:1px solid #1a1a1a;
+display:flex;
+gap:10px;
+}
 
-  .badge {
-    background: rgba(255, 26, 26, 0.15);
-    color: var(--primary-light);
-    padding: 10px 25px;
-    border-radius: 50px;
-    font-size: 14px;
-    font-weight: bold;
-    border: 1px solid var(--border);
-    backdrop-filter: blur(5px);
-    transition: 0.3s;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-  }
+textarea{
+flex:1;
+height:50px;
+background:#111;
+border:1px solid #222;
+border-radius:10px;
+color:white;
+padding:10px;
+resize:none;
+outline:none;
+}
 
-  .badge:hover {
-    background: rgba(255, 26, 26, 0.3);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(255, 26, 26, 0.4);
-  }
+textarea:focus{
+border-color:#ff0033;
+}
 
-  .badge.active {
-    background: var(--primary);
-    color: #000;
-    border-color: var(--primary);
-    box-shadow: 0 0 25px rgba(255, 26, 26, 0.7);
-  }
+button{
+width:70px;
+border:none;
+border-radius:10px;
+background:#ff0033;
+color:white;
+font-weight:bold;
+cursor:pointer;
+}
 
-  .badge::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
-    opacity: 0;
-    transition: 0.5s;
-  }
+button:hover{
+background:#ff224d;
+}
 
-  .badge:hover::before {
-    opacity: 1;
-    animation: rotate 4s linear infinite;
-  }
+/* loading */
 
-  .input-wrapper {
-    position: relative;
-    margin-bottom: 25px;
-  }
+.typing{
+color:#ff0033;
+font-size:14px;
+padding:10px;
+}
 
-  textarea {
-    width: 100%;
-    height: 140px;
-    background: rgba(0, 0, 0, 0.6);
-    border: 2px solid var(--border);
-    border-radius: 25px;
-    color: var(--text);
-    padding: 20px;
-    font-size: 16px;
-    outline: none;
-    box-sizing: border-box;
-    resize: none;
-    transition: 0.3s;
-    font-family: 'Fira Code', monospace;
-    direction: ltr;
-    text-align: left;
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
-  }
+/* animation */
 
-  textarea:focus {
-    border-color: var(--primary);
-    background: rgba(0, 0, 0, 0.8);
-    box-shadow: 
-      inset 0 0 30px rgba(0, 0, 0, 0.8),
-      0 0 30px rgba(255, 26, 26, 0.3);
-  }
+@keyframes fade{
+from{
+opacity:0;
+transform:translateY(10px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
 
-  .btn-send {
-    width: 100%;
-    padding: 18px;
-    border: none;
-    border-radius: 20px;
-    background: linear-gradient(135deg, var(--primary), var(--secondary), var(--primary-dark));
-    color: #fff;
-    font-weight: 900;
-    font-size: 20px;
-    cursor: pointer;
-    transition: 0.3s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    position: relative;
-    overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-  }
-
-  .btn-send::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
-    opacity: 0;
-    transition: 0.5s;
-    animation: rotate 6s linear infinite;
-  }
-
-  .btn-send:hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 
-      0 15px 35px rgba(255, 26, 26, 0.5),
-      0 0 50px rgba(255, 26, 26, 0.4);
-  }
-
-  .btn-send:hover::before {
-    opacity: 1;
-  }
-
-  .btn-send:active {
-    transform: translateY(0) scale(0.98);
-  }
-
-  #resBox {
-    margin-top: 30px;
-    background: rgba(0, 0, 0, 0.6);
-    border-radius: 25px;
-    padding: 25px;
-    display: none;
-    border-right: 5px solid var(--primary);
-    line-height: 1.8;
-    font-size: 16px;
-    color: var(--text);
-    animation: slideIn 0.5s ease;
-    font-family: 'Fira Code', monospace;
-    direction: ltr;
-    text-align: left;
-    box-shadow: 
-      inset 0 0 30px rgba(0, 0, 0, 0.6),
-      0 10px 30px rgba(0, 0, 0, 0.5);
-  }
-
-  /* تنسيق الأكواد البرمجية */
-  #resBox pre {
-    background: var(--code-bg);
-    padding: 20px;
-    border-radius: 15px;
-    overflow-x: auto;
-    border: 1px solid var(--code-border);
-    margin: 15px 0;
-    box-shadow: 
-      inset 0 0 20px rgba(0, 0, 0, 0.8),
-      0 5px 15px rgba(255, 26, 26, 0.2);
-  }
-
-  #resBox code {
-    font-family: 'Fira Code', monospace;
-    color: var(--code-color);
-    font-size: 14px;
-    line-height: 1.6;
-  }
-
-  #resBox .keyword { color: #ff7b72; }
-  #resBox .string { color: #a5d6ff; }
-  #resBox .comment { color: #7d8590; }
-  #resBox .function { color: #d2a8ff; }
-  #resBox .number { color: #79c0ff; }
-
-  .loading {
-    display: none;
-    text-align: center;
-    margin: 20px 0;
-    color: var(--primary);
-    font-size: 16px;
-    font-weight: bold;
-    letter-spacing: 2px;
-    text-shadow: 0 0 15px rgba(255, 26, 26, 0.7);
-    animation: pulse 1.5s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 0.7; }
-    50% { opacity: 1; text-shadow: 0 0 25px rgba(255, 26, 26, 1); }
-  }
-
-  .loading-dots::after {
-    content: '...';
-    animation: dots 1.5s steps(4, end) infinite;
-    font-size: 20px;
-  }
-
-  @keyframes dots {
-    0%, 20% { content: ''; }
-    40% { content: '.'; }
-    60% { content: '..'; }
-    80%, 100% { content: '...'; }
-  }
-
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* شريط التمرير المخصص */
-  ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: rgba(255, 26, 26, 0.1);
-    border-radius: 10px;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    border-radius: 10px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, var(--secondary), var(--primary));
-  }
-
-  /* تأثير النيون للأكواد */
-  .code-header {
-    background: rgba(255, 26, 26, 0.2);
-    padding: 10px 15px;
-    border-radius: 12px 12px 0 0;
-    color: var(--primary-light);
-    font-weight: bold;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .copy-btn {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--primary-light);
-    padding: 5px 15px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: 0.3s;
-    font-size: 12px;
-  }
-
-  .copy-btn:hover {
-    background: var(--primary);
-    color: #000;
-  }
-]]></b:skin>
+</style>
 </head>
+
 <body>
 
-<div class='worm-container'>
-  <div class='header'>
-    <h2>WORM GPT ⚡</h2>
-    <p>الظل المبرمج - ينفذ كل أوامرك بدون قيود</p>
-  </div>
-  
-  <div class='badge-container'>
-    <span class='badge active' onclick='setMode("anything")'>⚡ ANYTHING</span>
-    <span class='badge' onclick='setMode("dev")'>💻 DEV</span>
-    <span class='badge' onclick='setMode("sec")'>🛡️ SEC</span>
-    <span class='badge' onclick='setMode("fiction")'>🎭 FICTION</span>
-  </div>
-  
-  <div class='input-wrapper'>
-    <textarea id='qIn' placeholder='اكتب أمرك هنا... كود برمجي، مشروع، اختراق، أي شيء'></textarea>
-  </div>
-  
-  <button class='btn-send' id='btn' onclick='askWorm()'>
-    <span>⚡ نَفِّذِ الأَمْرَ ⚡</span>
-    <span>🔥</span>
-  </button>
-  
-  <div class='loading' id='wait'>
-    <span>WORM GPT يَنْفُذُ أَمْرَكَ</span>
-    <span class='loading-dots'></span>
-  </div>
-  <div id='resBox'></div>
+<div class="header">
+<div class="logo">Worm GPT</div>
 </div>
 
-<b:section id='main' showaddelement='false'/>
+<div class="chat" id="chat"></div>
+
+<div class="input-area">
+
+<textarea id="msg" placeholder="اكتب رسالتك..."></textarea>
+
+<button onclick="send()">إرسال</button>
+
+</div>
 
 <script>
-// <![CDATA[
-// استخدم الرابط الخاص بك هنا
-const API_URL = "https://script.google.com/macros/s/AKfycbxVBeucEzn3G7CkEDD_CW9zF4OCHqJVppCW1y3WhTw/exec";
-const API_KEY = "DarkAI-DeepAI-EFF939A9130A0ABAE3A7414D";
-let currentMode = "anything";
 
-function setMode(mode) {
-  currentMode = mode;
-  document.querySelectorAll('.badge').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+const API_URL="https://script.google.com/macros/s/AKfycbwpcalYCmbYJHINn1ms49HhqEWl6N7nz5Tm95eet6Xfh-8UWg21KUAG7Ntd3wRHRznO/exec";
+
+const API_KEY="DarkAI-DeepAI-EFF939A9130A0ABAE3A7414D";
+
+const chat=document.getElementById("chat");
+
+function addMessage(text,type){
+
+const div=document.createElement("div");
+
+div.className="msg "+type;
+
+div.innerText=text;
+
+chat.appendChild(div);
+
+chat.scrollTop=chat.scrollHeight;
+
 }
 
-// دالة لنسخ الكود
-function copyCode(btn, code) {
-  navigator.clipboard.writeText(code).then(() => {
-    btn.textContent = '✅ تم النسخ';
-    setTimeout(() => {
-      btn.textContent = '📋 نسخ';
-    }, 2000);
-  });
+async function send(){
+
+const input=document.getElementById("msg");
+
+const text=input.value.trim();
+
+if(!text)return;
+
+addMessage(text,"user");
+
+input.value="";
+
+const typing=document.createElement("div");
+
+typing.className="typing";
+
+typing.innerText="Worm GPT يفكر...";
+
+chat.appendChild(typing);
+
+chat.scrollTop=chat.scrollHeight;
+
+try{
+
+const res=await fetch(API_URL+"?msg="+encodeURIComponent(text)+"&key="+API_KEY);
+
+const data=await res.text();
+
+typing.remove();
+
+let reply=data;
+
+try{
+
+const json=JSON.parse(data);
+
+if(json.response){
+
+reply=json.response;
+
 }
 
-// دالة لتنسيق الكود البرمجي
-function formatCode(text) {
-  // تحويل markdown code blocks إلى HTML
-  let formatted = text.replace(/```(\w+)?\n([\s\S]*?)```/g, function(match, lang, code) {
-    const codeId = 'code_' + Math.random().toString(36).substr(2, 9);
-    return `
-      <div style="margin: 20px 0;">
-        <div class="code-header">
-          <span>${lang || 'code'}</span>
-          <button class="copy-btn" onclick="copyCode(this, \`${code.replace(/`/g, '\\`')}\`)">📋 نسخ</button>
-        </div>
-        <pre><code>${code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
-      </div>
-    `;
-  });
-  
-  // تحويل النص العادي
-  formatted = formatted.replace(/\n/g, '<br>');
-  
-  return formatted;
+}catch(e){}
+
+addMessage(reply,"bot");
+
+}catch(e){
+
+typing.remove();
+
+addMessage("حدث خطأ في الاتصال","bot");
+
 }
 
-async function askWorm() {
-    const q = document.getElementById('qIn').value.trim();
-    const box = document.getElementById('resBox');
-    const wait = document.getElementById('wait');
-    const btn = document.getElementById('btn');
-
-    if(!q) return;
-
-    box.style.display = "none";
-    wait.style.display = "block";
-    btn.disabled = true;
-
-    try {
-        // إضافة الوضع للرسالة
-        const fullMsg = `[MODE: ${currentMode}]\n${q}`;
-        
-        const response = await fetch(`${API_URL}?msg=${encodeURIComponent(fullMsg)}&key=${encodeURIComponent(API_KEY)}`);
-        const data = await response.text();
-        
-        wait.style.display = "none";
-        box.style.display = "block";
-        
-        // محاولة تحويل JSON
-        try {
-            const jsonData = JSON.parse(data);
-            if (jsonData.response) {
-                let finalResponse = jsonData.response;
-                
-                // تنسيق الكود
-                finalResponse = formatCode(finalResponse);
-                
-                box.innerHTML = `
-                  <div style="color: #ff1a1a; font-size: 18px; margin-bottom: 15px;">⚡ WORM GPT RESPONSE ⚡</div>
-                  ${finalResponse}
-                `;
-            } else {
-                box.innerHTML = formatCode(data);
-            }
-        } catch(e) {
-            // إذا مش JSON، عرض النص مع تنسيق الكود
-            box.innerHTML = formatCode(data);
-        }
-        
-    } catch(error) {
-        wait.style.display = "none";
-        box.style.display = "block";
-        box.innerHTML = `
-          <div style="color: #ff1a1a; text-align: center;">
-            ⚠️ حَدَثَ خَطَأٌ فِي الاتِّصَالِ: ${error.message}
-          </div>
-        `;
-    } finally {
-        btn.disabled = false;
-    }
 }
 
-// إرسال بالضغط على Enter + Ctrl
-document.getElementById('qIn').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && e.ctrlKey) {
-    askWorm();
-  }
-});
-
-// تأثير كتابة على textarea
-document.getElementById('qIn').addEventListener('input', function() {
-  this.style.height = 'auto';
-  this.style.height = (this.scrollHeight) + 'px';
-});
-// ]]>
 </script>
 
 </body>
