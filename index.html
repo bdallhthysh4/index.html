@@ -903,7 +903,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   
   <script>
-    // تهيئة Firebase (استخدم نفس إعدادات موقعك)
+    // تهيئة Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyCEaxXR5eqzg0e5JvjWAFjZ5ZeMraMYREn",
       authDomain: "mo-play-b0cb7.firebaseapp.com",
@@ -926,8 +926,8 @@
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
       
-      // يمكنك تغيير بيانات الدخول هنا
       if (username === 'admin' && password === 'admin123') {
+        localStorage.setItem('adminLoggedIn', 'true');
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('adminPanel').style.display = 'block';
         loadSeries();
@@ -937,6 +937,7 @@
     }
     
     function logout() {
+      localStorage.removeItem('adminLoggedIn');
       document.getElementById('loginScreen').style.display = 'block';
       document.getElementById('adminPanel').style.display = 'none';
       document.getElementById('username').value = 'admin';
@@ -1025,33 +1026,33 @@
       document.getElementById(id).remove();
     }
     
-    // ========== حفظ المسلسل ==========
+    // ========== حفظ المسلسل (مع الحفاظ على المشاهدات والتقييم) ==========
     function saveSeries() {
-      // جمع بيانات المسلسل
-      const seriesData = {
-        title: document.getElementById('seriesTitle').value,
-        image: document.getElementById('seriesImage').value,
+      // التحقق من الحقول الأساسية
+      const title = document.getElementById('seriesTitle').value;
+      const image = document.getElementById('seriesImage').value;
+      
+      if (!title || !image) {
+        showAlert('الرجاء إدخال عنوان المسلسل والصورة على الأقل', 'error');
+        return;
+      }
+      
+      // جمع بيانات المسلسل الجديدة
+      const newSeriesData = {
+        title: title,
+        image: image,
         trailer: document.getElementById('seriesTrailer').value,
         category: document.getElementById('seriesCategory').value,
         year: document.getElementById('seriesYear').value,
         country: document.getElementById('seriesCountry').value,
         description: document.getElementById('seriesDescription').value,
-        rating: 0,
-        ratingCount: 0,
-        views: 0,
         cast: [],
         episodes: []
       };
       
-      // التحقق من الحقول الأساسية
-      if (!seriesData.title || !seriesData.image) {
-        showAlert('الرجاء إدخال عنوان المسلسل والصورة على الأقل', 'error');
-        return;
-      }
-      
       // جمع بيانات الأبطال
       document.querySelectorAll('.cast-item').forEach(item => {
-        seriesData.cast.push({
+        newSeriesData.cast.push({
           name: item.querySelector('.cast-name').value,
           character: item.querySelector('.cast-character').value,
           image: item.querySelector('.cast-image').value
@@ -1060,7 +1061,7 @@
       
       // جمع بيانات الحلقات
       document.querySelectorAll('.episode-item').forEach(item => {
-        seriesData.episodes.push({
+        newSeriesData.episodes.push({
           title: item.querySelector('.episode-title').value,
           link1: item.querySelector('.episode-link1').value,
           link2: item.querySelector('.episode-link2').value,
@@ -1068,21 +1069,47 @@
         });
       });
       
-      // حفظ في Firebase
       if (currentEditId) {
-        // تعديل مسلسل موجود
-        db.ref('series/' + currentEditId).update(seriesData)
+        // === تعديل مسلسل موجود - الحفاظ على المشاهدات والتقييم ===
+        
+        // أولاً: جلب البيانات القديمة
+        db.ref('series/' + currentEditId).once('value')
+          .then((snapshot) => {
+            const oldData = snapshot.val() || {};
+            
+            // دمج البيانات القديمة مع الجديدة مع الحفاظ على المشاهدات والتقييم
+            const updatedData = {
+              ...newSeriesData,
+              // الحفاظ على الإحصائيات القديمة
+              rating: oldData.rating || 0,
+              ratingCount: oldData.ratingCount || 0,
+              views: oldData.views || 0
+            };
+            
+            // تحديث في Firebase
+            return db.ref('series/' + currentEditId).update(updatedData);
+          })
           .then(() => {
-            showAlert('تم تحديث المسلسل بنجاح', 'success');
+            showAlert('تم تحديث المسلسل بنجاح مع الحفاظ على المشاهدات والتقييم', 'success');
             clearForm();
             currentEditId = null;
             loadSeries();
           })
           .catch(error => showAlert('خطأ في التحديث: ' + error.message, 'error'));
+          
       } else {
-        // إضافة مسلسل جديد
+        // === إضافة مسلسل جديد ===
         const newSeriesRef = db.ref('series').push();
-        newSeriesRef.set(seriesData)
+        
+        // إضافة القيم الافتراضية للمسلسل الجديد
+        const finalData = {
+          ...newSeriesData,
+          rating: 0,
+          ratingCount: 0,
+          views: 0
+        };
+        
+        newSeriesRef.set(finalData)
           .then(() => {
             showAlert('تم إضافة المسلسل بنجاح', 'success');
             clearForm();
@@ -1203,7 +1230,7 @@
       // التبديل لتبويب الإضافة
       switchTab('add');
       
-      showAlert('يمكنك تعديل البيانات الآن', 'success');
+      showAlert('يمكنك تعديل البيانات الآن - سيتم الحفاظ على المشاهدات والتقييم', 'success');
     }
     
     // ========== حذف مسلسل ==========
@@ -1276,38 +1303,6 @@
       setTimeout(() => {
         if (alert.parentElement) alert.remove();
       }, 5000);
-    }
-    
-    // ========== منع الوصول غير المصرح به ==========
-    // التحقق من الجلسة (يمكنك تحسين هذا)
-    if (localStorage.getItem('adminLoggedIn') === 'true') {
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('adminPanel').style.display = 'block';
-      loadSeries();
-    }
-    
-    // حفظ حالة تسجيل الدخول
-    function login() {
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      
-      if (username === 'admin' && password === 'admin123') {
-        localStorage.setItem('adminLoggedIn', 'true');
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('adminPanel').style.display = 'block';
-        loadSeries();
-      } else {
-        document.getElementById('loginError').style.display = 'block';
-      }
-    }
-    
-    function logout() {
-      localStorage.removeItem('adminLoggedIn');
-      document.getElementById('loginScreen').style.display = 'block';
-      document.getElementById('adminPanel').style.display = 'none';
-      document.getElementById('username').value = 'admin';
-      document.getElementById('password').value = 'admin123';
-      document.getElementById('loginError').style.display = 'none';
     }
     
     // التحقق عند تحميل الصفحة
