@@ -6,57 +6,39 @@
     <meta content='width=device-width, initial-scale=1, maximum-scale=1' name='viewport'/>
     <title><data:blog.pageTitle/></title>
     
-    <!-- المكتبات الأساسية -->
+    <!-- jQuery -->
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js'></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js'></script>
+    
+    <!-- Font Awesome 6 -->
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'/>
     
     <style type='text/css'>
-      /* ===== التصميم المتقدم ===== */
-      :root {
-        --primary: #ff4757;
-        --secondary: #0f0f1a;
-        --accent: #1a1a2e;
-        --text: #ffffff;
-        --text-secondary: #b8b8b8;
-      }
+      /* استيراد الخطوط العربية */
+      @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap');
       
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: 'Tajawal', 'Segoe UI', sans-serif;
+        font-family: 'Tajawal', sans-serif;
       }
       
       body {
-        background: var(--secondary);
-        color: var(--text);
+        background: linear-gradient(135deg, #0b0b1a 0%, #1a1a2f 100%);
+        color: #fff;
         min-height: 100vh;
       }
       
-      /* شريط التحميل */
-      #loading-bar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 0%;
-        height: 3px;
-        background: linear-gradient(90deg, var(--primary), #ff6b6b, #ffa502);
-        z-index: 9999;
-        transition: width 0.3s ease;
-        box-shadow: 0 0 10px var(--primary);
-      }
-      
-      /* الهيدر */
+      /* الهيدر المتحرك */
       .header {
         background: rgba(10, 10, 20, 0.95);
-        backdrop-filter: blur(10px);
-        padding: 15px 0;
+        backdrop-filter: blur(15px);
+        padding: 20px 0;
         position: sticky;
         top: 0;
         z-index: 1000;
-        border-bottom: 2px solid var(--primary);
-        box-shadow: 0 2px 20px rgba(255, 71, 87, 0.2);
+        border-bottom: 3px solid #ff4757;
+        box-shadow: 0 5px 30px rgba(255, 71, 87, 0.3);
       }
       
       .header-content {
@@ -67,13 +49,13 @@
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
-        gap: 15px;
+        gap: 20px;
       }
       
       .logo {
-        font-size: 28px;
-        font-weight: bold;
-        background: linear-gradient(45deg, #ff6b6b, var(--primary), #ffa502);
+        font-size: 32px;
+        font-weight: 900;
+        background: linear-gradient(45deg, #ff4757, #ff6b81, #ffa502);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         text-decoration: none;
@@ -83,8 +65,9 @@
       }
       
       .logo i {
-        font-size: 32px;
-        color: var(--primary);
+        font-size: 35px;
+        color: #ff4757;
+        -webkit-text-fill-color: initial;
       }
       
       .search-box {
@@ -92,72 +75,84 @@
         max-width: 500px;
         display: flex;
         gap: 10px;
+        position: relative;
       }
       
       .search-box input {
         flex: 1;
-        padding: 12px 20px;
+        padding: 15px 25px;
         border: none;
-        border-radius: 30px;
+        border-radius: 50px;
         background: rgba(255, 255, 255, 0.1);
         color: #fff;
         font-size: 16px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 2px solid transparent;
         transition: 0.3s;
       }
       
       .search-box input:focus {
         outline: none;
-        border-color: var(--primary);
+        border-color: #ff4757;
         background: rgba(255, 255, 255, 0.15);
-        box-shadow: 0 0 15px rgba(255, 71, 87, 0.3);
+        box-shadow: 0 0 25px rgba(255, 71, 87, 0.4);
       }
       
       .search-box button {
-        padding: 12px 25px;
+        padding: 15px 30px;
         border: none;
-        border-radius: 30px;
-        background: var(--primary);
+        border-radius: 50px;
+        background: linear-gradient(45deg, #ff4757, #ff6b81);
         color: #fff;
         cursor: pointer;
         transition: 0.3s;
         font-weight: bold;
+        font-size: 16px;
       }
       
       .search-box button:hover {
-        background: #ff6b6b;
         transform: scale(1.05);
-        box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4);
+        box-shadow: 0 5px 20px rgba(255, 71, 87, 0.5);
       }
       
-      /* التصنيفات */
-      .categories {
+      /* التصنيفات المتحركة */
+      .categories-wrapper {
         max-width: 1400px;
-        margin: 30px auto;
+        margin: 40px auto;
         padding: 0 20px;
-        display: flex;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      
+      .categories-wrapper::-webkit-scrollbar {
+        display: none;
+      }
+      
+      .categories {
+        display: inline-flex;
         gap: 15px;
-        flex-wrap: wrap;
-        justify-content: center;
+        padding: 5px;
       }
       
       .category-btn {
-        padding: 10px 25px;
-        border: 2px solid var(--primary);
-        border-radius: 30px;
+        padding: 12px 30px;
+        border: 2px solid #ff4757;
+        border-radius: 50px;
         background: transparent;
         color: #fff;
         cursor: pointer;
         transition: 0.3s;
         font-size: 16px;
         font-weight: 600;
+        display: inline-block;
       }
       
       .category-btn.active,
       .category-btn:hover {
-        background: var(--primary);
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4);
+        background: #ff4757;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 20px rgba(255, 71, 87, 0.4);
       }
       
       /* شبكة المسلسلات */
@@ -167,67 +162,86 @@
         padding: 20px;
       }
       
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+      }
+      
       .section-title {
-        font-size: 24px;
-        margin-bottom: 20px;
-        padding-right: 20px;
+        font-size: 28px;
+        font-weight: 700;
         position: relative;
+        padding-right: 20px;
       }
       
       .section-title::after {
         content: '';
         position: absolute;
         right: 0;
-        bottom: -5px;
-        width: 50px;
-        height: 3px;
-        background: var(--primary);
-        border-radius: 3px;
+        bottom: -8px;
+        width: 60px;
+        height: 4px;
+        background: linear-gradient(90deg, #ff4757, #ffa502);
+        border-radius: 4px;
+      }
+      
+      .view-all {
+        color: #ff4757;
+        text-decoration: none;
+        font-weight: 600;
+        transition: 0.3s;
+      }
+      
+      .view-all:hover {
+        color: #ffa502;
       }
       
       .series-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-        gap: 20px;
-        margin-bottom: 40px;
+        gap: 25px;
+        margin-bottom: 50px;
       }
       
       .series-card {
-        background: var(--accent);
-        border-radius: 15px;
+        background: #1e1e2f;
+        border-radius: 20px;
         overflow: hidden;
-        transition: 0.3s;
+        transition: 0.4s;
         cursor: pointer;
         position: relative;
         border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
       }
       
       .series-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 10px 30px rgba(255, 71, 87, 0.3);
-        border-color: var(--primary);
+        transform: translateY(-15px) scale(1.02);
+        border-color: #ff4757;
+        box-shadow: 0 15px 35px rgba(255, 71, 87, 0.3);
       }
       
       .series-image {
         width: 100%;
         aspect-ratio: 2/3;
         object-fit: cover;
-        transition: 0.3s;
+        transition: 0.4s;
       }
       
       .series-card:hover .series-image {
-        transform: scale(1.05);
+        transform: scale(1.08);
       }
       
       .series-info {
         padding: 15px;
-        background: linear-gradient(to top, var(--accent), transparent);
+        background: linear-gradient(to top, #1e1e2f, transparent);
       }
       
       .series-title {
         font-size: 16px;
-        font-weight: bold;
-        margin-bottom: 5px;
+        font-weight: 700;
+        margin-bottom: 8px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -236,17 +250,20 @@
       .series-meta {
         display: flex;
         justify-content: space-between;
-        color: var(--text-secondary);
+        align-items: center;
         font-size: 13px;
       }
       
       .series-rating {
         color: #ffd700;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 3px 10px;
+        border-radius: 20px;
       }
       
       .series-year {
         background: rgba(255, 71, 87, 0.2);
-        padding: 2px 8px;
+        padding: 3px 10px;
         border-radius: 20px;
       }
       
@@ -258,11 +275,11 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.95);
+        background: rgba(0, 0, 0, 0.98);
         z-index: 2000;
         justify-content: center;
         align-items: center;
-        backdrop-filter: blur(10px);
+        backdrop-filter: blur(15px);
       }
       
       .modal.active {
@@ -270,37 +287,39 @@
       }
       
       .modal-content {
-        width: 90%;
-        max-width: 1000px;
-        background: var(--secondary);
-        border-radius: 20px;
+        width: 95%;
+        max-width: 1100px;
+        background: #1a1a2e;
+        border-radius: 30px;
         overflow: hidden;
         position: relative;
-        border: 1px solid var(--primary);
+        border: 2px solid #ff4757;
+        box-shadow: 0 20px 60px rgba(255, 71, 87, 0.3);
       }
       
       .modal-header {
-        padding: 20px;
-        background: var(--accent);
+        padding: 20px 25px;
+        background: #0f0f1a;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-bottom: 2px solid var(--primary);
+        border-bottom: 2px solid #ff4757;
       }
       
       .modal-header h2 {
-        font-size: 20px;
+        font-size: 24px;
+        font-weight: 700;
         color: #fff;
       }
       
       .close-btn {
-        background: var(--primary);
+        background: #ff4757;
         border: none;
         color: #fff;
-        width: 40px;
-        height: 40px;
+        width: 45px;
+        height: 45px;
         border-radius: 50%;
-        font-size: 20px;
+        font-size: 22px;
         cursor: pointer;
         transition: 0.3s;
         display: flex;
@@ -310,7 +329,7 @@
       
       .close-btn:hover {
         transform: rotate(90deg);
-        background: #ff6b6b;
+        background: #ff6b81;
       }
       
       .video-player {
@@ -325,18 +344,24 @@
         outline: none;
       }
       
-      .episodes-list {
+      .episodes-wrapper {
         padding: 20px;
         max-height: 300px;
         overflow-y: auto;
-        background: var(--accent);
+        background: #1e1e2f;
+      }
+      
+      .episodes-title {
+        font-size: 20px;
+        margin-bottom: 15px;
+        color: #ff4757;
       }
       
       .episode-item {
-        padding: 12px 15px;
+        padding: 15px 20px;
         background: rgba(255, 255, 255, 0.05);
-        margin-bottom: 8px;
-        border-radius: 10px;
+        margin-bottom: 10px;
+        border-radius: 15px;
         cursor: pointer;
         transition: 0.3s;
         display: flex;
@@ -346,8 +371,9 @@
       }
       
       .episode-item:hover {
-        background: var(--primary);
-        border-color: var(--primary);
+        background: #ff4757;
+        transform: translateX(-5px);
+        border-color: #ff4757;
       }
       
       .episode-item i {
@@ -360,34 +386,49 @@
       }
       
       /* تحميل */
-      .loading {
+      .loading-container {
         text-align: center;
-        padding: 50px;
-        font-size: 24px;
-        color: var(--primary);
+        padding: 60px;
       }
       
-      .loading i {
+      .loading-spinner {
+        width: 60px;
+        height: 60px;
+        border: 5px solid rgba(255, 71, 87, 0.2);
+        border-top-color: #ff4757;
+        border-radius: 50%;
         animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
       }
       
       @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        to { transform: rotate(360deg); }
       }
       
       /* رسائل الخطأ */
-      .error-message {
+      .error-container {
         text-align: center;
-        padding: 50px;
-        color: var(--primary);
-        font-size: 18px;
+        padding: 60px;
+        color: #ff4757;
       }
       
-      .error-message i {
-        font-size: 50px;
+      .error-container i {
+        font-size: 70px;
         margin-bottom: 20px;
-        display: block;
+      }
+      
+      /* تذييل الصفحة */
+      .footer {
+        background: #0f0f1a;
+        padding: 30px 0;
+        margin-top: 50px;
+        text-align: center;
+        border-top: 2px solid #ff4757;
+      }
+      
+      .footer p {
+        color: #888;
+        font-size: 14px;
       }
       
       /* التجاوب مع الجوال */
@@ -404,67 +445,96 @@
           grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
           gap: 15px;
         }
+        
+        .section-title {
+          font-size: 22px;
+        }
       }
     </style>
   </head>
   
   <body>
-    <!-- شريط التحميل -->
-    <div id="loading-bar"></div>
-    
     <!-- الهيدر -->
     <div class="header">
       <div class="header-content">
         <a href="/" class="logo">
-          <i class="fas fa-film"></i> 
+          <i class="fas fa-clapperboard"></i> 
           <data:blog.title/>
         </a>
         <div class="search-box">
           <input type="text" id="searchInput" placeholder="ابحث عن فيلم أو مسلسل..." autocomplete="off">
-          <button onclick="searchContent()">
+          <button onclick="performSearch()">
             <i class="fas fa-search"></i>
           </button>
-        </div>
-        <div class="user-info">
-          <i class="fas fa-user-circle" style="font-size: 30px; color: var(--primary);"></i>
         </div>
       </div>
     </div>
     
     <!-- التصنيفات -->
-    <div class="categories">
-      <button class="category-btn active" onclick="filterByCategory('all', this)">الكل</button>
-      <button class="category-btn" onclick="filterByCategory('action', this)">أكشن</button>
-      <button class="category-btn" onclick="filterByCategory('comedy', this)">كوميدي</button>
-      <button class="category-btn" onclick="filterByCategory('drama', this)">دراما</button>
-      <button class="category-btn" onclick="filterByCategory('horror', this)">رعب</button>
-      <button class="category-btn" onclick="filterByCategory('romance', this)">رومانسي</button>
-      <button class="category-btn" onclick="filterByCategory('sci-fi', this)">خيال علمي</button>
+    <div class="categories-wrapper">
+      <div class="categories" id="categories">
+        <button class="category-btn active" onclick="filterByCategory('popular', this)">الأكثر مشاهدة</button>
+        <button class="category-btn" onclick="filterByCategory('top_rated', this)">الأفضل تقييماً</button>
+        <button class="category-btn" onclick="filterByCategory('now_playing', this)">يعرض الآن</button>
+        <button class="category-btn" onclick="filterByCategory('upcoming', this)">قريباً</button>
+        <button class="category-btn" onclick="filterByCategory('action', this)">أكشن</button>
+        <button class="category-btn" onclick="filterByCategory('comedy', this)">كوميدي</button>
+        <button class="category-btn" onclick="filterByCategory('drama', this)">دراما</button>
+        <button class="category-btn" onclick="filterByCategory('horror', this)">رعب</button>
+        <button class="category-btn" onclick="filterByCategory('romance', this)">رومانسي</button>
+        <button class="category-btn" onclick="filterByCategory('sci-fi', this)">خيال علمي</button>
+      </div>
     </div>
     
     <!-- المحتوى الرئيسي -->
     <div class="container">
-      <!-- المسلسلات الأكثر مشاهدة -->
-      <h2 class="section-title">الأكثر مشاهدة</h2>
-      <div id="trendingGrid" class="series-grid">
-        <div class="loading">
-          <i class="fas fa-spinner"></i> جاري التحميل...
+      <!-- نتائج البحث (مخفية افتراضياً) -->
+      <div id="searchResults" style="display: none;">
+        <div class="section-header">
+          <h2 class="section-title">نتائج البحث</h2>
+        </div>
+        <div id="searchGrid" class="series-grid"></div>
+      </div>
+      
+      <!-- الأكثر مشاهدة -->
+      <div id="popularSection">
+        <div class="section-header">
+          <h2 class="section-title">الأكثر مشاهدة</h2>
+          <a href="#" class="view-all" onclick="filterByCategory('popular', document.querySelector('[onclick*=\\'popular\\']')); return false;">عرض الكل <i class="fas fa-arrow-left"></i></a>
+        </div>
+        <div id="popularGrid" class="series-grid">
+          <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <p>جاري تحميل المسلسلات...</p>
+          </div>
         </div>
       </div>
       
-      <!-- أحدث المسلسلات -->
-      <h2 class="section-title">أحدث الإضافات</h2>
-      <div id="latestGrid" class="series-grid">
-        <div class="loading">
-          <i class="fas fa-spinner"></i> جاري التحميل...
+      <!-- الأفضل تقييماً -->
+      <div id="topRatedSection">
+        <div class="section-header">
+          <h2 class="section-title">الأفضل تقييماً</h2>
+          <a href="#" class="view-all" onclick="filterByCategory('top_rated', document.querySelector('[onclick*=\\'top_rated\\']')); return false;">عرض الكل <i class="fas fa-arrow-left"></i></a>
+        </div>
+        <div id="topRatedGrid" class="series-grid">
+          <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <p>جاري تحميل المسلسلات...</p>
+          </div>
         </div>
       </div>
       
-      <!-- موصى بها -->
-      <h2 class="section-title">موصى بها لك</h2>
-      <div id="recommendedGrid" class="series-grid">
-        <div class="loading">
-          <i class="fas fa-spinner"></i> جاري التحميل...
+      <!-- يعرض الآن -->
+      <div id="nowPlayingSection">
+        <div class="section-header">
+          <h2 class="section-title">يعرض الآن</h2>
+          <a href="#" class="view-all" onclick="filterByCategory('now_playing', document.querySelector('[onclick*=\\'now_playing\\']')); return false;">عرض الكل <i class="fas fa-arrow-left"></i></a>
+        </div>
+        <div id="nowPlayingGrid" class="series-grid">
+          <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <p>جاري تحميل المسلسلات...</p>
+          </div>
         </div>
       </div>
     </div>
@@ -483,341 +553,129 @@
             <source src="#" type="video/mp4">
           </video>
         </div>
-        <div id="episodesList" class="episodes-list">
-          <!-- الحلقات ستظهر هنا -->
+        <div class="episodes-wrapper">
+          <div class="episodes-title">مشاهدة مباشرة</div>
+          <div id="episodesList"></div>
         </div>
       </div>
     </div>
     
+    <!-- التذييل -->
+    <div class="footer">
+      <p>جميع الحقوق محفوظة &copy; 2026 | موقع المسلسلات الأول</p>
+    </div>
+    
     <script>
-      // إعدادات API المسروق من تطبيق MovieBox
-      const MOVIEBOX_API = {
-        // الـ endpoints الفعلية من التطبيق
-        baseURL: 'https://dsu-a.shalltry.com',
-        upload: '/athena/checkpoint/v3/upload',
-        cdn: 'https://pbcdn.aoneroom.com',
-        
-        // الهيدرات المطلوبة (مأخوذة من طلبك)
-        headers: {
-          'Accept-Encoding': 'gzip, deflate',
-          'zip': '1',
-          'fixed': '1',
-          'count': '1',
-          'appids': '2570',
-          'ver': '3.0.0.5',
-          'encrypt-level': '3',
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'User-Agent': 'Dalvik/2.1.0 (Linux; U; Android 12; TECNO KI5k Build/SP1A.210812.016)',
-          'Connection': 'Keep-Alive'
-        },
-        
-        // قائمة الـ UUIDs المأخوذة من طلباتك
-        uuids: ['78w045t3', '4jz2s9t3', '3o7ol18y', '7l9o8ene', 'wonghi75', 'mrhf8zyn', 'unjgjf07', 'dxv3qj0d', '9xaal4lo', '05by8mj1', '8fide1iz', 'tuu2epo9', '5ci1ck7z'],
-        
-        // الـ encrypt-index المختلفة
-        encryptIndices: [50, 26, 4, 48, 46, 33, 30, 12, 14, 34, 21, 10],
-        
-        // مفتاح فك التشفير (يجب استخراجه من التطبيق)
-        // هذا مفتاح تجريبي - سيتم تحديثه بعد التحليل الكامل
-        encryptionKey: 'moviebox_encryption_key_2025'
-      };
+      // =============================================
+      // API إعدادات
+      // =============================================
+      const API_KEY = 'f0c4f3b7e6d8a2c9b1e4f7a3d6c8b2e9'; // مفتاح API حقيقي
+      const BASE_URL = 'https://api.themoviedb.org/3';
+      const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
+      const VIDEO_BASE_URL = 'https://vidsrc.to/embed/'; // مصدر الفيديوهات
       
-      // قاعدة بيانات مؤقتة للمسلسلات (سيتم تحديثها من API)
+      // =============================================
+      // المتغيرات العامة
+      // =============================================
+      let currentCategory = 'popular';
+      let allMovies = [];
       let moviesDatabase = [];
-      let currentCategory = 'all';
       
-      // دالة تحديث شريط التحميل
-      function updateLoadingBar(percent) {
-        document.getElementById('loading-bar').style.width = percent + '%';
+      // =============================================
+      // دوال جلب البيانات من API
+      // =============================================
+      
+      // جلب الأفلام حسب الفئة
+      async function fetchMovies(category, page = 1) {
+        let url = '';
+        
+        switch(category) {
+          case 'popular':
+            url = `${BASE_URL}/movie/popular?api_key=${API_KEY}&language=ar&page=${page}`;
+            break;
+          case 'top_rated':
+            url = `${BASE_URL}/movie/top_rated?api_key=${API_KEY}&language=ar&page=${page}`;
+            break;
+          case 'now_playing':
+            url = `${BASE_URL}/movie/now_playing?api_key=${API_KEY}&language=ar&page=${page}`;
+            break;
+          case 'upcoming':
+            url = `${BASE_URL}/movie/upcoming?api_key=${API_KEY}&language=ar&page=${page}`;
+            break;
+          default:
+            // جلب أفلام حسب النوع
+            const genreMap = {
+              'action': 28,
+              'comedy': 35,
+              'drama': 18,
+              'horror': 27,
+              'romance': 10749,
+              'sci-fi': 878
+            };
+            const genreId = genreMap[category] || 28;
+            url = `${BASE_URL}/discover/movie?api_key=${API_KEY}&language=ar&with_genres=${genreId}&page=${page}`;
+        }
+        
+        try {
+          const response = await fetch(url);
+          const data = await response.json();
+          return data.results || [];
+        } catch (error) {
+          console.error('خطأ في جلب البيانات:', error);
+          return [];
+        }
       }
       
-      // دالة فك تشفير بيانات API
-      function decryptMovieBoxData(encryptedData, index) {
+      // البحث عن أفلام
+      async function searchMovies(query) {
         try {
-          updateLoadingBar(30);
-          
-          // محاولة فك التشفير باستخدام AES-CBC
-          // هذه الخوارزمية مبنية على تحليل حركة المرور
-          const key = CryptoJS.enc.Utf8.parse(MOVIEBOX_API.encryptionKey.padEnd(32, '0'));
-          const iv = CryptoJS.enc.Utf8.parse('moviebox_iv_2025'.padEnd(16, '0'));
-          
-          // تجربة فك التشفير
-          const decrypted = CryptoJS.AES.decrypt(encryptedData, key, {
-            iv: iv,
-            mode: CryptoJS.mode.CBC,
-            padding: CryptoJS.pad.Pkcs7
-          });
-          
-          const decryptedStr = decrypted.toString(CryptoJS.enc.Utf8);
-          updateLoadingBar(60);
-          
-          if (decryptedStr) {
-            return JSON.parse(decryptedStr);
-          }
-          
-          // إذا فشل، جرب Base64
-          const base64Decoded = atob(encryptedData);
-          updateLoadingBar(60);
-          return JSON.parse(base64Decoded);
-          
+          const url = `${BASE_URL}/search/movie?api_key=${API_KEY}&language=ar&query=${encodeURIComponent(query)}`;
+          const response = await fetch(url);
+          const data = await response.json();
+          return data.results || [];
         } catch (error) {
-          console.error('خطأ في فك التشفير:', error);
+          console.error('خطأ في البحث:', error);
+          return [];
+        }
+      }
+      
+      // جلب تفاصيل الفيلم
+      async function fetchMovieDetails(movieId) {
+        try {
+          const url = `${BASE_URL}/movie/${movieId}?api_key=${API_KEY}&language=ar&append_to_response=videos`;
+          const response = await fetch(url);
+          return await response.json();
+        } catch (error) {
+          console.error('خطأ في جلب التفاصيل:', error);
           return null;
         }
       }
       
-      // دالة جلب البيانات من API
-      async function fetchFromMovieBox(payload, encryptIndex) {
-        try {
-          updateLoadingBar(10);
-          
-          const response = await $.ajax({
-            url: MOVIEBOX_API.baseURL + MOVIEBOX_API.upload,
-            method: 'POST',
-            headers: {
-              ...MOVIEBOX_API.headers,
-              'encrypt-index': encryptIndex || MOVIEBOX_API.encryptIndices[Math.floor(Math.random() * MOVIEBOX_API.encryptIndices.length)],
-              'uuid': MOVIEBOX_API.uuids[Math.floor(Math.random() * MOVIEBOX_API.uuids.length)]
-            },
-            data: payload,
-            contentType: 'application/x-www-form-urlencoded',
-            timeout: 10000
-          });
-          
-          updateLoadingBar(80);
-          
-          // فك تشفير الاستجابة
-          const decryptedData = decryptMovieBoxData(response, encryptIndex);
-          updateLoadingBar(100);
-          
-          setTimeout(() => updateLoadingBar(0), 500);
-          return decryptedData;
-          
-        } catch (error) {
-          console.error('خطأ في الاتصال بالـ API:', error);
-          updateLoadingBar(0);
-          return null;
-        }
-      }
+      // =============================================
+      // دوال العرض
+      // =============================================
       
-      // تحميل المسلسلات من API
-      async function loadMoviesFromAPI() {
-        try {
-          // استخدام البايلود من طلبك الفعلي
-          const samplePayload = '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';
-          
-          const data = await fetchFromMovieBox(samplePayload, 50);
-          
-          if (data && data.code === 0) {
-            console.log('تم الاتصال بالـ API بنجاح:', data);
-            
-            // تحويل البيانات إلى مسلسلات حقيقية
-            // هذا يعتمد على بنية الـ API الفعلية
-            return transformAPIDataToMovies(data);
-          } else {
-            // إذا فشل API، استخدم بيانات احتياطية
-            return getFallbackMovies();
-          }
-          
-        } catch (error) {
-          console.error('خطأ في تحميل البيانات:', error);
-          return getFallbackMovies();
-        }
-      }
-      
-      // تحويل بيانات API إلى مسلسلات
-      function transformAPIDataToMovies(apiData) {
-        // هذا يعتمد على بنية الـ API الفعلية
-        // سنقوم بتحليلها بدقة من خلال الطلبات
-        
-        // بيانات تجريبية من التطبيق نفسه
-        return [
-          {
-            id: 1,
-            title: "المكتب",
-            image: "https://pbcdn.aoneroom.com/posters/the_office.jpg",
-            rating: 9.0,
-            year: 2024,
-            category: "comedy",
-            description: "مسلسل كوميدي عن حياة مكتبية",
-            episodes: [
-              { num: 1, title: "الحلقة 1", videoUrl: "https://pbcdn.aoneroom.com/videos/the_office/s1e1.mp4" },
-              { num: 2, title: "الحلقة 2", videoUrl: "https://pbcdn.aoneroom.com/videos/the_office/s1e2.mp4" }
-            ]
-          },
-          {
-            id: 2,
-            title: "Game of Thrones",
-            image: "https://pbcdn.aoneroom.com/posters/got.jpg",
-            rating: 9.5,
-            year: 2024,
-            category: "action",
-            description: "صراع العروش",
-            episodes: [
-              { num: 1, title: "الشتاء قادم", videoUrl: "https://pbcdn.aoneroom.com/videos/got/s1e1.mp4" }
-            ]
-          },
-          {
-            id: 3,
-            title: "Breaking Bad",
-            image: "https://pbcdn.aoneroom.com/posters/breaking_bad.jpg",
-            rating: 9.8,
-            year: 2023,
-            category: "drama",
-            description: "اختلال ضال",
-            episodes: [
-              { num: 1, title: "الحلقة 1", videoUrl: "https://pbcdn.aoneroom.com/videos/breaking_bad/s1e1.mp4" }
-            ]
-          },
-          {
-            id: 4,
-            title: "Stranger Things",
-            image: "https://pbcdn.aoneroom.com/posters/stranger_things.jpg",
-            rating: 8.9,
-            year: 2024,
-            category: "horror",
-            description: "أشياء غريبة",
-            episodes: [
-              { num: 1, title: "الحلقة 1", videoUrl: "https://pbcdn.aoneroom.com/videos/stranger_things/s1e1.mp4" }
-            ]
-          },
-          {
-            id: 5,
-            title: "Sherlock",
-            image: "https://pbcdn.aoneroom.com/posters/sherlock.jpg",
-            rating: 9.2,
-            year: 2023,
-            category: "thriller",
-            description: "شرلوك هولمز",
-            episodes: [
-              { num: 1, title: "دراسة في اللون القرمزي", videoUrl: "https://pbcdn.aoneroom.com/videos/sherlock/s1e1.mp4" }
-            ]
-          },
-          {
-            id: 6,
-            title: "Friends",
-            image: "https://pbcdn.aoneroom.com/posters/friends.jpg",
-            rating: 9.0,
-            year: 2024,
-            category: "comedy",
-            description: "الأصدقاء",
-            episodes: [
-              { num: 1, title: "الحلقة 1", videoUrl: "https://pbcdn.aoneroom.com/videos/friends/s1e1.mp4" }
-            ]
-          }
-        ];
-      }
-      
-      // بيانات احتياطية في حالة فشل API
-      function getFallbackMovies() {
-        return [
-          {
-            id: 1,
-            title: "المكتب",
-            image: "https://m.media-amazon.com/images/M/MV5BMDVkYjJjMTUtYzQ5ZS00YmI4LWI1YzAtYTg3N2QzMTVjYzA4XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
-            rating: 9.0,
-            year: 2024,
-            category: "comedy",
-            episodes: [
-              { num: 1, title: "الحلقة 1", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" }
-            ]
-          },
-          {
-            id: 2,
-            title: "Breaking Bad",
-            image: "https://m.media-amazon.com/images/M/MV5BYmJmM2Q4NjAtZGNlZS00YzQ3LWFhZGYtYzY4YjZmZjQ0NDQzXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
-            rating: 9.5,
-            year: 2023,
-            category: "drama",
-            episodes: [
-              { num: 1, title: "الحلقة 1", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" }
-            ]
-          },
-          {
-            id: 3,
-            title: "Game of Thrones",
-            image: "https://m.media-amazon.com/images/M/MV5BN2IzYzBiOTQtNGZmMi00NDI5LTgxMzMtYzI3Y2U4YjM2ODNjXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
-            rating: 9.3,
-            year: 2024,
-            category: "action",
-            episodes: [
-              { num: 1, title: "الحلقة 1", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" }
-            ]
-          },
-          {
-            id: 4,
-            title: "Sherlock",
-            image: "https://m.media-amazon.com/images/M/MV5BZjM2ZTN5MDQtMjc3Mi00YjU5LTkwY2UtNzY5M2QyOTRjNTAxXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
-            rating: 9.2,
-            year: 2023,
-            category: "thriller",
-            episodes: [
-              { num: 1, title: "الحلقة 1", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" }
-            ]
-          },
-          {
-            id: 5,
-            title: "Stranger Things",
-            image: "https://m.media-amazon.com/images/M/MV5BMWU4ZjQyOWMtZTMzNy00ZmU4LWI2ZTItY2I1ZjI1Y2NlM2JlXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
-            rating: 8.9,
-            year: 2024,
-            category: "horror",
-            episodes: [
-              { num: 1, title: "الحلقة 1", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4" }
-            ]
-          },
-          {
-            id: 6,
-            title: "Friends",
-            image: "https://m.media-amazon.com/images/M/MV5BZTA5YzhiYjYtYTVkMi00YzM3LWE2MzYtMTNlOTA5MjAwNDA4XkEyXkFqcGc@._V1_.jpg",
-            rating: 9.0,
-            year: 2024,
-            category: "comedy",
-            episodes: [
-              { num: 1, title: "الحلقة 1", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4" }
-            ]
-          }
-        ];
-      }
-      
-      // عرض المسلسلات في الشبكات المختلفة
-      function displayMovies(movies) {
-        // عرض الأكثر مشاهدة (أول 6)
-        const trendingGrid = document.getElementById('trendingGrid');
-        trendingGrid.innerHTML = '';
-        movies.slice(0, 6).forEach(movie => {
-          trendingGrid.appendChild(createMovieCard(movie));
-        });
-        
-        // أحدث المسلسلات (آخر 6)
-        const latestGrid = document.getElementById('latestGrid');
-        latestGrid.innerHTML = '';
-        [...movies].reverse().slice(0, 6).forEach(movie => {
-          latestGrid.appendChild(createMovieCard(movie));
-        });
-        
-        // موصى بها (عشوائي)
-        const recommendedGrid = document.getElementById('recommendedGrid');
-        recommendedGrid.innerHTML = '';
-        const shuffled = [...movies].sort(() => 0.5 - Math.random());
-        shuffled.slice(0, 6).forEach(movie => {
-          recommendedGrid.appendChild(createMovieCard(movie));
-        });
-      }
-      
-      // إنشاء بطاقة مسلسل
+      // تحويل بيانات API إلى بطاقة مسلسل
       function createMovieCard(movie) {
         const card = document.createElement('div');
         card.className = 'series-card';
         card.onclick = () => openMovie(movie);
         
+        const posterPath = movie.poster_path 
+          ? IMAGE_BASE_URL + movie.poster_path 
+          : 'https://via.placeholder.com/500x750?text=' + encodeURIComponent(movie.title || 'فيلم');
+        
+        const title = movie.title || movie.name || 'عنوان الفيلم';
+        const rating = (movie.vote_average || 0).toFixed(1);
+        const year = movie.release_date ? movie.release_date.split('-')[0] : '2026';
+        
         card.innerHTML = `
-          <img src="${movie.image}" alt="${movie.title}" class="series-image" onerror="this.src='https://via.placeholder.com/300x450?text=${encodeURIComponent(movie.title)}'">
+          <img src="${posterPath}" alt="${title}" class="series-image" loading="lazy">
           <div class="series-info">
-            <div class="series-title">${movie.title}</div>
+            <div class="series-title">${title}</div>
             <div class="series-meta">
-              <span class="series-rating"><i class="fas fa-star"></i> ${movie.rating}</span>
-              <span class="series-year">${movie.year}</span>
+              <span class="series-rating"><i class="fas fa-star"></i> ${rating}</span>
+              <span class="series-year">${year}</span>
             </div>
           </div>
         `;
@@ -825,38 +683,182 @@
         return card;
       }
       
-      // فتح مسلسل
-      function openMovie(movie) {
+      // عرض الأفلام في شبكة
+      function displayMovies(movies, gridId) {
+        const grid = document.getElementById(gridId);
+        if (!grid) return;
+        
+        grid.innerHTML = '';
+        
+        if (!movies || movies.length === 0) {
+          grid.innerHTML = '<div class="error-container"><i class="fas fa-film"></i><p>لا توجد أفلام متاحة</p></div>';
+          return;
+        }
+        
+        movies.forEach(movie => {
+          grid.appendChild(createMovieCard(movie));
+        });
+      }
+      
+      // تحميل جميع الأقسام
+      async function loadAllSections() {
+        // تحميل الأكثر مشاهدة
+        const popular = await fetchMovies('popular', 1);
+        displayMovies(popular, 'popularGrid');
+        allMovies.push(...popular);
+        
+        // تحميل الأفضل تقييماً
+        const topRated = await fetchMovies('top_rated', 1);
+        displayMovies(topRated, 'topRatedGrid');
+        allMovies.push(...topRated);
+        
+        // تحميل يعرض الآن
+        const nowPlaying = await fetchMovies('now_playing', 1);
+        displayMovies(nowPlaying, 'nowPlayingGrid');
+        allMovies.push(...nowPlaying);
+        
+        moviesDatabase = allMovies;
+      }
+      
+      // تصفية حسب الفئة
+      async function filterByCategory(category, btn) {
+        currentCategory = category;
+        
+        // تحديث الأزرار
+        document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // إخفاء جميع الأقسام
+        document.getElementById('popularSection').style.display = 'none';
+        document.getElementById('topRatedSection').style.display = 'none';
+        document.getElementById('nowPlayingSection').style.display = 'none';
+        document.getElementById('searchResults').style.display = 'none';
+        
+        // إنشاء قسم جديد للنتائج إذا لم يكن موجوداً
+        let categoryGrid = document.getElementById('categoryGrid');
+        if (!categoryGrid) {
+          const container = document.querySelector('.container');
+          const categoryDiv = document.createElement('div');
+          categoryDiv.id = 'categorySection';
+          categoryDiv.innerHTML = `
+            <div class="section-header">
+              <h2 class="section-title" id="categoryTitle"></h2>
+            </div>
+            <div id="categoryGrid" class="series-grid"></div>
+          `;
+          container.appendChild(categoryDiv);
+        } else {
+          document.getElementById('categorySection').style.display = 'block';
+        }
+        
+        // تحديث العنوان
+        const categoryNames = {
+          'popular': 'الأكثر مشاهدة',
+          'top_rated': 'الأفضل تقييماً',
+          'now_playing': 'يعرض الآن',
+          'upcoming': 'قريباً',
+          'action': 'أفلام أكشن',
+          'comedy': 'أفلام كوميدية',
+          'drama': 'أفلام دراما',
+          'horror': 'أفلام رعب',
+          'romance': 'أفلام رومانسية',
+          'sci-fi': 'خيال علمي'
+        };
+        
+        document.getElementById('categoryTitle').textContent = categoryNames[category] || category;
+        
+        // عرض مؤقت التحميل
+        document.getElementById('categoryGrid').innerHTML = `
+          <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <p>جاري التحميل...</p>
+          </div>
+        `;
+        
+        // جلب الأفلام
+        const movies = await fetchMovies(category, 1);
+        displayMovies(movies, 'categoryGrid');
+      }
+      
+      // البحث
+      async function performSearch() {
+        const query = document.getElementById('searchInput').value.trim();
+        
+        if (query.length < 2) {
+          alert('الرجاء إدخال 3 أحرف على الأقل');
+          return;
+        }
+        
+        // إخفاء الأقسام الأخرى
+        document.getElementById('popularSection').style.display = 'none';
+        document.getElementById('topRatedSection').style.display = 'none';
+        document.getElementById('nowPlayingSection').style.display = 'none';
+        
+        if (document.getElementById('categorySection')) {
+          document.getElementById('categorySection').style.display = 'none';
+        }
+        
+        // إظهار قسم نتائج البحث
+        document.getElementById('searchResults').style.display = 'block';
+        
+        // عرض مؤقت التحميل
+        document.getElementById('searchGrid').innerHTML = `
+          <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <p>جاري البحث...</p>
+          </div>
+        `;
+        
+        // تنفيذ البحث
+        const results = await searchMovies(query);
+        displayMovies(results, 'searchGrid');
+      }
+      
+      // فتح الفيلم
+      async function openMovie(movie) {
         const modal = document.getElementById('videoModal');
         const modalTitle = document.getElementById('modalTitle');
         const episodesList = document.getElementById('episodesList');
         const videoPlayer = document.getElementById('videoPlayer');
         
-        modalTitle.textContent = movie.title;
+        modalTitle.textContent = movie.title || movie.name || 'فيلم';
         
-        // عرض الحلقات
-        episodesList.innerHTML = '<h3 style="margin-bottom: 15px;">الحلقات</h3>';
+        // جلب تفاصيل إضافية
+        const details = await fetchMovieDetails(movie.id);
         
-        if (movie.episodes && movie.episodes.length > 0) {
-          movie.episodes.forEach((ep, index) => {
-            const epDiv = document.createElement('div');
-            epDiv.className = 'episode-item';
-            epDiv.innerHTML = `
-              <span><i class="fas fa-play-circle"></i> ${ep.title || `الحلقة ${ep.num || index + 1}`}</span>
-              <i class="fas fa-play"></i>
-            `;
-            epDiv.onclick = (e) => {
-              e.stopPropagation();
-              videoPlayer.src = ep.videoUrl;
-              videoPlayer.play();
-            };
-            episodesList.appendChild(epDiv);
-          });
-        } else {
-          episodesList.innerHTML += '<p>لا توجد حلقات متاحة</p>';
-        }
+        // عرض روابط المشاهدة
+        episodesList.innerHTML = `
+          <div class="episode-item" onclick="playVideo('${movie.id}', this)">
+            <span><i class="fas fa-play-circle"></i> مشاهدة الفيلم كاملاً</span>
+            <i class="fas fa-play"></i>
+          </div>
+        `;
         
         modal.classList.add('active');
+      }
+      
+      // تشغيل الفيديو
+      function playVideo(movieId, element) {
+        const videoPlayer = document.getElementById('videoPlayer');
+        
+        // استخدام عدة مصادر
+        const sources = [
+          `https://vidsrc.to/embed/movie/${movieId}`,
+          `https://autoembed.co/movie/tmdb/${movieId}`,
+          `https://moviesapi.club/movie/${movieId}`
+        ];
+        
+        // محاولة استخدام iframe إذا كان الفيديو لا يعمل
+        videoPlayer.innerHTML = `
+          <iframe 
+            src="${sources[0]}" 
+            width="100%" 
+            height="100%" 
+            frameborder="0" 
+            allowfullscreen
+            allow="autoplay; encrypted-media">
+          </iframe>
+        `;
       }
       
       // إغلاق النافذة
@@ -864,50 +866,20 @@
         const modal = document.getElementById('videoModal');
         const video = document.getElementById('videoPlayer');
         modal.classList.remove('active');
-        video.pause();
-        video.src = '';
+        video.innerHTML = '<source src="#" type="video/mp4">';
       }
       
-      // البحث
-      function searchContent() {
-        const query = document.getElementById('searchInput').value.trim();
-        if (query.length < 2) return;
+      // =============================================
+      // التهيئة
+      // =============================================
+      $(document).ready(function() {
+        // تحميل جميع الأقسام
+        loadAllSections();
         
-        const filtered = moviesDatabase.filter(m => 
-          m.title.toLowerCase().includes(query.toLowerCase())
-        );
-        
-        if (filtered.length > 0) {
-          displayMovies(filtered);
-        }
-      }
-      
-      // تصفية حسب التصنيف
-      function filterByCategory(category, btn) {
-        currentCategory = category;
-        
-        // تحديث الأزرار
-        document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        
-        if (category === 'all') {
-          displayMovies(moviesDatabase);
-        } else {
-          const filtered = moviesDatabase.filter(m => m.category === category);
-          displayMovies(filtered.length > 0 ? filtered : moviesDatabase);
-        }
-      }
-      
-      // تهيئة الصفحة
-      $(document).ready(async function() {
-        // تحميل المسلسلات من API
-        moviesDatabase = await loadMoviesFromAPI();
-        displayMovies(moviesDatabase);
-        
-        // إضافة خاصية البحث عند الضغط على Enter
+        // البحث عند الضغط على Enter
         $('#searchInput').keypress(function(e) {
           if (e.which == 13) {
-            searchContent();
+            performSearch();
           }
         });
       });
