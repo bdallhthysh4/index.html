@@ -1,6 +1,8 @@
 {
-  "users": {
-    "user1": { "email": "admin@mail.com", "password": "123", "role": "admin" },
-    "user2": { "email": "editor@mail.com", "password": "456", "role": "editor" }
-  }
+  "apiKey": "AIzaSyCEaxXR5eqzg0e5JvjWAFjZ5ZeMraMYREn",
+  "authDomain": "mo-play-b0cb7.firebaseapp.com",
+  "databaseURL": "https://mo-play-b0cb7-default-rtdb.firebaseio.com",
+  "projectId": "mo-play-b0cb7",
+  "storageBucket": "mo-play-b0cb7.firebasestorage.app",
+  "appId": "1:575424024738:web:0b1736c0c2e496adf607fb"
 }
