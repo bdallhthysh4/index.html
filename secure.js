@@ -16,19 +16,19 @@ var _0x4a8b = function(_0x4a8b2d, _0x4b8c2e) {
 
 (function() {
     const allowedDomains = [
-        _0x4a8b('0x0'),  // hikaytna.my
-        _0x4a8b('0x1'),  // www.hikaytna.my
-        _0x4a8b('0x2'),  // hikaytna.blogspot.com
-        _0x4a8b('0x3')   // localhost
+        _0x4a8b('0x5'),  // hikaytna.my
+        _0x4a8b('0x6'),  // www.hikaytna.my
+        _0x4a8b('0x7'),  // hikaytna.blogspot.com
+        _0x4a8b('0x8')   // localhost
     ];
-    
+
     const currentDomain = window[_0x4a8b('0x4')];
     const isAllowed = allowedDomains[_0x4a8b('0x5')](domain => 
         eval(_0x4a8b('0x6')) || 
         eval(_0x4a8b('0x7')) ||
         eval(_0x4a8b('0x8'))
     );
-    
+
     if (!isAllowed) {
         window[_0x4a8b('0x9')][_0x4a8b('0xa')](_0x4a8b('0xb'));
         document[_0x4a8b('0xc')][_0x4a8b('0xd')] = `
@@ -42,6 +42,6 @@ var _0x4a8b = function(_0x4a8b2d, _0x4b8c2e) {
         `;
         throw new _0x4a8b('0xe')('نطاق غير مصرح');
     }
-    
+
     console[_0x4a8b('0x9')]('✅ النطاق مصرح به');
 })();
