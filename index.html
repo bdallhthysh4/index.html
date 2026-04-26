@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1"/>
     <title>محول تلقائي - Shadwo → MP4</title>
 </head>
-<body style="background:#0a0a0f;color:#00e676;font-family:monospace;padding:20px;font-size:0.8em;">
-    <div id="log"></div>
+<body style="background:#0a0a0f;color:#ccc;font-family:monospace;padding:20px;font-size:0.75em;">
+    <div id="log" style="white-space:pre-wrap;"></div>
 
     <script>
+        // ============ نفس إعداداتك ============
         const FIREBASE_URL = 'https://mo-play-b0cb7-default-rtdb.firebaseio.com';
         const PROXIES = [
             "https://api.allorigins.win/raw?url=",
@@ -18,11 +19,10 @@
 
         const logDiv = document.getElementById('log');
         function addLog(msg) {
-            logDiv.innerHTML += `[${new Date().toLocaleTimeString()}] ${msg}<br>`;
-            logDiv.scrollTop = logDiv.scrollHeight;
+            logDiv.textContent += `[${new Date().toLocaleTimeString()}] ${msg}\n`;
         }
 
-        // ============ دوال الكود الأصلي ============
+        // ============ دوالك الأصلية ============
         async function fetchPage(url) {
             for (const proxy of PROXIES) {
                 try {
@@ -62,8 +62,7 @@
             return found;
         }
 
-        // ============ استخراج MP4 من رابط Shadwo ============
-        async function extractMp4(shadwoUrl) {
+        async function startExtract(shadwoUrl) {
             const baseUrl = shadwoUrl.includes('serv=') ? shadwoUrl :
                            shadwoUrl + (shadwoUrl.includes('?') ? '&' : '?') + 'serv=0';
             const mp4plusUrl = baseUrl.replace(/serv=\d+/g, 'serv=2');
@@ -72,17 +71,14 @@
             try {
                 const servHtml = await fetchPage(mp4plusUrl);
                 if (!servHtml) return null;
-                
                 const iframes = extractIframes(servHtml);
 
                 for (const iframeUrl of iframes) {
                     if (processedIframes.has(iframeUrl)) continue;
                     processedIframes.add(iframeUrl);
-
                     try {
                         const iframeHtml = await fetchPage(iframeUrl);
                         if (!iframeHtml) continue;
-                        
                         const aflmUrls = extractAflmUrls(iframeHtml);
                         if (aflmUrls.length > 0) return aflmUrls[0];
 
@@ -103,13 +99,12 @@
             } catch(e) { return null; }
         }
 
-        // ============ تشغيل تلقائي ============
-        (async function main() {
-            addLog('🚀 بدء دورة جديدة');
-            
+        // ============ تلقائي ============
+        (async function() {
+            addLog('🚀 بدء');
             const res = await fetch(FIREBASE_URL + '/series.json');
             const data = await res.json();
-            let checked = 0, done = 0, fail = 0;
+            let done = 0;
 
             for (const id in data) {
                 if (!data[id].episodes) continue;
@@ -121,18 +116,15 @@
                         const link = eps[i][f] || '';
                         if (!link.includes('shadwo.pro')) continue;
 
-                        checked++;
-                        addLog(`🔍 ${(data[id].title||id).substring(0,30)} ح${i+1}`);
-
-                        const mp4 = await extractMp4(link);
+                        addLog(`🔍 ${(data[id].title||'').substring(0,25)} ح${i+1}`);
+                        const mp4 = await startExtract(link);
 
                         if (mp4 && mp4.includes('aflm') && mp4.includes('v.mp4')) {
                             eps[i][f] = mp4;
                             changed = true;
                             done++;
-                            addLog(`✅ ${mp4.substring(0,65)}...`);
+                            addLog(`✅ ${mp4.substring(0,60)}`);
                         } else {
-                            fail++;
                             addLog(`❌ فشل`);
                         }
                         await new Promise(r => setTimeout(r, 2000));
@@ -145,12 +137,10 @@
                         body: JSON.stringify(eps),
                         headers: { 'Content-Type': 'application/json' }
                     });
-                    addLog(`💾 ${data[id].title||id}`);
+                    addLog(`💾 ${data[id].title}`);
                 }
             }
-
-            addLog(`📊 فحص:${checked} | ✅${done} | ❌${fail}`);
-            addLog('✅ انتهت الدورة');
+            addLog(`✅ done:${done}`);
         })();
     </script>
 </body>
