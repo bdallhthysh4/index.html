@@ -5,9 +5,8 @@
     <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1"/>
     <title>محول تلقائي - Shadwo → MP4</title>
 </head>
-<body style="background:#0a0a0f;color:#00e676;font-family:monospace;padding:20px;">
-    <h2>🔄 محول Shadwo → MP4 - تلقائي</h2>
-    <div id="log" style="white-space:pre-wrap;word-break:break-all;font-size:0.8em;"></div>
+<body style="background:#0a0a0f;color:#00e676;font-family:monospace;padding:20px;font-size:0.8em;">
+    <div id="log"></div>
 
     <script>
         const FIREBASE_URL = 'https://mo-play-b0cb7-default-rtdb.firebaseio.com';
@@ -20,9 +19,10 @@
         const logDiv = document.getElementById('log');
         function addLog(msg) {
             logDiv.innerHTML += `[${new Date().toLocaleTimeString()}] ${msg}<br>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
         }
 
-        // ============ نفس دوال الكود الأصلي ============
+        // ============ دوال الكود الأصلي ============
         async function fetchPage(url) {
             for (const proxy of PROXIES) {
                 try {
@@ -36,7 +36,7 @@
                     if (res.ok) return await res.text();
                 } catch(e) { continue; }
             }
-            throw new Error('فشل');
+            return null;
         }
 
         function extractIframes(html) {
@@ -62,7 +62,7 @@
             return found;
         }
 
-        // ============ استخراج MP4 ============
+        // ============ استخراج MP4 من رابط Shadwo ============
         async function extractMp4(shadwoUrl) {
             const baseUrl = shadwoUrl.includes('serv=') ? shadwoUrl :
                            shadwoUrl + (shadwoUrl.includes('?') ? '&' : '?') + 'serv=0';
@@ -71,6 +71,8 @@
 
             try {
                 const servHtml = await fetchPage(mp4plusUrl);
+                if (!servHtml) return null;
+                
                 const iframes = extractIframes(servHtml);
 
                 for (const iframeUrl of iframes) {
@@ -79,6 +81,8 @@
 
                     try {
                         const iframeHtml = await fetchPage(iframeUrl);
+                        if (!iframeHtml) continue;
+                        
                         const aflmUrls = extractAflmUrls(iframeHtml);
                         if (aflmUrls.length > 0) return aflmUrls[0];
 
@@ -88,6 +92,7 @@
                             processedIframes.add(nestedUrl);
                             try {
                                 const nestedHtml = await fetchPage(nestedUrl);
+                                if (!nestedHtml) continue;
                                 const nestedAflm = extractAflmUrls(nestedHtml);
                                 if (nestedAflm.length > 0) return nestedAflm[0];
                             } catch(e) {}
@@ -98,13 +103,13 @@
             } catch(e) { return null; }
         }
 
-        // ============ الرئيسية ============
-        (async function() {
-            addLog('🚀 بدء الدورة');
-
+        // ============ تشغيل تلقائي ============
+        (async function main() {
+            addLog('🚀 بدء دورة جديدة');
+            
             const res = await fetch(FIREBASE_URL + '/series.json');
             const data = await res.json();
-            let done = 0, fail = 0;
+            let checked = 0, done = 0, fail = 0;
 
             for (const id in data) {
                 if (!data[id].episodes) continue;
@@ -116,14 +121,16 @@
                         const link = eps[i][f] || '';
                         if (!link.includes('shadwo.pro')) continue;
 
-                        addLog(`🔍 ${data[id].title} ح${i+1}`);
+                        checked++;
+                        addLog(`🔍 ${(data[id].title||id).substring(0,30)} ح${i+1}`);
+
                         const mp4 = await extractMp4(link);
 
                         if (mp4 && mp4.includes('aflm') && mp4.includes('v.mp4')) {
                             eps[i][f] = mp4;
                             changed = true;
                             done++;
-                            addLog(`✅ ${mp4.substring(0,60)}...`);
+                            addLog(`✅ ${mp4.substring(0,65)}...`);
                         } else {
                             fail++;
                             addLog(`❌ فشل`);
@@ -133,16 +140,17 @@
                 }
 
                 if (changed) {
-                    await fetch(FIREBASE_URL + '/series/' + id + '/episodes.json', {
+                    await fetch(`${FIREBASE_URL}/series/${id}/episodes.json`, {
                         method: 'PUT',
                         body: JSON.stringify(eps),
                         headers: { 'Content-Type': 'application/json' }
                     });
-                    addLog(`💾 تم حفظ ${data[id].title}`);
+                    addLog(`💾 ${data[id].title||id}`);
                 }
             }
 
-            addLog(`✅ done:${done} fail:${fail}`);
+            addLog(`📊 فحص:${checked} | ✅${done} | ❌${fail}`);
+            addLog('✅ انتهت الدورة');
         })();
     </script>
 </body>
