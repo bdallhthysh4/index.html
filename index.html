@@ -1,21 +1,29 @@
 <!DOCTYPE html>
-<html dir="rtl">
+<html>
 <head>
     <meta charset="UTF-8">
-    <title>محول Shadwo → MP4 - API</title>
+    <title>محول Shadwo → MP4 - تلقائي</title>
 </head>
-<body>
-    <pre id="result">جاري العمل...</pre>
+<body style="background:#0a0a0f;color:#00e676;font-family:monospace;padding:20px;">
+    <h2>🔄 محول روابط Shadwo التلقائي</h2>
+    <p style="color:#888;">يعمل كل 20 دقيقة عبر cron-job.org</p>
+    <div id="log" style="white-space:pre-wrap;word-break:break-all;"></div>
+
     <script>
         const FIREBASE_URL = 'https://mo-play-b0cb7-default-rtdb.firebaseio.com';
         const PROXIES = [
             'https://api.allorigins.win/raw?url=',
             'https://corsproxy.io/?',
+            'https://api.codetabs.com/v1/proxy?quest=',
         ];
 
-        const log = (msg) => {
-            document.getElementById('result').textContent += '\n' + msg;
-        };
+        const logDiv = document.getElementById('log');
+
+        function log(msg) {
+            const time = new Date().toLocaleTimeString('ar-SA');
+            logDiv.innerHTML += `<div>${time} - ${msg}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
 
         async function fetchPage(url) {
             for (const proxy of PROXIES) {
@@ -54,52 +62,93 @@
             return null;
         }
 
+        async function updateFirebase(id, episodes) {
+            try {
+                const res = await fetch(FIREBASE_URL + '/series/' + id + '/episodes.json', {
+                    method: 'PUT',
+                    body: JSON.stringify(episodes),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                return res.ok;
+            } catch(e) {
+                return false;
+            }
+        }
+
         (async function main() {
-            log('🚀 بدء: ' + new Date().toLocaleString('ar-SA'));
-            
-            const res = await fetch(FIREBASE_URL + '/series.json');
-            const data = await res.json();
-            
-            let checked = 0, converted = 0, failed = 0;
-            
-            for (const id in data) {
-                if (!data[id].episodes) continue;
-                let changed = false;
-                const eps = JSON.parse(JSON.stringify(data[id].episodes));
-                
-                for (let i = 0; i < eps.length; i++) {
-                    for (const f of ['link1', 'link2', 'link3']) {
-                        const link = eps[i][f] || '';
-                        if (!link.includes('shadwo.pro')) continue;
-                        
-                        checked++;
-                        log('🔍 ' + link.substring(0, 50));
-                        
-                        const mp4 = await extractMp4(link);
-                        if (mp4) {
-                            eps[i][f] = mp4;
-                            changed = true;
-                            converted++;
-                            log('✅ ' + mp4.substring(0, 50));
-                        } else {
-                            failed++;
-                            log('❌ فشل');
+            log('🚀 ========== بدء دورة جديدة ==========');
+
+            try {
+                const res = await fetch(FIREBASE_URL + '/series.json');
+                if (!res.ok) {
+                    log('❌ فشل الاتصال بـ Firebase');
+                    return;
+                }
+
+                const data = await res.json();
+                let totalChecked = 0;
+                let totalConverted = 0;
+                let totalFailed = 0;
+
+                for (const seriesId in data) {
+                    const series = data[seriesId];
+                    if (!series.episodes || !Array.isArray(series.episodes)) continue;
+
+                    let changed = false;
+                    const episodes = JSON.parse(JSON.stringify(series.episodes));
+
+                    for (let i = 0; i < episodes.length; i++) {
+                        const ep = episodes[i];
+                        const fields = ['link1', 'link2', 'link3'];
+
+                        for (const field of fields) {
+                            const link = ep[field] || '';
+
+                            // ===== فقط روابط shadwo.pro =====
+                            if (!link.includes('shadwo.pro')) continue;
+
+                            totalChecked++;
+                            log(`🔍 [${series.title || seriesId}] حلقة ${i+1} - ${field}`);
+                            log(`   📄 ${link.substring(0, 70)}...`);
+
+                            const mp4 = await extractMp4(link);
+
+                            if (mp4) {
+                                episodes[i][field] = mp4;
+                                changed = true;
+                                totalConverted++;
+                                log(`   ✅ ${mp4.substring(0, 70)}...`);
+                            } else {
+                                totalFailed++;
+                                log(`   ❌ فشل الاستخراج`);
+                            }
+
+                            // تأخير لتجنب الحظر
+                            await new Promise(r => setTimeout(r, 2000));
                         }
-                        await new Promise(r => setTimeout(r, 2000));
+                    }
+
+                    if (changed) {
+                        const updated = await updateFirebase(seriesId, episodes);
+                        if (updated) {
+                            log(`💾 تم حفظ: ${series.title || seriesId}`);
+                        } else {
+                            log(`❌ فشل حفظ: ${series.title || seriesId}`);
+                        }
                     }
                 }
-                
-                if (changed) {
-                    await fetch(FIREBASE_URL + '/series/' + id + '/episodes.json', {
-                        method: 'PUT',
-                        body: JSON.stringify(eps),
-                        headers: { 'Content-Type': 'application/json' }
-                    });
-                    log('💾 تم: ' + data[id].title);
-                }
+
+                log('');
+                log(`📊 ========== إحصائيات ==========`);
+                log(`🔍 تم فحص: ${totalChecked} رابط`);
+                log(`✅ تم تحويل: ${totalConverted} رابط`);
+                log(`❌ فشل: ${totalFailed} رابط`);
+                log(`⏰ الوقت: ${new Date().toLocaleString('ar-SA')}`);
+                log('✅ ========== انتهت الدورة ==========');
+
+            } catch(e) {
+                log(`❌ خطأ: ${e.message}`);
             }
-            
-            log('✅ فحص:' + checked + ' | تم:' + converted + ' | فشل:' + failed);
         })();
     </script>
 </body>
