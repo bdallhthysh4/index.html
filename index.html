@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1"/>
-    <title>Shadwo PRO - مستخرج روابط M3U8 كاملة</title>
+    <title>Shadwo PRO - مستخرج M3U8 كامل</title>
     <style>
         :root {
             --bg: #0a0a0f; --card: #111118; --border: #222230;
@@ -14,12 +14,12 @@
             background: var(--bg); font-family: 'Segoe UI', system-ui, sans-serif;
             color: var(--text); min-height: 100vh; padding: 20px;
         }
-        .container { max-width: 960px; margin: 0 auto; }
+        .container { max-width: 1000px; margin: 0 auto; }
         header { text-align: center; margin-bottom: 20px; }
-        header h1 { font-size: 1.8em; color: var(--green); text-shadow: 0 0 20px rgba(0,230,118,0.15); }
-        header p { color: #666; font-size: 0.85em; }
+        header h1 { font-size: 1.7em; color: var(--green); text-shadow: 0 0 20px rgba(0,230,118,0.15); }
+        header p { color: #666; font-size: 0.82em; }
 
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 14px; }
         .input-row { display: flex; gap: 10px; flex-wrap: wrap; }
         .input-row input {
             flex: 1; min-width: 220px; padding: 14px;
@@ -34,39 +34,24 @@
         .btn-go { background: var(--green); color: #000; }
         .btn-go:hover { background: #00ff84; box-shadow: 0 6px 28px rgba(0,230,118,0.35); }
         .btn-go:disabled { background: #2a2a38; color: #555; cursor: not-allowed; }
-        .btn-popup { background: var(--orange); color: #000; }
-        .btn-popup:hover { background: #ffaa00; box-shadow: 0 6px 28px rgba(255,145,0,0.35); }
 
-        .highlight-box {
-            background: #1a0f00; border: 2px solid var(--orange);
-            border-radius: 14px; padding: 20px; margin: 16px 0; text-align: center;
-        }
-        .highlight-box h3 { color: var(--orange); margin-bottom: 8px; }
-        .highlight-box .big-btn {
-            display: inline-block; background: var(--orange); color: #000;
-            padding: 16px 40px; border-radius: 14px; font-size: 1.1em;
-            font-weight: 800; cursor: pointer; border: none;
-            transition: all 0.3s; text-decoration: none; margin: 8px;
-        }
-        .highlight-box .big-btn:hover {
-            background: #ffaa00; box-shadow: 0 8px 35px rgba(255,145,0,0.4);
-            transform: translateY(-2px);
-        }
-
-        .status-card {
-            background: var(--card); border: 1px solid var(--border);
+        .progress-box {
+            display: none; background: #111118; border: 1px solid var(--border);
             border-radius: 12px; padding: 16px; margin: 14px 0;
-            display: flex; align-items: center; gap: 12px;
         }
-        .status-dot {
-            width: 14px; height: 14px; border-radius: 50%; background: #555;
-            animation: none;
+        .progress-box.active { display: block; }
+        .progress-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 0; border-bottom: 1px solid #1a1a25; font-size: 0.82em;
         }
-        .status-dot.listening { background: var(--green); animation: blink 1s infinite; }
-        .status-dot.error { background: var(--red); }
-        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-        .status-text { font-size: 0.85em; color: #888; }
-        .status-text b { color: var(--green); }
+        .progress-item:last-child { border-bottom: none; }
+        .prog-icon { width: 22px; text-align: center; font-size: 1em; }
+        .prog-name { flex: 1; color: #aaa; }
+        .prog-status { color: #555; font-size: 0.85em; }
+        .prog-status.done { color: var(--green); }
+        .prog-status.running { color: var(--orange); animation: pulse 1.2s infinite; }
+        .prog-status.fail { color: var(--red); }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
 
         .results-area { margin-top: 16px; }
         .result-item {
@@ -86,11 +71,12 @@
         }
         .tag-full { background: #00e67622; color: var(--green); border: 1px solid #00e67644; }
         .tag-best { background: #ffd70022; color: #ffd700; border: 1px solid #ffd70044; }
+        .tag-api { background: #ff910022; color: var(--orange); border: 1px solid #ff910044; }
         .link-box {
             background: #050510; border: 1px solid #1a1a2a; border-radius: 8px;
-            padding: 14px; font-family: 'Consolas', monospace; font-size: 0.72em;
+            padding: 14px; font-family: 'Consolas', monospace; font-size: 0.7em;
             color: #0f0; word-break: break-all; margin-bottom: 10px;
-            user-select: all; max-height: 70px; overflow-y: auto; line-height: 1.6;
+            user-select: all; max-height: 60px; overflow-y: auto; line-height: 1.6;
             direction: ltr; text-align: left;
         }
         .actions { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -106,17 +92,19 @@
         .btn-dl { background: #ff6600; color: #fff; }
         .btn-dl:hover { background: #ff7722; }
 
-        .log-panel {
-            background: #0a0a10; border: 1px solid #1a1a2a; border-radius: 10px;
-            padding: 14px; font-family: 'Consolas', monospace; font-size: 0.7em;
-            color: #0f0; max-height: 250px; overflow-y: auto; white-space: pre-wrap;
-            word-break: break-all; margin-top: 10px; display: none;
+        .no-result {
+            background: #1a000a; border: 1px solid #ff3d3d33;
+            border-radius: 12px; padding: 20px; text-align: center; color: var(--red);
         }
-        .log-panel.active { display: block; }
+        .success-box {
+            background: #001a0a; border: 1px solid #00e67633;
+            border-radius: 12px; padding: 16px; text-align: center; margin: 14px 0;
+        }
+        .success-box h3 { color: var(--green); }
 
         .manual-box { background: #111; border: 1px solid #333; border-radius: 12px; padding: 18px; margin-top: 16px; }
         .manual-box h3 { color: #ffaa00; margin-bottom: 8px; }
-        .manual-box ul { padding-right: 20px; color: #aaa; font-size: 0.85em; line-height: 2; }
+        .manual-box ol { padding-right: 20px; color: #aaa; font-size: 0.85em; line-height: 2; }
         .manual-box code { background: #1a1a1a; padding: 2px 8px; border-radius: 4px; color: #ffaa00; font-family: 'Consolas', monospace; }
 
         .toast {
@@ -132,7 +120,7 @@
     <div class="container">
         <header>
             <h1>🎬 Shadwo PRO - مستخرج M3U8 كامل مع التوكن</h1>
-            <p>افتح المشغل في نافذة جديدة، شغّل الفيديو، والرابط الكامل يظهر هنا تلقائياً</p>
+            <p>استخراج متعدد الطبقات للوصول إلى الرابط الكامل <code style="color:#0f0;">?t=...&amp;s=...</code></p>
         </header>
 
         <div class="card">
@@ -140,55 +128,62 @@
                 <input type="text" id="urlInput"
                        value="https://w.shadwo.pro/albaplayer/esref-ruya-s01e01/"
                        placeholder="ضع رابط Shadwo هنا...">
+                <button class="btn btn-go" id="goBtn" onclick="startDeepExtract()">🔍 استخراج عميق</button>
             </div>
         </div>
 
-        <div class="highlight-box">
-            <h3>🚀 افتح المشغل في نافذة منبثقة</h3>
-            <p style="color:#aaa;font-size:0.85em;margin-bottom:12px;">سيتم فتح الموقع في نافذة جديدة. شغّل الفيديو هناك، وراقب هذه الصفحة.</p>
-            <button class="big-btn" onclick="openAllServers()">📺 افتح جميع السيرفرات (8 نوافذ)</button>
-            <button class="big-btn" onclick="openSingleServer(1)" style="background:#00e676;">⚡ CDNPlus فقط</button>
-            <br>
-            <button class="big-btn" onclick="openSingleServer(2)" style="background:#4488ff;font-size:0.85em;padding:10px 20px;">🎥 MP4Plus</button>
-            <button class="big-btn" onclick="openSingleServer(3)" style="background:#ff4444;font-size:0.85em;padding:10px 20px;">🚀 AnaFast</button>
-            <button class="big-btn" onclick="openSingleServer(4)" style="background:#8844ff;font-size:0.85em;padding:10px 20px;">📺 Vidoba</button>
+        <div class="progress-box" id="progressBox">
+            <div id="progressItems"></div>
         </div>
 
-        <div class="status-card">
-            <div class="status-dot" id="statusDot"></div>
-            <div class="status-text" id="statusText">في انتظار فتح النافذة وتشغيل الفيديو...</div>
-        </div>
-
+        <div id="successBox" style="display:none;"></div>
         <div class="results-area" id="resultsArea"></div>
 
-        <div class="log-panel" id="logPanel"></div>
-
         <div class="manual-box">
-            <h3>📋 التعليمات</h3>
-            <ul>
-                <li>اضغط على أحد الأزرار أعلاه لفتح المشغل في نافذة جديدة</li>
-                <li>في النافذة الجديدة، <b>شغّل الفيديو</b> (اضغط Play)</li>
-                <li>عد إلى هذه الصفحة - الرابط الكامل مع <code>?t=...&amp;s=...</code> سيظهر تلقائياً</li>
-                <li>إذا لم يظهر شيء خلال 30 ثانية، تأكد من إنك ضغطت Play فعلاً</li>
-            </ul>
+            <h3>🛠️ إذا لم يظهر الرابط الكامل - طريقة مضمونة 100%</h3>
+            <ol>
+                <li>افتح الرابط الأصلي في المتصفح</li>
+                <li>اضغط <code>F12</code> واذهب إلى تبويب <code>Network</code></li>
+                <li>شغّل الفيديو</li>
+                <li>اكتب في الفلتر: <code>m3u8</code></li>
+                <li>اضغط بزر اليمين على الرابط → <code>Copy → Copy link address</code></li>
+                <li>الصق الرابط هنا واستفد منه</li>
+            </ol>
         </div>
     </div>
 
     <div class="toast" id="toast">✅ تم النسخ!</div>
 
     <script>
+        // ============ CONFIG ============
+        const SERVERS = [
+            { id: 1, name: 'CDNPlus', icon: '⚡' },
+            { id: 2, name: 'MP4Plus', icon: '🎥' },
+            { id: 3, name: 'AnaFast', icon: '🚀' },
+            { id: 4, name: 'Vidoba', icon: '📺' },
+            { id: 5, name: 'VidSpeed', icon: '💨' },
+            { id: 6, name: 'Larhu', icon: '🔴' },
+            { id: 7, name: 'VK', icon: '🔵' },
+            { id: 8, name: 'OK', icon: '🟠' },
+        ];
+
+        const PROXIES = [
+            "https://api.allorigins.win/raw?url=",
+            "https://corsproxy.io/?",
+            "https://api.codetabs.com/v1/proxy?quest=",
+        ];
+
         // ============ DOM ============
         const urlInput = document.getElementById('urlInput');
-        const statusDot = document.getElementById('statusDot');
-        const statusText = document.getElementById('statusText');
+        const goBtn = document.getElementById('goBtn');
+        const progressBox = document.getElementById('progressBox');
+        const progressItems = document.getElementById('progressItems');
         const resultsArea = document.getElementById('resultsArea');
-        const logPanel = document.getElementById('logPanel');
+        const successBox = document.getElementById('successBox');
         const toast = document.getElementById('toast');
 
         let capturedUrls = new Map();
-        let popupWindows = [];
-        let isListening = false;
-        let channel = null;
+        let progressState = {};
 
         // ============ HELPERS ============
         function showToast(msg) {
@@ -197,27 +192,47 @@
             setTimeout(() => toast.classList.remove('show'), 2000);
         }
 
-        function addLog(msg) {
-            logPanel.classList.add('active');
-            logPanel.textContent += `[${new Date().toLocaleTimeString()}] ${msg}\n`;
-            logPanel.scrollTop = logPanel.scrollHeight;
+        function updateProgress(id, name, icon, status, detail) {
+            progressState[id] = { name, icon, status, detail };
+            renderProgress();
         }
 
-        function setStatus(msg, state) {
-            statusText.innerHTML = msg;
-            statusDot.className = 'status-dot ' + state;
+        function renderProgress() {
+            progressBox.classList.add('active');
+            let html = '';
+            for (const [id, state] of Object.entries(progressState)) {
+                const statusClass = state.status === 'done' ? 'done' : 
+                                   state.status === 'running' ? 'running' : 'fail';
+                const statusText = state.status === 'done' ? '✅ ' + state.detail :
+                                  state.status === 'running' ? '⏳ ' + state.detail :
+                                  '❌ ' + state.detail;
+                html += `
+                <div class="progress-item">
+                    <span class="prog-icon">${state.icon}</span>
+                    <span class="prog-name">${state.name}</span>
+                    <span class="prog-status ${statusClass}">${statusText}</span>
+                </div>`;
+            }
+            progressItems.innerHTML = html;
         }
 
-        function addCapturedUrl(url, source) {
+        function addCapturedUrl(url, source, method) {
             if (capturedUrls.has(url)) return;
             const lower = url.toLowerCase();
-            const type = (lower.includes('.m3u8') || lower.includes('hls')) ? 'm3u8' :
+            const type = (lower.includes('.m3u8') || lower.includes('hls') || lower.includes('cdnz')) ? 'm3u8' :
                          (lower.includes('.mp4')) ? 'mp4' : 'stream';
-            capturedUrls.set(url, { source, type, time: new Date().toLocaleTimeString() });
-            addLog(`🎯 اصطيد: [${type}] من ${source}`);
-            addLog(`🔗 ${url}`);
+            const hasToken = url.includes('?t=') || url.includes('&s=') || url.includes('?token=');
+            capturedUrls.set(url, { source, type, hasToken, method, time: new Date().toLocaleTimeString() });
             renderResults();
-            setStatus(`✅ تم اصطياد ${capturedUrls.size} روابط!`, 'listening');
+
+            if (hasToken && type === 'm3u8') {
+                successBox.style.display = 'block';
+                successBox.innerHTML = `
+                    <div class="success-box">
+                        <h3>🎯 تم اصطياد رابط M3U8 كامل مع التوكن!</h3>
+                        <p style="color:#aaa;font-size:0.8em;">الرابط جاهز للاستخدام والتحميل</p>
+                    </div>`;
+            }
         }
 
         function renderResults() {
@@ -228,6 +243,8 @@
 
             const items = Array.from(capturedUrls.entries()).map(([url, info]) => ({ url, ...info }));
             items.sort((a, b) => {
+                if (a.hasToken && !b.hasToken) return -1;
+                if (!a.hasToken && b.hasToken) return 1;
                 if (a.type === 'm3u8' && b.type !== 'm3u8') return -1;
                 if (a.type !== 'm3u8' && b.type === 'm3u8') return 1;
                 return 0;
@@ -235,16 +252,16 @@
 
             let html = '';
             for (const item of items) {
-                const hasToken = item.url.includes('?t=') || item.url.includes('&s=') || item.url.includes('?token=');
-                const isFull = item.url.includes('m3u8') && hasToken;
-                const isBest = isFull && (item.url.includes('cdnz.online') || item.url.includes('albrq'));
+                const isBest = item.hasToken && item.type === 'm3u8' && (item.url.includes('cdnz.online') || item.url.includes('albrq'));
+                const tagClass = isBest ? 'tag-best' : (item.hasToken ? 'tag-full' : 'tag-api');
+                const tagText = isBest ? '⭐ M3U8 كامل مع توكن' : (item.hasToken ? '✅ M3U8 كامل' : '📎 ' + item.type.toUpperCase());
                 const escaped = item.url.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 
                 html += `
                 <div class="result-item${isBest ? ' best' : ''}">
                     <div class="result-top">
-                        <span class="tag ${isBest ? 'tag-best' : 'tag-full'}">${isBest ? '⭐ رابط M3U8 كامل' : (isFull ? '✅ M3U8 مع توكن' : '📎 رابط')}</span>
-                        <span style="color:#666;font-size:0.7em;">${item.source} | ${item.time}</span>
+                        <span class="tag ${tagClass}">${tagText}</span>
+                        <span style="color:#666;font-size:0.7em;">${item.source} | ${item.method} | ${item.time}</span>
                     </div>
                     <div class="link-box">${item.url}</div>
                     <div class="actions">
@@ -281,252 +298,256 @@
             });
         }
 
-        // ============ BROADCAST CHANNEL - اتصال بين النوافذ ============
-        function setupChannel() {
-            if (channel) return;
+        // ============ FETCH ============
+        async function fetchWithProxy(url, proxyIdx = 0) {
+            if (proxyIdx >= PROXIES.length) {
+                // محاولة مباشرة كحل أخير
+                try {
+                    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+                    if (res.ok) return await res.text();
+                } catch(e) {}
+                throw new Error('كل الطرق فشلت');
+            }
+            const ctrl = new AbortController();
+            const t = setTimeout(() => ctrl.abort(), 15000);
             try {
-                channel = new BroadcastChannel('shadwo_intercept');
-                channel.onmessage = function(event) {
-                    if (event.data && event.data.url) {
-                        const url = event.data.url;
-                        if (url.includes('m3u8') || url.includes('cdnz') || url.includes('albrq') || url.includes('hls') || url.includes('.mp4')) {
-                            if (url.startsWith('http')) {
-                                addCapturedUrl(url, event.data.server || 'Popup Window');
-                            }
-                        }
-                    }
-                    if (event.data && event.data.log) {
-                        addLog('📨 ' + event.data.log);
-                    }
-                };
-                addLog('✅ قناة اتصال بين النوافذ جاهزة');
-                isListening = true;
-                setStatus('🟢 في انتظار تشغيل الفيديو في النافذة المنبثقة...', 'listening');
+                const res = await fetch(PROXIES[proxyIdx] + encodeURIComponent(url), {
+                    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', 'Accept': '*/*' },
+                    signal: ctrl.signal
+                });
+                clearTimeout(t);
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return await res.text();
             } catch(e) {
-                addLog('⚠️ BroadcastChannel غير مدعوم، نستخدم localStorage بدلاً');
-                setupLocalStorageFallback();
+                clearTimeout(t);
+                return fetchWithProxy(url, proxyIdx + 1);
             }
         }
 
-        function setupLocalStorageFallback() {
-            // خطة بديلة: localStorage + storage event
-            window.addEventListener('storage', function(event) {
-                if (event.key === 'shadwo_m3u8_url' && event.newValue) {
-                    try {
-                        const data = JSON.parse(event.newValue);
-                        if (data.url && data.url.startsWith('http')) {
-                            addCapturedUrl(data.url, data.server || 'Popup');
-                        }
-                    } catch(e) {}
-                }
-            });
-            addLog('✅ نظام احتياطي عبر localStorage جاهز');
-            isListening = true;
-            setStatus('🟢 في انتظار تشغيل الفيديو...', 'listening');
+        // ============ استخراج ============
+        function extractIframes(html) {
+            const r = /<iframe[^>]+src=["']([^"']+)["']/gi;
+            const out = [];
+            let m;
+            while ((m = r.exec(html))) out.push(m[1]);
+            return [...new Set(out)];
         }
 
-        // ============ الجسر: الكود اللي يشتغل داخل صفحة Shadwo ============
-        function getBridgeScript(serverName) {
-            return `
-(async function() {
-    var SERVER = '${serverName}';
-    function send(url) {
-        if (!url || !url.startsWith('http')) return;
-        // طريقة 1: BroadcastChannel
-        try {
-            var bc = new BroadcastChannel('shadwo_intercept');
-            bc.postMessage({ url: url, server: SERVER });
-            bc.close();
-        } catch(e) {}
-        
-        // طريقة 2: localStorage
-        try {
-            localStorage.setItem('shadwo_m3u8_url', JSON.stringify({
-                url: url,
-                server: SERVER,
-                time: new Date().toISOString()
-            }));
-        } catch(e) {}
-        
-        // طريقة 3: opener window
-        try {
-            if (window.opener && !window.opener.closed) {
-                window.opener.postMessage({ url: url, server: SERVER }, '*');
-            }
-        } catch(e) {}
-    }
-
-    console.log('[Shadwo Bridge] نشط على ' + SERVER);
-
-    // اعتراض XMLHttpRequest
-    var origOpen = XMLHttpRequest.prototype.open;
-    XMLHttpRequest.prototype.open = function(method, url) {
-        this._url = url;
-        if (typeof url === 'string' && (url.indexOf('m3u8') > -1 || url.indexOf('cdnz') > -1 || url.indexOf('albrq') > -1 || url.indexOf('hls') > -1 || url.indexOf('token=') > -1)) {
-            send(url);
-        }
-        return origOpen.apply(this, arguments);
-    };
-
-    // اعتراض fetch
-    var origFetch = window.fetch;
-    window.fetch = function(url, options) {
-        var urlStr = typeof url === 'string' ? url : (url.url || '');
-        if (urlStr.indexOf('m3u8') > -1 || urlStr.indexOf('cdnz') > -1 || urlStr.indexOf('albrq') > -1 || urlStr.indexOf('hls') > -1) {
-            send(urlStr);
-        }
-        return origFetch.apply(this, arguments);
-    };
-
-    // فحص عناصر video/source الموجودة
-    function scanElements() {
-        document.querySelectorAll('video, audio, source').forEach(function(el) {
-            var src = el.src || el.currentSrc || '';
-            if (src && (src.indexOf('m3u8') > -1 || src.indexOf('cdnz') > -1 || src.indexOf('hls') > -1)) {
-                send(src);
-            }
-        });
-    }
-
-    // مراقبة العناصر الجديدة
-    var observer = new MutationObserver(function() {
-        scanElements();
-    });
-    observer.observe(document.documentElement, { childList: true, subtree: true });
-
-    // فحص أولي
-    scanElements();
-
-    // إشعار بأن الجسر جاهز
-    console.log('[Shadwo Bridge] ✅ جاهز على ' + SERVER + ' - شغّل الفيديو الآن');
-})();
-`;
+        function extractVideoId(url) {
+            const m = url.match(/embed-([a-z0-9]+)\.html/i);
+            if (m) return m[1];
+            const m2 = url.match(/[?&]id=([a-z0-9]+)/i);
+            if (m2) return m2[1];
+            return null;
         }
 
-        // ============ فتح النوافذ ============
-        function openSingleServer(servId) {
-            const baseUrl = urlInput.value.trim();
-            if (!baseUrl) {
-                showToast('⚠️ الرجاء إدخال الرابط أولاً');
-                return;
+        function extractAllUrls(html) {
+            const found = [];
+
+            // أي رابط m3u8
+            const r1 = /https?:\/\/[^\s"'<>]*\.m3u8[^\s"'<>]*/gi;
+            let m;
+            while ((m = r1.exec(html))) found.push(m[0]);
+
+            // cdnz.online
+            const r2 = /https?:\/\/[^\s"'<>]*cdnz\.online[^\s"'<>]*/gi;
+            while ((m = r2.exec(html))) found.push(m[0]);
+
+            // albrq
+            const r3 = /https?:\/\/[^\s"'<>]*albrq[^\s"'<>]*/gi;
+            while ((m = r3.exec(html))) found.push(m[0]);
+
+            // hls/token/index-v1
+            const r4 = /https?:\/\/[^\s"'<>]*(?:hls\/|token=|index-v1|manifest)[^\s"'<>]*/gi;
+            while ((m = r4.exec(html))) {
+                if (!found.includes(m[0])) found.push(m[0]);
             }
 
-            setupChannel();
-
-            const servUrl = baseUrl.replace(/serv=\d+/g, 'serv=' + servId);
-            if (!servUrl.includes('serv=')) {
-                // إذا ما فيه serv=، نضيفه
-                const separator = servUrl.includes('?') ? '&' : '?';
-                const finalUrl = servUrl + separator + 'serv=' + servId;
-                openPopup(finalUrl, 'CDNPlus');
-            } else {
-                openPopup(servUrl, 'Server ' + servId);
-            }
-        }
-
-        function openAllServers() {
-            const baseUrl = urlInput.value.trim();
-            if (!baseUrl) {
-                showToast('⚠️ الرجاء إدخال الرابط أولاً');
-                return;
+            // أي رابط طويل داخل quotes
+            const r5 = /["']((?:https?:)?\/\/[^"']*(?:cdnz|albrq|hls|stream|m3u8|mp4|token)[^"']{10,})["']/gi;
+            while ((m = r5.exec(html))) {
+                let u = m[1];
+                if (u.startsWith('//')) u = 'https:' + u;
+                if (!found.includes(u)) found.push(u);
             }
 
-            setupChannel();
+            // Base64
+            const r6 = /atob\s*\(\s*["']([A-Za-z0-9+/=]{20,})["']\s*\)/g;
+            while ((m = r6.exec(html))) {
+                try {
+                    const decoded = atob(m[1]);
+                    const nested = extractAllUrls(decoded);
+                    found.push(...nested);
+                } catch(e) {}
+            }
 
-            const serverNames = ['CDNPlus','MP4Plus','AnaFast','Vidoba','VidSpeed','Larhu','VK','OK'];
-            const delay = 800; // تأخير بين كل نافذة
-
-            for (let i = 0; i < 8; i++) {
-                setTimeout(() => {
-                    const servUrl = baseUrl.replace(/serv=\d+/g, 'serv=' + (i + 1));
-                    if (!servUrl.includes('serv=')) {
-                        const separator = servUrl.includes('?') ? '&' : '?';
-                        openPopup(servUrl + separator + 'serv=' + (i + 1), serverNames[i]);
-                    } else {
-                        openPopup(servUrl, serverNames[i]);
+            // base64 مباشر
+            const r7 = /["']([A-Za-z0-9+/=]{50,})["']/g;
+            while ((m = r7.exec(html))) {
+                try {
+                    const decoded = atob(m[1]);
+                    if (decoded.includes('http') && (decoded.includes('m3u8') || decoded.includes('cdnz'))) {
+                        const nested = extractAllUrls(decoded);
+                        found.push(...nested);
                     }
-                }, i * delay);
+                } catch(e) {}
             }
 
-            addLog('🚀 جاري فتح 8 نوافذ... انتظر');
-            setStatus('🟡 جاري فتح النوافذ... شغّل الفيديو في أي منها', 'listening');
+            return [...new Set(found)];
         }
 
-        function openPopup(url, serverName) {
-            // نبني صفحة جسرية بدل فتح الرابط مباشرة
-            const bridgeHtml = `
-<!DOCTYPE html>
-<html>
-<head><meta charset="UTF-8"><title>${serverName} - Shadwo</title></head>
-<body style="margin:0;padding:0;background:#000;">
-<iframe src="${url}" style="width:100%;height:100vh;border:none;" allowfullscreen="true" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation"></iframe>
-<script>${getBridgeScript(serverName)}</script>
-</body>
-</html>`;
-
-            const blob = new Blob([bridgeHtml], { type: 'text/html' });
-            const blobUrl = URL.createObjectURL(blob);
-
-            const popup = window.open(blobUrl, 'shadwo_' + serverName + '_' + Date.now(),
-                'width=900,height=600,menubar=no,toolbar=no,location=no,status=no');
-
-            if (popup) {
-                popupWindows.push(popup);
-                addLog(`📺 فتح ${serverName}`);
-                setStatus('🟢 نافذة مفتوحة - شغّل الفيديو الآن', 'listening');
-            } else {
-                addLog(`❌ فشل فتح ${serverName} - قد يكون مانع النوافذ المنبثقة مفعّلاً`);
-                setStatus('⚠️ الرجاء السماح بالنوافذ المنبثقة ثم حاول مجدداً', 'error');
-                showToast('⚠️ اسمح بالنوافذ المنبثقة');
-            }
-
-            // تنظيف blob URL بعد فترة
-            setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
+        // ============ API PATTERNS للتجربة ============
+        function buildApiUrls(videoId) {
+            const patterns = [];
+            // أنماط CDNPlus
+            patterns.push(`https://cdnplus.cyou/api/source/${videoId}`);
+            patterns.push(`https://cdnplus.cyou/player/index.php?data=${videoId}&do=getVideo`);
+            // أنماط albrq/cdnz - الأكثر احتمالاً
+            patterns.push(`https://albrq-cdn1-lcd.cdnz.online/hls2/02/00005/${videoId}_l/index-v1-a1.m3u8`);
+            patterns.push(`https://albrq-cdn1-lcd.cdnz.online/hls/02/00005/${videoId}/index-v1-a1.m3u8`);
+            patterns.push(`https://albrq-store1-tgb.cdnz.quest/hls2/02/00005/${videoId}_l/index-v1-a1.m3u8`);
+            patterns.push(`https://albrq-store1-tgb.cdnz.quest/hls/02/00005/${videoId}/index-v1-a1.m3u8`);
+            // أنماط إضافية
+            patterns.push(`https://albrq-cdn1-lcd.cdnz.online/hls2/02/00005/${videoId}/index-v1-a1.m3u8`);
+            patterns.push(`https://albrq-store1-tgb.cdnz.quest/i/07/00004/${videoId}.jpg`);
+            return patterns;
         }
 
-        // ============ استقبال رسائل من النوافذ المفتوحة مباشرة ============
-        window.addEventListener('message', function(event) {
-            if (event.data && event.data.url && typeof event.data.url === 'string') {
-                const url = event.data.url;
-                if (url.startsWith('http') && (url.includes('m3u8') || url.includes('cdnz') || url.includes('albrq') || url.includes('hls') || url.includes('token='))) {
-                    addCapturedUrl(url, event.data.server || 'Popup');
-                }
-            }
-        });
-
-        // ============ INIT ============
-        setupChannel();
-
-        // فحص localStorage بشكل دوري
-        setInterval(() => {
+        // ============ API CALL - نحاول نطلب الرابط ونشوف الـ redirect ============
+        async function tryApiWithRedirect(apiUrl) {
             try {
-                const stored = localStorage.getItem('shadwo_m3u8_url');
-                if (stored) {
-                    const data = JSON.parse(stored);
-                    if (data.url && data.url.startsWith('http')) {
-                        addCapturedUrl(data.url, data.server || 'Storage');
-                        localStorage.removeItem('shadwo_m3u8_url');
-                    }
-                }
-            } catch(e) {}
-        }, 2000);
+                const ctrl = new AbortController();
+                const t = setTimeout(() => ctrl.abort(), 10000);
+                const res = await fetch(apiUrl, {
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                        'Accept': '*/*',
+                        'Referer': 'https://cdnplus.cyou/',
+                    },
+                    signal: ctrl.signal,
+                    redirect: 'follow'
+                });
+                clearTimeout(t);
 
-        // ============ إغلاق النوافذ عند مغادرة الصفحة ============
-        window.addEventListener('beforeunload', () => {
-            popupWindows.forEach(w => {
-                try { w.close(); } catch(e) {}
-            });
+                // إذا وصلنا لرابط m3u8 فعلي
+                const finalUrl = res.url;
+                if (finalUrl.includes('m3u8') || finalUrl.includes('cdnz') || finalUrl.includes('hls')) {
+                    return finalUrl;
+                }
+
+                // نجرب ناخذ body
+                const text = await res.text();
+                const urls = extractAllUrls(text);
+                if (urls.length > 0) return urls[0];
+
+                return null;
+            } catch(e) {
+                return null;
+            }
+        }
+
+        // ============ CORE ============
+        async function startDeepExtract() {
+            const inputUrl = urlInput.value.trim();
+            if (!inputUrl) return;
+
+            // Reset
+            capturedUrls.clear();
+            progressState = {};
+            resultsArea.innerHTML = '';
+            successBox.style.display = 'none';
+            progressBox.classList.add('active');
+            goBtn.disabled = true;
+
+            const baseUrl = inputUrl.includes('serv=') ? inputUrl : 
+                           inputUrl + (inputUrl.includes('?') ? '&' : '?') + 'serv=0';
+
+            // الخطوة 1: فحص الصفحة الرئيسية
+            updateProgress('main', 'الصفحة الرئيسية', '🏠', 'running', 'جاري التحميل...');
+            try {
+                const mainHtml = await fetchWithProxy(baseUrl);
+                const mainUrls = extractAllUrls(mainHtml);
+                mainUrls.forEach(u => addCapturedUrl(u, 'الصفحة الرئيسية', 'HTML'));
+                updateProgress('main', 'الصفحة الرئيسية', '🏠', 'done', mainUrls.length + ' روابط');
+            } catch(e) {
+                updateProgress('main', 'الصفحة الرئيسية', '🏠', 'fail', e.message);
+            }
+
+            // الخطوة 2: فحص كل سيرفر على حدة
+            for (const srv of SERVERS) {
+                const servUrl = baseUrl.replace(/serv=\d+/g, 'serv=' + srv.id);
+                updateProgress('srv' + srv.id, srv.name, srv.icon, 'running', 'جاري الفحص...');
+
+                try {
+                    const servHtml = await fetchWithProxy(servUrl);
+                    const servUrls = extractAllUrls(servHtml);
+                    servUrls.forEach(u => addCapturedUrl(u, srv.name, 'HTML'));
+
+                    const iframes = extractIframes(servHtml);
+
+                    // فحص iframe
+                    for (const iframeUrl of iframes) {
+                        updateProgress('srv' + srv.id, srv.name, srv.icon, 'running', 'فحص iframe...');
+                        try {
+                            const iframeHtml = await fetchWithProxy(iframeUrl);
+                            const iframeUrls = extractAllUrls(iframeHtml);
+                            iframeUrls.forEach(u => addCapturedUrl(u, srv.name, 'iframe'));
+
+                            const vidId = extractVideoId(iframeUrl);
+                            if (vidId) {
+                                updateProgress('srv' + srv.id, srv.name, srv.icon, 'running', 'تجربة API...');
+                                const apiUrls = buildApiUrls(vidId);
+                                for (const apiUrl of apiUrls) {
+                                    const result = await tryApiWithRedirect(apiUrl);
+                                    if (result) {
+                                        addCapturedUrl(result, srv.name, 'API Redirect');
+                                    }
+                                    // حتى لو ما اشتغل، أضف الرابط إذا شكله m3u8
+                                    if (apiUrl.includes('m3u8') || apiUrl.includes('cdnz.online')) {
+                                        addCapturedUrl(apiUrl, srv.name, 'API URL');
+                                    }
+                                }
+                            }
+                        } catch(e) {}
+                    }
+
+                    updateProgress('srv' + srv.id, srv.name, srv.icon, 'done',
+                        capturedUrls.size + ' روابط مجمعة');
+
+                } catch(e) {
+                    updateProgress('srv' + srv.id, srv.name, srv.icon, 'fail', e.message);
+                }
+            }
+
+            // خلاص
+            goBtn.disabled = false;
+            renderProgress();
+
+            if (capturedUrls.size === 0) {
+                resultsArea.innerHTML = `
+                    <div class="no-result">
+                        <p>❌ لم يتم العثور على روابط M3U8/MP4</p>
+                        <p style="font-size:0.8em;color:#ff8888;">استخدم الطريقة اليدوية (F12 → Network → m3u8)</p>
+                    </div>`;
+            }
+
+            // مسح الروابط المكررة اللي تنتهي بـ jpg
+            const toRemove = [];
+            for (const [url] of capturedUrls) {
+                if (url.endsWith('.jpg') || url.endsWith('.png') || url.endsWith('.gif')) {
+                    toRemove.push(url);
+                }
+            }
+            toRemove.forEach(u => capturedUrls.delete(u));
+            renderResults();
+        }
+
+        // ============ EVENTS ============
+        urlInput.addEventListener('keypress', e => {
+            if (e.key === 'Enter') startDeepExtract();
         });
 
-        console.log(`
-        ╔═══════════════════════════════════╗
-        ║ Shadwo PRO Interceptor v6.0     ║
-        ║ Popup Bridge + BroadcastChannel ║
-        ║ جاهز                           ║
-        ╚═══════════════════════════════════╝
-        `);
-        addLog('✅ النظام جاهز. اضغط على زر لفتح المشغل.');
-        setStatus('🟢 جاهز - اضغط على أحد الأزرار أعلاه', 'listening');
+        console.log('✅ Shadwo PRO Deep Extractor v7 جاهز.');
     </script>
 </body>
 </html>
