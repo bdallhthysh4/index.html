@@ -7,7 +7,7 @@
     <style>
         :root {
             --bg: #0a0a0f; --card: #111118; --border: #222230;
-            --green: #00e676; --red: #ff3d3d; --orange: #ff9100; --text: #c8c8d0; --gold: #ffd700;
+            --green: #00e676; --orange: #ff9100; --text: #c8c8d0; --gold: #ffd700;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -49,16 +49,10 @@
         .status-text { font-size: 0.82em; color: #888; }
         .status-text b { color: var(--green); }
 
-        .counter-badge {
-            background: var(--green); color: #000; padding: 3px 10px;
-            border-radius: 12px; font-weight: 800; font-size: 0.75em; margin-right: 12px;
-        }
-
         .results-area { margin-top: 12px; }
         .result-item {
             background: var(--card); border: 1px solid var(--border);
             border-radius: 14px; padding: 16px; margin-bottom: 8px;
-            transition: all 0.2s;
         }
         .result-item.best {
             border-color: var(--green); box-shadow: 0 0 25px rgba(0,230,118,0.2);
@@ -71,7 +65,6 @@
         .tag {
             padding: 6px 14px; border-radius: 16px; font-weight: 800; font-size: 0.7em;
         }
-        .tag-alive { background: #00e67622; color: var(--green); border: 1px solid #00e67644; }
         .tag-maybe { background: #ff910022; color: var(--orange); border: 1px solid #ff910044; }
         .tag-best { background: #ffd70022; color: var(--gold); border: 1px solid #ffd70044; }
         .link-box {
@@ -121,7 +114,7 @@
     <div class="container">
         <header>
             <h1>🎯 روابط MP4 المباشرة من Shadwo</h1>
-            <p>يعرض فقط روابط <code style="color:#0f0;">aflm-eco2-akf.cdnz.quest/.../v.mp4</code> الشغالة</p>
+            <p>يعرض فقط الروابط الحقيقية المستخرجة من iframe - بدون روابط مبنية</p>
         </header>
 
         <div class="card">
@@ -222,22 +215,11 @@
             return [...new Set(out)];
         }
 
-        function extractVideoId(url) {
-            let m = url.match(/embed-([a-z0-9]+)\.html/i);
-            if (m) return m[1];
-            m = url.match(/[?&]id=([a-z0-9]+)/i);
-            if (m) return m[1];
-            m = url.match(/mp4plus\.\w+\/([a-z0-9]+)\.html/i);
-            if (m) return m[1];
-            return null;
-        }
-
         // ============ استخراج روابط aflm حصراً ============
         function extractAflmUrls(html) {
             const found = [];
             const patterns = [
-                /https?:\/\/aflm-eco2-akf\.cdnz\.quest\/[a-z0-9]+\/v\.mp4/gi,
-                /https?:\/\/aflm[^\s"'<>]*cdnz\.quest[^\s"'<>]*\.mp4/gi,
+                /https?:\/\/aflm[^\s"'<>]*cdnz\.quest\/[a-z0-9]+\/v\.mp4/gi,
             ];
             for (const p of patterns) {
                 let m;
@@ -249,64 +231,27 @@
             return found;
         }
 
-        async function checkUrl(url) {
-            for (const proxy of PROXIES) {
-                try {
-                    const ctrl = new AbortController();
-                    const t = setTimeout(() => ctrl.abort(), 7000);
-                    const res = await fetch(proxy + encodeURIComponent(url), {
-                        method: 'GET',
-                        headers: { 'User-Agent': 'Mozilla/5.0', 'Range': 'bytes=0-511' },
-                        signal: ctrl.signal
-                    });
-                    clearTimeout(t);
-                    if (res.ok || res.status === 206) return true;
-                    if (res.status === 403) return 'maybe';
-                } catch(e) { continue; }
-            }
-            return false;
-        }
-
-        function addResult(url, source, status) {
-            // ===== تجاهل الروابط الميتة تماماً =====
-            if (status === false) return;
-            
+        function addResult(url, source) {
             if (foundMp4Urls.find(u => u.url === url)) return;
-            foundMp4Urls.push({ url, source, status, time: new Date().toLocaleTimeString() });
+            foundMp4Urls.push({ url, source, time: new Date().toLocaleTimeString() });
             renderResults();
         }
 
         function renderResults() {
-            // ===== تصفية: عرض فقط الشغالة والمحتملة =====
-            const validUrls = foundMp4Urls.filter(u => u.status === true || u.status === 'maybe');
-            
-            if (validUrls.length === 0) {
-                resultsArea.innerHTML = '<div class="empty-state">🔍 لم يتم العثور على روابط صالحة بعد...</div>';
+            if (foundMp4Urls.length === 0) {
+                resultsArea.innerHTML = '<div class="empty-state">🔍 لم يتم العثور على روابط بعد...</div>';
                 return;
             }
 
-            const sorted = [...validUrls].sort((a, b) => {
-                if (a.status === true && b.status !== true) return -1;
-                if (a.status !== true && b.status === true) return 1;
-                return 0;
-            });
+            let html = `<div class="success-banner">✅ تم العثور على ${foundMp4Urls.length} رابط MP4 مباشر من iframe</div>`;
 
-            let html = '';
-            if (validUrls.length > 0) {
-                html += `<div class="success-banner">✅ تم العثور على <span class="counter-badge">${validUrls.length}</span> رابط MP4 مباشر</div>`;
-            }
-
-            for (const item of sorted) {
-                const isAlive = item.status === true;
-                const isBest = isAlive;
+            for (const item of foundMp4Urls) {
                 const escaped = item.url.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 
                 html += `
-                <div class="result-item${isBest ? ' best' : ''}">
+                <div class="result-item best">
                     <div class="result-top">
-                        <span class="tag ${isBest ? 'tag-best' : 'tag-maybe'}">
-                            ${isBest ? '⭐ MP4 مباشر' : '⚠️ رابط مباشر'}
-                        </span>
+                        <span class="tag tag-best">⭐ MP4 مباشر</span>
                         <span style="color:#666;font-size:0.7em;">${item.source} | ${item.time}</span>
                     </div>
                     <div class="link-box">${item.url}</div>
@@ -327,116 +272,86 @@
 
             foundMp4Urls = [];
             log = '';
-            resultsArea.innerHTML = '<div class="empty-state">⏳ جاري البحث عن الروابط المباشرة...</div>';
+            resultsArea.innerHTML = '<div class="empty-state">⏳ جاري البحث في MP4Plus iframe...</div>';
             logPanel.classList.add('active');
             statusBar.classList.add('active');
             goBtn.disabled = true;
-            setStatus('جاري <b>البحث عن روابط MP4</b>...');
+            setStatus('جاري <b>استخراج روابط MP4 من iframe فقط</b>...');
 
-            addLog('🎯 بدء استخراج روابط aflm MP4 المباشرة');
+            addLog('🎯 بدء الاستخراج - MP4Plus iframe فقط');
             addLog(`📄 ${inputUrl}`);
 
             const baseUrl = inputUrl.includes('serv=') ? inputUrl :
                            inputUrl + (inputUrl.includes('?') ? '&' : '?') + 'serv=0';
 
-            const allAflmUrls = [];
+            const mp4plusUrl = baseUrl.replace(/serv=\d+/g, 'serv=2');
             const processedIframes = new Set();
 
-            // التركيز على MP4Plus أولاً
-            const servers = [
-                { id: 2, name: 'MP4Plus ⭐' },
-                { id: 1, name: 'CDNPlus' },
-                { id: 3, name: 'AnaFast' },
-                { id: 4, name: 'Vidoba' },
-            ];
+            // ===== نفحص MP4Plus فقط =====
+            setStatus('جاري فحص <b>MP4Plus</b>...');
+            addLog('🔍 فحص MP4Plus');
 
-            for (const srv of servers) {
-                const servUrl = baseUrl.replace(/serv=\d+/g, 'serv=' + srv.id);
-                setStatus(`جاري فحص <b>${srv.name}</b>...`);
-                addLog(`🔍 ${srv.name}`);
+            try {
+                const servHtml = await fetchPage(mp4plusUrl);
+                const iframes = extractIframes(servHtml);
+                addLog(`📺 وجد ${iframes.length} iframe`);
 
-                try {
-                    const servHtml = await fetchPage(servUrl);
-                    const directAflm = extractAflmUrls(servHtml);
-                    directAflm.forEach(u => allAflmUrls.push({ url: u, source: srv.name }));
-                    if (directAflm.length) addLog(`  ✅ ${directAflm.length} رابط مباشر`);
+                for (const iframeUrl of iframes) {
+                    if (processedIframes.has(iframeUrl)) continue;
+                    processedIframes.add(iframeUrl);
 
-                    const iframes = extractIframes(servHtml);
-                    for (const iframeUrl of iframes) {
-                        if (processedIframes.has(iframeUrl)) continue;
-                        processedIframes.add(iframeUrl);
+                    setStatus('جاري فحص <b>iframe MP4Plus</b>...');
+                    addLog(`🔍 iframe: ${iframeUrl.substring(0, 50)}...`);
 
-                        setStatus(`جاري فحص iframe <b>${srv.name}</b>...`);
-                        try {
-                            const iframeHtml = await fetchPage(iframeUrl);
-                            const aflmUrls = extractAflmUrls(iframeHtml);
-                            aflmUrls.forEach(u => allAflmUrls.push({ url: u, source: srv.name + ' iframe' }));
-                            if (aflmUrls.length) addLog(`  🎯 ${aflmUrls.length} رابط aflm`);
+                    try {
+                        const iframeHtml = await fetchPage(iframeUrl);
 
-                            // iframe متداخل
-                            const nested = extractIframes(iframeHtml);
-                            for (const nUrl of nested) {
-                                if (processedIframes.has(nUrl)) continue;
-                                processedIframes.add(nUrl);
-                                try {
-                                    const nHtml = await fetchPage(nUrl);
-                                    const nAflm = extractAflmUrls(nHtml);
-                                    nAflm.forEach(u => allAflmUrls.push({ url: u, source: srv.name + ' nested' }));
-                                    if (nAflm.length) addLog(`  🎯 ${nAflm.length} رابط aflm متداخل`);
-                                } catch(e) {}
-                            }
+                        // ===== صيد روابط aflm من الـ iframe =====
+                        const aflmUrls = extractAflmUrls(iframeHtml);
+                        
+                        if (aflmUrls.length > 0) {
+                            addLog(`🎯 وجد ${aflmUrls.length} رابط aflm مباشر في iframe`);
+                            aflmUrls.forEach(u => {
+                                addLog(`  ✅ ${u}`);
+                                addResult(u, 'MP4Plus ⭐ iframe');
+                            });
+                        } else {
+                            addLog('  ⚠️ لا توجد روابط aflm في هذا iframe');
+                        }
 
-                            // بناء من video ID إذا ما لقينا
-                            if (aflmUrls.length === 0) {
-                                const vidId = extractVideoId(iframeUrl);
-                                if (vidId) {
-                                    addLog(`  🏗️ بناء من ID: ${vidId}`);
-                                    [
-                                        `https://aflm-eco2-akf.cdnz.quest/${vidId}/v.mp4`,
-                                        `https://aflm-eco2-akf.cdnz.quest/${vidId}_l/v.mp4`,
-                                    ].forEach(u => allAflmUrls.push({ url: u, source: srv.name + ' built' }));
+                        // iframe متداخل
+                        const nestedIframes = extractIframes(iframeHtml);
+                        for (const nestedUrl of nestedIframes) {
+                            if (processedIframes.has(nestedUrl)) continue;
+                            processedIframes.add(nestedUrl);
+
+                            try {
+                                const nestedHtml = await fetchPage(nestedUrl);
+                                const nestedAflm = extractAflmUrls(nestedHtml);
+                                if (nestedAflm.length > 0) {
+                                    addLog(`🎯 وجد ${nestedAflm.length} رابط في iframe متداخل`);
+                                    nestedAflm.forEach(u => {
+                                        addLog(`  ✅ ${u}`);
+                                        addResult(u, 'MP4Plus ⭐ iframe');
+                                    });
                                 }
-                            }
-                        } catch(e) {}
+                            } catch(e) {}
+                        }
+
+                    } catch(e) {
+                        addLog(`  ❌ فشل iframe: ${e.message}`);
                     }
-                } catch(e) { addLog(`  ❌ ${e.message}`); }
+                }
+            } catch(e) {
+                addLog(`❌ فشل MP4Plus: ${e.message}`);
             }
 
-            // إزالة التكرار
-            const uniqueUrls = [];
-            const seen = new Set();
-            for (const item of allAflmUrls) {
-                if (!seen.has(item.url) && item.url.length > 30 && item.url.includes('aflm')) {
-                    seen.add(item.url);
-                    uniqueUrls.push(item);
-                }
-            }
-
-            addLog(`\n📦 ${uniqueUrls.length} رابط aflm فريد`);
-
-            // فحص الروابط
-            if (uniqueUrls.length > 0) {
-                setStatus(`جاري <b>فحص ${uniqueUrls.length} رابط</b>...`);
-                addLog('🔍 فحص الروابط...');
-                
-                let aliveCount = 0;
-                for (const item of uniqueUrls) {
-                    const status = await checkUrl(item.url);
-                    if (status === true) {
-                        aliveCount++;
-                        addLog(`  ✅ ${item.url.substring(0, 55)}...`);
-                    } else if (status === 'maybe') {
-                        aliveCount++;
-                        addLog(`  ⚠️ ${item.url.substring(0, 55)}...`);
-                    } else {
-                        addLog(`  ❌ تجاهل: ${item.url.substring(0, 50)}...`);
-                    }
-                    addResult(item.url, item.source, status);
-                }
-                addLog(`\n✅ ${aliveCount} رابط صالح للاستخدام`);
-            } else {
-                addLog('\n⚠️ لا توجد روابط aflm');
+            // ===== خلاص =====
+            if (foundMp4Urls.length === 0) {
+                addLog('\n⚠️ لم يتم العثور على روابط aflm في iframe MP4Plus');
                 resultsArea.innerHTML = '<div class="empty-state">❌ لم يتم العثور على روابط. جرب فتح الرابط في المتصفح واستخدام F12</div>';
+            } else {
+                addLog(`\n✅ تم استخراج ${foundMp4Urls.length} رابط MP4 مباشر`);
             }
 
             setStatus('<b>✅ انتهى</b>');
@@ -448,7 +363,7 @@
             if (e.key === 'Enter') startExtract();
         });
 
-        console.log('✅ مستخرج روابط aflm MP4 - يعرض الصالحة فقط.');
+        console.log('✅ مستخرج MP4Plus iframe فقط - بدون روابط مبنية.');
     </script>
 </body>
 </html>
