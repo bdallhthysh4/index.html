@@ -1,237 +1,131 @@
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مستخرج روابط Shadwo PRO - بنظام متعدد البروكسيهات</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1"/>
+    <title>Shadwo PRO - مستخرج روابط M3U8 و MP4 المباشرة</title>
     <style>
         :root {
-            --bg: #0b0b0f;
-            --card: #13131a;
-            --border: #252530;
+            --bg: #0a0a0f;
+            --card: #111118;
+            --border: #222230;
             --green: #00e676;
             --red: #ff3d3d;
+            --orange: #ff9100;
             --text: #c8c8d0;
-            --accent: #1a1a28;
         }
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: var(--bg);
             font-family: 'Segoe UI', system-ui, sans-serif;
             color: var(--text);
             min-height: 100vh;
             padding: 20px;
-            background-image: 
-                radial-gradient(ellipse at 20% 50%, #00e67608 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 50%, #00e67605 0%, transparent 50%);
+            background-image: radial-gradient(ellipse at 30% 50%, #00e67606 0%, transparent 60%);
         }
-        .container {
-            max-width: 960px;
-            margin: 0 auto;
-        }
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        header h1 {
-            font-size: 2em;
-            color: var(--green);
-            text-shadow: 0 0 40px rgba(0,230,118,0.2);
-            margin-bottom: 8px;
-        }
-        header p {
-            color: #666;
-            font-size: 0.9em;
-        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 28px; }
+        header h1 { font-size: 2em; color: var(--green); text-shadow: 0 0 30px rgba(0,230,118,0.15); }
+        header p { color: #666; font-size: 0.9em; margin-top: 4px; }
+
         .input-card {
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: 16px;
-            padding: 24px;
+            padding: 20px 24px;
             margin-bottom: 20px;
         }
-        .input-row {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+        .input-row { display: flex; gap: 10px; flex-wrap: wrap; }
         .input-row input {
-            flex: 1;
-            min-width: 220px;
+            flex: 1; min-width: 240px;
             padding: 14px 16px;
-            background: #0d0d14;
+            background: #0b0b14;
             border: 2px solid #2a2a38;
             border-radius: 10px;
             color: #fff;
-            font-size: 0.95em;
-            font-family: 'Consolas', 'Courier New', monospace;
-            transition: all 0.2s;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9em;
+            transition: 0.2s;
         }
-        .input-row input:focus {
-            outline: none;
-            border-color: var(--green);
-            box-shadow: 0 0 20px rgba(0,230,118,0.1);
-        }
+        .input-row input:focus { outline: none; border-color: var(--green); box-shadow: 0 0 18px rgba(0,230,118,0.1); }
+
         .btn {
-            padding: 14px 26px;
-            border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 0.95em;
-            cursor: pointer;
-            transition: all 0.25s;
-            white-space: nowrap;
+            padding: 14px 26px; border: none; border-radius: 10px;
+            font-weight: 700; font-size: 0.95em; cursor: pointer;
+            transition: all 0.25s; white-space: nowrap;
         }
-        .btn-extract {
-            background: var(--green);
-            color: #000;
-        }
-        .btn-extract:hover {
-            background: #00ff84;
-            box-shadow: 0 6px 30px rgba(0,230,118,0.35);
-            transform: translateY(-2px);
-        }
-        .btn-extract:disabled {
-            background: #2a2a38;
-            color: #555;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        .proxy-status {
-            display: flex;
-            gap: 15px;
-            margin-top: 18px;
-            flex-wrap: wrap;
-        }
-        .proxy-badge {
-            padding: 8px 14px;
-            border-radius: 20px;
-            font-size: 0.78em;
-            font-weight: 600;
-            border: 1px solid;
-        }
-        .proxy-on {
-            background: #001a0a;
-            color: var(--green);
-            border-color: #00e67633;
-        }
-        .proxy-off {
-            background: #1a000a;
-            color: var(--red);
-            border-color: #ff3d3d33;
-        }
+        .btn-extract { background: var(--green); color: #000; }
+        .btn-extract:hover { background: #00ff84; box-shadow: 0 6px 28px rgba(0,230,118,0.3); transform: translateY(-1px); }
+        .btn-extract:disabled { background: #2a2a38; color: #555; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .quick-scan-hint { margin-top: 14px; font-size: 0.78em; color: #555; }
+        .quick-scan-hint span { color: var(--orange); }
+
         .loader {
-            display: none;
-            align-items: center;
-            gap: 12px;
-            padding: 20px;
-            margin: 20px 0;
-            background: var(--accent);
-            border-radius: 12px;
-            border: 1px solid var(--border);
+            display: none; align-items: center; gap: 12px;
+            padding: 18px; margin: 16px 0;
+            background: #111118; border-radius: 12px; border: 1px solid var(--border);
         }
-        .loader.active {
-            display: flex;
-        }
+        .loader.active { display: flex; }
         .spinner {
-            width: 28px;
-            height: 28px;
-            border: 3px solid #2a2a38;
-            border-top: 3px solid var(--green);
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
+            width: 26px; height: 26px;
+            border: 3px solid #2a2a38; border-top: 3px solid var(--green);
+            border-radius: 50%; animation: spin 0.7s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .step-indicator {
-            color: #888;
-            font-size: 0.85em;
-        }
-        .step-indicator span {
-            color: var(--green);
-            font-weight: bold;
-        }
-        .results-area {
-            margin-top: 20px;
-        }
-        .result-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 18px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-            transition: all 0.2s;
-        }
-        .result-card:hover {
-            border-color: #00e67644;
-            background: #181820;
-        }
-        .result-card.highlight {
-            border-color: var(--green);
-            box-shadow: 0 0 20px rgba(0,230,118,0.08);
-            background: #0d1a12;
-        }
-        .server-label {
-            font-weight: 700;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .server-badge {
-            padding: 4px 12px;
-            border-radius: 14px;
-            font-size: 0.72em;
-            font-weight: 800;
-            text-transform: uppercase;
-        }
-        .badge-direct {
-            background: #00e67622;
-            color: var(--green);
-            border: 1px solid #00e67644;
-        }
-        .badge-iframe {
-            background: #ffaa0022;
-            color: #ffaa00;
-            border: 1px solid #ffaa0044;
-        }
-        .link-text {
-            font-family: 'Consolas', monospace;
-            font-size: 0.8em;
-            color: #aaa;
-            word-break: break-all;
-            max-width: 400px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            background: #0a0a10;
-            padding: 8px 12px;
-            border-radius: 6px;
-            border: 1px solid #222;
-        }
-        .action-btns {
-            display: flex;
+        .step-text { color: #888; font-size: 0.85em; }
+        .step-text b { color: var(--green); }
+
+        .server-scan-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
             gap: 8px;
-            flex-wrap: wrap;
+            margin: 12px 0;
         }
-        .btn-sm {
-            padding: 9px 16px;
-            border: none;
+        .server-scan-item {
+            padding: 10px 6px;
+            background: #0d0d16;
+            border: 1px solid #1f1f2e;
             border-radius: 8px;
+            text-align: center;
+            font-size: 0.7em;
             font-weight: 600;
-            font-size: 0.8em;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
+            color: #555;
+            transition: all 0.3s;
+        }
+        .server-scan-item.scanning { border-color: var(--orange); color: var(--orange); animation: pulse 1s infinite; }
+        .server-scan-item.found { border-color: var(--green); color: var(--green); background: #001a0a; }
+        .server-scan-item.failed { border-color: var(--red); color: var(--red); }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        .results-area { margin-top: 16px; }
+        .result-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 14px; padding: 16px 18px; margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 12px; transition: all 0.2s;
+        }
+        .result-card:hover { border-color: #00e67644; }
+        .result-card.best-match { border-color: var(--green); box-shadow: 0 0 22px rgba(0,230,118,0.1); background: #0a1a11; }
+        .server-info { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .server-name-tag {
+            padding: 5px 12px; border-radius: 14px;
+            font-weight: 800; font-size: 0.72em; text-transform: uppercase;
+        }
+        .tag-m3u8 { background: #00e67622; color: var(--green); border: 1px solid #00e67644; }
+        .tag-mp4 { background: #ff910022; color: var(--orange); border: 1px solid #ff910044; }
+        .tag-iframe { background: #4488ff22; color: #4488ff; border: 1px solid #4488ff44; }
+        .link-preview {
+            font-family: 'Consolas', monospace; font-size: 0.78em;
+            color: #aaa; background: #0a0a12; padding: 8px 12px;
+            border-radius: 6px; border: 1px solid #222;
+            max-width: 450px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .action-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn-sm {
+            padding: 9px 15px; border: none; border-radius: 8px;
+            font-weight: 600; font-size: 0.78em; cursor: pointer;
+            transition: all 0.2s; text-decoration: none;
         }
         .btn-copy { background: #2a2a38; color: #ccc; }
         .btn-copy:hover { background: #3a3a48; }
@@ -239,362 +133,321 @@
         .btn-open:hover { background: #00ff84; }
         .btn-dl { background: #ff6600; color: #fff; }
         .btn-dl:hover { background: #ff7722; }
-        .error-box {
-            background: #1a0008;
-            border: 1px solid #ff3d3d33;
-            border-radius: 12px;
-            padding: 20px;
-            color: var(--red);
-            text-align: center;
-            margin: 20px 0;
-        }
-        .error-box summary {
-            cursor: pointer;
-            color: #ff8888;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-        .raw-output {
-            width: 100%;
-            min-height: 120px;
-            background: #050510;
-            border: 1px solid #222;
-            border-radius: 8px;
-            color: #0f0;
-            font-family: 'Consolas', monospace;
-            font-size: 0.75em;
-            padding: 14px;
-            resize: vertical;
-            margin-top: 10px;
-            white-space: pre-wrap;
-            word-break: break-all;
-        }
-        .toggle-section {
-            margin-top: 12px;
-        }
-        .toggle-section summary {
-            cursor: pointer;
-            color: #666;
-            font-size: 0.8em;
-            padding: 6px 0;
+
+        .no-results-box {
+            background: #1a000a; border: 1px solid #ff3d3d33;
+            border-radius: 12px; padding: 20px; text-align: center; color: var(--red);
         }
         .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #00e676;
-            color: #000;
-            padding: 12px 24px;
-            border-radius: 30px;
-            font-weight: 700;
-            font-size: 0.9em;
-            z-index: 999;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: #00e676; color: #000; padding: 12px 24px;
+            border-radius: 30px; font-weight: 700; font-size: 0.9em;
+            z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none;
         }
-        .toast.show {
-            opacity: 1;
+        .toast.show { opacity: 1; }
+        details.raw-section { margin-top: 12px; }
+        details.raw-section summary { cursor: pointer; color: #555; font-size: 0.78em; }
+        textarea.raw-box {
+            width: 100%; min-height: 100px; background: #050510;
+            border: 1px solid #222; border-radius: 8px; color: #0f0;
+            font-family: 'Consolas', monospace; font-size: 0.72em; padding: 12px;
+            resize: vertical; white-space: pre-wrap; word-break: break-all;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🎬 Shadwo PRO Link Extractor</h1>
-            <p>استخراج روابط M3U8 / MP4 المباشرة من أي لاعب Shadwo</p>
+            <h1>🎬 Shadwo PRO - مستخرج روابط M3U8 &amp; MP4</h1>
+            <p>يفحص جميع السيرفرات تلقائياً ويستخرج الروابط المباشرة من أعماق الصفحات</p>
         </header>
 
         <div class="input-card">
             <div class="input-row">
-                <input type="text" id="urlInput" 
+                <input type="text" id="urlInput"
                        value="https://w.shadwo.pro/albaplayer/doktor-baska-hayatta-2026-s01e06/?serv=0"
-                       placeholder="ضع رابط اللاعب هنا...">
-                <button class="btn btn-extract" id="extractBtn" onclick="extractAll()">🔍 استخراج الروابط</button>
+                       placeholder="ضع رابط لاعب Shadwo هنا...">
+                <button class="btn btn-extract" id="extractBtn" onclick="deepExtract()">🔍 استخراج جميع الروابط</button>
             </div>
-            <div class="proxy-status" id="proxyStatus">
-                <span class="proxy-badge proxy-on">🟢 CORS Proxy 1</span>
-                <span class="proxy-badge proxy-on">🟢 CORS Proxy 2</span>
-                <span class="proxy-badge proxy-off" id="proxy3Badge">🔴 Proxy 3 (احتياط)</span>
-                <span class="proxy-badge proxy-on">🟢 iFrame Deep Scan</span>
+            <div class="quick-scan-hint">
+                ⚡ سيقوم الموقع بفحص <span>8 سيرفرات</span> (CDNPlus, MP4Plus, AnaFast, Vidoba, VidSpeed, Larhu, VK, OK) واختراق الإطارات للحصول على روابط <span>m3u8 / mp4</span> المباشرة.
             </div>
+            <div class="server-scan-grid" id="serverGrid"></div>
         </div>
 
         <div class="loader" id="loader">
             <div class="spinner"></div>
-            <div class="step-indicator" id="stepIndicator">جاري <span>الاتصال بالصفحة الرئيسية</span>...</div>
+            <div class="step-text" id="stepText">جاهز...</div>
         </div>
 
         <div class="results-area" id="resultsArea"></div>
 
-        <details class="toggle-section" id="rawSection" style="display:none;">
+        <details class="raw-section" id="rawSection" style="display:none;">
             <summary>📄 عرض البيانات الخام المستخرجة</summary>
-            <textarea class="raw-output" id="rawData" readonly></textarea>
+            <textarea class="raw-box" id="rawData" readonly></textarea>
         </details>
     </div>
 
     <div class="toast" id="toast">✅ تم النسخ!</div>
 
     <script>
-        // ============ PROXY LIST - متعدد الطبقات ============
-        const CORS_PROXIES = [
+        // ============ PROXIES ============
+        const PROXIES = [
             "https://api.allorigins.win/raw?url=",
             "https://corsproxy.io/?",
             "https://api.codetabs.com/v1/proxy?quest=",
-            "https://cors-anywhere.herokuapp.com/",
         ];
 
-        // ============ DOM REFS ============
+        // ============ السيرفرات المعروفة مع أنماط iframe ============
+        const SERVER_LIST = [
+            { id: 1, name: 'CDNPlus', icon: '⚡' },
+            { id: 2, name: 'MP4Plus', icon: '🎥' },
+            { id: 3, name: 'AnaFast', icon: '🚀' },
+            { id: 4, name: 'Vidoba', icon: '📺' },
+            { id: 5, name: 'VidSpeed', icon: '💨' },
+            { id: 6, name: 'Larhu', icon: '🔴' },
+            { id: 7, name: 'VK', icon: '🔵' },
+            { id: 8, name: 'OK', icon: '🟠' },
+        ];
+
+        // ============ DOM ============
         const urlInput = document.getElementById('urlInput');
         const extractBtn = document.getElementById('extractBtn');
         const loader = document.getElementById('loader');
-        const stepIndicator = document.getElementById('stepIndicator');
+        const stepText = document.getElementById('stepText');
+        const serverGrid = document.getElementById('serverGrid');
         const resultsArea = document.getElementById('resultsArea');
         const rawSection = document.getElementById('rawSection');
         const rawData = document.getElementById('rawData');
         const toast = document.getElementById('toast');
-        const proxy3Badge = document.getElementById('proxy3Badge');
 
-        // ============ HELPER FUNCTIONS ============
         function showToast(msg) {
             toast.textContent = msg;
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 1800);
         }
 
-        function updateStep(text) {
-            stepIndicator.innerHTML = text;
+        function updateStep(text) { stepText.innerHTML = text; }
+
+        // بناء شبكة السيرفرات
+        function buildServerGrid() {
+            serverGrid.innerHTML = SERVER_LIST.map(s =>
+                `<div class="server-scan-item" id="server-${s.id}">${s.icon} ${s.name}</div>`
+            ).join('');
+        }
+        buildServerGrid();
+
+        function setServerStatus(id, status) {
+            const el = document.getElementById('server-' + id);
+            if (!el) return;
+            el.className = 'server-scan-item ' + status;
         }
 
-        async function fetchWithProxy(url, proxyIndex = 0) {
-            if (proxyIndex >= CORS_PROXIES.length) {
-                throw new Error('جميع البروكسيهات فشلت');
-            }
-            const proxy = CORS_PROXIES[proxyIndex];
-            const fullUrl = proxy + encodeURIComponent(url);
-            
-            console.log(`[Proxy ${proxyIndex}] محاولة: ${proxy.split('/')[2]}`);
-            
+        // ============ PROXY FETCH مع إعادة المحاولة ============
+        async function fetchViaProxy(url, proxyIdx = 0) {
+            if (proxyIdx >= PROXIES.length) throw new Error('كل البروكسيهات فشلت');
+            const fullUrl = PROXIES[proxyIdx] + encodeURIComponent(url);
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 20000);
             try {
-                const controller = new AbortController();
-                const timeout = setTimeout(() => controller.abort(), 25000);
-                
-                const response = await fetch(fullUrl, {
-                    method: 'GET',
+                const res = await fetch(fullUrl, {
                     headers: {
                         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
                         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                        'Accept-Language': 'en-US,en;q=0.5',
                     },
                     signal: controller.signal
                 });
-                
                 clearTimeout(timeout);
-                
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                
-                const text = await response.text();
-                proxy3Badge.className = 'proxy-badge proxy-on';
-                proxy3Badge.textContent = `🟢 Proxy ${proxyIndex + 1} (نشط)`;
-                return text;
-                
-            } catch (err) {
-                console.warn(`[Proxy ${proxyIndex}] فشل:`, err.message);
-                proxy3Badge.className = 'proxy-badge proxy-off';
-                proxy3Badge.textContent = `🔴 Proxy ${proxyIndex + 1} (فشل)`;
-                // جرب البروكسي التالي
-                return fetchWithProxy(url, proxyIndex + 1);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return await res.text();
+            } catch (e) {
+                clearTimeout(timeout);
+                console.warn(`[Proxy ${proxyIdx}] فشل:`, e.message);
+                return fetchViaProxy(url, proxyIdx + 1);
             }
         }
 
-        function extractIframes(html) {
-            const iframes = [];
+        // ============ استخراج iframe SRC ============
+        function extractIframeSrc(html) {
             const regex = /<iframe[^>]+src=["']([^"']+)["']/gi;
-            let match;
-            while ((match = regex.exec(html)) !== null) {
-                iframes.push(match[1]);
-            }
-            return [...new Set(iframes)];
+            const results = [];
+            let m;
+            while ((m = regex.exec(html)) !== null) results.push(m[1]);
+            return [...new Set(results)];
         }
 
-        function extractAllUrls(html) {
-            const urls = [];
-            // نمط 1: روابط مباشرة
-            const regex1 = /https?:\/\/[^\s"'<>\[\]{}|\\^`]+/gi;
-            let match;
-            while ((match = regex1.exec(html)) !== null) {
-                let url = match[0].replace(/["'<>,\\]$/, '');
-                urls.push(url);
-            }
-            
-            // نمط 2: روابط في src/href
-            const regex2 = /(?:src|href|data-url|data-src|url)\s*[:=]\s*["']([^"']+)["']/gi;
-            while ((match = regex2.exec(html)) !== null) {
-                let url = match[1];
-                if (url.startsWith('http')) urls.push(url);
-                else if (url.startsWith('//')) urls.push('https:' + url);
-            }
+        // ============ استخراج جميع الروابط (نمط M3U8 / MP4 / cdnz) ============
+        function extractMediaUrls(html) {
+            const found = [];
 
-            // نمط 3: روابط m3u8 و mp4 مدفونة
-            const regex3 = /["']((?:https?:)?\/\/[^"']*\.(?:m3u8|mp4|ts|mkv|webm)(?:\?[^"']*)?)["']/gi;
-            while ((match = regex3.exec(html)) !== null) {
-                let url = match[1];
+            // نمط M3U8 و MP4 مباشر
+            const pattern1 = /["']((?:https?:)?\/\/[^"'\s]*\.(?:m3u8|mp4)(?:\?[^"'\s]*)?)["']/gi;
+            let m;
+            while ((m = pattern1.exec(html)) !== null) {
+                let url = m[1];
                 if (url.startsWith('//')) url = 'https:' + url;
-                urls.push(url);
+                found.push(url);
             }
 
-            // نمط 4: روابط cdnz.online و albrq
-            const regex4 = /["']((?:https?:)?\/\/[^"']*(?:cdnz\.online|albrq|cdn\-|stream|hls|vod)[^"']*)["']/gi;
-            while ((match = regex4.exec(html)) !== null) {
-                let url = match[1];
+            // نمط cdnz.online / albrq
+            const pattern2 = /["']((?:https?:)?\/\/[^"'\s]*(?:cdnz\.online|albrq|cdn\-|hls|stream|vod|token=)[^"'\s]*)["']/gi;
+            while ((m = pattern2.exec(html)) !== null) {
+                let url = m[1];
                 if (url.startsWith('//')) url = 'https:' + url;
-                urls.push(url);
-            }
-
-            return [...new Set(urls.filter(u => u.length > 10))];
-        }
-
-        function classifyUrls(urls) {
-            const video = [];
-            const streaming = [];
-            const iframe = [];
-            const other = [];
-
-            const videoExts = ['.mp4', '.mkv', '.webm', '.flv', '.avi', '.mov', '.wmv', '.m4v'];
-            const streamingExts = ['.m3u8', '.ts', '.mpd', '.smil'];
-            const streamingKeywords = ['hls', 'dash', 'manifest', 'token=', 'cdnz.online', 'albrq', 'videosrv', 'stream'];
-
-            for (let url of urls) {
-                const lower = url.toLowerCase();
-                
-                if (streamingExts.some(ext => lower.includes(ext)) || 
-                    (streamingKeywords.some(kw => lower.includes(kw)) && lower.includes('http'))) {
-                    streaming.push(url);
-                } else if (videoExts.some(ext => lower.includes(ext))) {
-                    video.push(url);
-                } else if (lower.includes('iframe') || lower.includes('player') || lower.includes('embed')) {
-                    iframe.push(url);
-                } else {
-                    other.push(url);
+                if (!found.includes(url) && (url.includes('m3u8') || url.includes('mp4') || url.includes('cdnz') || url.includes('albrq') || url.includes('token='))) {
+                    found.push(url);
                 }
             }
-            return { video, streaming, iframe, other };
-        }
 
-        function getServerName(url) {
-            try {
-                const hostname = new URL(url).hostname;
-                if (hostname.includes('cdnz.online')) return 'CDNZ (رئيسي)';
-                if (hostname.includes('albrq')) return 'AlBrq CDN';
-                if (hostname.includes('vidoba')) return 'Vidoba';
-                if (hostname.includes('vidspeed')) return 'VidSpeed';
-                if (hostname.includes('anafast')) return 'AnaFast';
-                if (hostname.includes('mp4plus')) return 'MP4Plus';
-                if (hostname.includes('cdnplus')) return 'CDNPlus';
-                if (hostname.includes('vk.com') || hostname.includes('userapi')) return 'VK';
-                if (hostname.includes('ok.ru')) return 'OK.ru';
-                if (hostname.includes('larhu')) return 'Larhu';
-                if (hostname.includes('google')) return 'Google';
-                return hostname.replace('www.', '').split('.')[0];
-            } catch {
-                return 'خادم';
+            // أي رابط يحتوي token= أو hls
+            const pattern3 = /https?:\/\/[^\s"'<>]+(?:token=|hls|manifest|index-v1)[^\s"'<>]*/gi;
+            while ((m = pattern3.exec(html)) !== null) {
+                let url = m[0];
+                if (!found.includes(url)) found.push(url);
             }
+
+            return [...new Set(found)];
         }
 
-        function getServerIcon(url) {
+        function classifyUrl(url) {
             const lower = url.toLowerCase();
-            if (lower.includes('m3u8')) return '📡';
-            if (lower.includes('mp4')) return '🎬';
-            if (lower.includes('cdnz') || lower.includes('albrq')) return '⚡';
-            if (lower.includes('stream')) return '🌊';
-            if (lower.includes('vk.')) return '🔵';
-            if (lower.includes('ok.')) return '🟠';
-            return '🔗';
+            if (lower.includes('.m3u8') || lower.includes('hls') || lower.includes('manifest')) return 'm3u8';
+            if (lower.includes('.mp4') || lower.includes('.mkv') || lower.includes('.webm')) return 'mp4';
+            return 'other';
         }
 
-        function renderResults(allUrls, iframeUrls) {
-            const { video, streaming, iframe, other } = classifyUrls(allUrls);
-            
-            let html = '';
-            let count = 0;
+        // ============ CORE: فحص سيرفر واحد ============
+        async function scanServer(baseUrl, servId) {
+            setServerStatus(servId, 'scanning');
+            const servUrl = baseUrl.replace(/serv=\d+/, 'serv=' + servId);
+            try {
+                // الخطوة 1: جلب صفحة السيرفر
+                const pageHtml = await fetchViaProxy(servUrl);
 
-            // أولاً: روابط البث (M3U8) - الأهم
-            if (streaming.length > 0) {
-                html += '<h3 style="color:#00e676;margin:20px 0 10px;">📡 روابط البث المباشر (M3U8 / HLS)</h3>';
-                for (let link of streaming) {
-                    count++;
-                    html += createResultCard(link, 'direct', true);
+                // استخراج iframe
+                const iframes = extractIframeSrc(pageHtml);
+                let allMedia = extractMediaUrls(pageHtml);
+
+                // الخطوة 2: إذا وجد iframe، ادخل داخله
+                if (iframes.length > 0) {
+                    const iframeUrl = iframes[0];
+                    try {
+                        const iframeHtml = await fetchViaProxy(iframeUrl);
+                        const nestedMedia = extractMediaUrls(iframeHtml);
+                        allMedia = [...allMedia, ...nestedMedia];
+
+                        // الخطوة 3: iframe متداخل (مستوى ثاني)
+                        const nestedIframes = extractIframeSrc(iframeHtml);
+                        if (nestedIframes.length > 0) {
+                            try {
+                                const deepHtml = await fetchViaProxy(nestedIframes[0]);
+                                const deepMedia = extractMediaUrls(deepHtml);
+                                allMedia = [...allMedia, ...deepMedia];
+                            } catch(e) { /* صامت */ }
+                        }
+                    } catch(e) { /* نكمل */ }
                 }
+
+                allMedia = [...new Set(allMedia)];
+
+                if (allMedia.length > 0) {
+                    setServerStatus(servId, 'found');
+                    return { serverId: servId, serverName: SERVER_LIST.find(s=>s.id===servId)?.name || '?', urls: allMedia };
+                } else {
+                    setServerStatus(servId, 'failed');
+                    return null;
+                }
+            } catch (e) {
+                setServerStatus(servId, 'failed');
+                return null;
+            }
+        }
+
+        // ============ التشغيل الكامل ============
+        async function deepExtract() {
+            const inputUrl = urlInput.value.trim();
+            if (!inputUrl.includes('shadwo.pro')) {
+                resultsArea.innerHTML = '<div class="no-results-box">⚠️ الرجاء إدخال رابط صحيح من shadwo.pro</div>';
+                return;
             }
 
-            // ثانياً: روابط الفيديو المباشرة
-            if (video.length > 0) {
-                html += '<h3 style="color:#ffaa00;margin:20px 0 10px;">🎬 روابط فيديو مباشرة (MP4)</h3>';
-                for (let link of video) {
-                    count++;
-                    html += createResultCard(link, 'direct', false);
-                }
-            }
+            // تحضير الرابط الأساسي
+            let baseUrl = inputUrl;
+            if (!baseUrl.includes('serv=')) baseUrl += (baseUrl.includes('?') ? '&' : '?') + 'serv=0';
 
-            // ثالثاً: الإطارات المضمنة
-            if (iframeUrls.length > 0) {
-                html += '<h3 style="color:#4488ff;margin:20px 0 10px;">🖼️ إطارات مضمنة (iframes)</h3>';
-                for (let link of iframeUrls) {
-                    count++;
-                    html += createResultCard(link, 'iframe', false);
-                }
-            }
+            // إعادة تعيين
+            resultsArea.innerHTML = '';
+            rawSection.style.display = 'none';
+            loader.classList.add('active');
+            extractBtn.disabled = true;
+            buildServerGrid();
+            let allRawHtml = '';
 
-            // رابعاً: روابط أخرى
-            if (other.length > 0 && other.length < 30) {
-                html += '<h3 style="color:#888;margin:20px 0 10px;">📎 روابط أخرى مستخرجة</h3>';
-                for (let link of other.slice(0, 20)) {
-                    count++;
-                    html += createResultCard(link, 'other', false);
-                }
-            }
+            updateStep('جاري <b>فحص جميع السيرفرات الثمانية</b>...');
 
-            if (count === 0) {
-                html = `
-                    <div class="error-box">
-                        <p>❌ لم يتم العثور على روابط فيديو.</p>
-                        <p style="font-size:0.8em;color:#888;">الموقع قد يكون محمياً بـ Cloudflare أو يتطلب JavaScript. جرب الروابط اليدوية أدناه.</p>
+            // تشغيل الفحص على جميع السيرفرات بالتوازي (لتسريع)
+            const promises = SERVER_LIST.map(s => scanServer(baseUrl, s.id));
+            const results = await Promise.all(promises);
+
+            // تجميع النتائج
+            const validResults = results.filter(r => r !== null);
+            allRawHtml = 'تم الفحص الكامل لـ 8 سيرفرات.\n';
+
+            updateStep('جاري <b>تنظيم النتائج</b>...');
+
+            if (validResults.length === 0) {
+                resultsArea.innerHTML = `
+                    <div class="no-results-box">
+                        <p>❌ لم يتم العثور على أي روابط M3U8 أو MP4 في جميع السيرفرات.</p>
+                        <p style="font-size:0.8em;color:#ff8888;">قد تكون الروابط محمية بـ Cloudflare أو تحتاج مفاتيح فك تشفير خاصة.</p>
                     </div>`;
+            } else {
+                let html = '';
+                let totalLinks = 0;
+
+                for (const result of validResults) {
+                    const serverIcon = SERVER_LIST.find(s => s.id === result.serverId)?.icon || '🔗';
+                    html += `<h3 style="color:#00e676;margin:18px 0 8px;">${serverIcon} ${result.serverName} — ${result.urls.length} روابط</h3>`;
+
+                    for (const url of result.urls) {
+                        totalLinks++;
+                        const urlType = classifyUrl(url);
+                        const tagClass = urlType === 'm3u8' ? 'tag-m3u8' : urlType === 'mp4' ? 'tag-mp4' : 'tag-iframe';
+                        const tagText = urlType === 'm3u8' ? 'M3U8 مباشر' : urlType === 'mp4' ? 'MP4 مباشر' : 'رابط';
+                        const isBest = urlType === 'm3u8' && url.includes('cdnz.online');
+                        const shortLink = url.length > 70 ? url.substring(0, 67) + '...' : url;
+                        const escapedUrl = url.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+
+                        html += `
+                            <div class="result-card${isBest ? ' best-match' : ''}">
+                                <div>
+                                    <div class="server-info">
+                                        <span class="server-name-tag ${tagClass}">${tagText}</span>
+                                        ${isBest ? '<span style="color:#00e676;font-size:0.7em;">⭐ أفضل نتيجة</span>' : ''}
+                                    </div>
+                                    <div class="link-preview" title="${url}">${shortLink}</div>
+                                </div>
+                                <div class="action-btns">
+                                    <button class="btn-sm btn-copy" onclick="copyLink('${escapedUrl}', this)">📋 نسخ</button>
+                                    <a class="btn-sm btn-open" href="${url}" target="_blank">▶️ فتح</a>
+                                    <a class="btn-sm btn-dl" href="${url}" download>⬇️ تحميل</a>
+                                </div>
+                            </div>`;
+                    }
+                }
+
+                html += `<p style="color:#00e676;text-align:center;margin-top:16px;">✅ تم استخراج <b>${totalLinks}</b> رابط من <b>${validResults.length}</b> سيرفرات بنجاح.</p>`;
+                resultsArea.innerHTML = html;
+                rawData.value = allRawHtml + '\n' + JSON.stringify(validResults, null, 2);
+                rawSection.style.display = 'block';
             }
 
-            resultsArea.innerHTML = html;
+            loader.classList.remove('active');
+            extractBtn.disabled = false;
+            updateStep('<b>✅ انتهى الفحص.</b>');
         }
 
-        function createResultCard(link, type, highlight) {
-            const server = getServerName(link);
-            const icon = getServerIcon(link);
-            const badgeClass = type === 'direct' ? 'badge-direct' : 'badge-iframe';
-            const badgeText = type === 'direct' ? 'مباشر' : 'iframe';
-            const highlightClass = highlight ? ' highlight' : '';
-            const shortLink = link.length > 70 ? link.substring(0, 67) + '...' : link;
-
-            return `
-                <div class="result-card${highlightClass}">
-                    <div>
-                        <div class="server-label">
-                            ${icon} ${server}
-                            <span class="server-badge ${badgeClass}">${badgeText}</span>
-                        </div>
-                        <div class="link-text" title="${link}">${shortLink}</div>
-                    </div>
-                    <div class="action-btns">
-                        <button class="btn-sm btn-copy" onclick="copyLink('${escapeJs(link)}', this)">📋 نسخ</button>
-                        <a class="btn-sm btn-open" href="${link}" target="_blank">▶️ فتح</a>
-                        <a class="btn-sm btn-dl" href="${link}" download>⬇️ تحميل</a>
-                    </div>
-                </div>`;
-        }
-
-        function escapeJs(str) {
-            return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
-        }
-
+        // ============ نسخ الرابط ============
         function copyLink(link, btn) {
             navigator.clipboard.writeText(link).then(() => {
                 const orig = btn.textContent;
@@ -619,162 +472,12 @@
             });
         }
 
-        // ============ CORE EXTRACTION ENGINE ============
-        async function extractAll() {
-            const inputUrl = urlInput.value.trim();
-            if (!inputUrl.includes('shadwo.pro') && !inputUrl.includes('http')) {
-                resultsArea.innerHTML = '<div class="error-box">⚠️ الرجاء إدخال رابط صحيح من shadwo.pro</div>';
-                return;
-            }
-
-            // Reset
-            resultsArea.innerHTML = '';
-            rawSection.style.display = 'none';
-            loader.classList.add('active');
-            extractBtn.disabled = true;
-            let allCollectedUrls = [];
-            let allIframeUrls = [];
-
-            try {
-                // ========== STEP 1: Fetch main page ==========
-                updateStep('جاري <span>الاتصال بالصفحة الرئيسية</span>...');
-                const mainHtml = await fetchWithProxy(inputUrl);
-                
-                rawData.value = mainHtml;
-                rawSection.style.display = 'block';
-                
-                // Extract iframes
-                allIframeUrls = extractIframes(mainHtml);
-                console.log(`[+] تم استخراج ${allIframeUrls.length} إطار مضمن`);
-                
-                // Extract direct URLs
-                const directUrls = extractAllUrls(mainHtml);
-                allCollectedUrls = [...allCollectedUrls, ...directUrls];
-                console.log(`[+] تم استخراج ${directUrls.length} رابط من الصفحة الرئيسية`);
-
-                // ========== STEP 2: Deep scan ALL iframes ==========
-                if (allIframeUrls.length > 0) {
-                    updateStep(`جاري <span>فحص ${allIframeUrls.length} إطار مضمن</span>...`);
-                    
-                    for (let i = 0; i < allIframeUrls.length; i++) {
-                        const iframeUrl = allIframeUrls[i];
-                        updateStep(`جاري <span>فحص الإطار ${i + 1}/${allIframeUrls.length}</span>...`);
-                        
-                        try {
-                            const iframeHtml = await fetchWithProxy(iframeUrl);
-                            const nestedUrls = extractAllUrls(iframeHtml);
-                            const nestedIframes = extractIframes(iframeHtml);
-                            
-                            allCollectedUrls = [...allCollectedUrls, ...nestedUrls];
-                            allIframeUrls = [...allIframeUrls, ...nestedIframes];
-                            
-                            console.log(`[+] إطار ${i + 1}: ${nestedUrls.length} رابط جديد`);
-                            
-                            // فحص المستوى الثالث إذا وجد
-                            if (nestedIframes.length > 0 && i < 3) { // حد أقصى للعمق
-                                for (let nestedIframe of nestedIframes) {
-                                    try {
-                                        const nestedHtml = await fetchWithProxy(nestedIframe);
-                                        const deepUrls = extractAllUrls(nestedHtml);
-                                        allCollectedUrls = [...allCollectedUrls, ...deepUrls];
-                                        console.log(`[++] إطار متداخل: ${deepUrls.length} رابط`);
-                                    } catch(e) {
-                                        console.warn('فشل الإطار المتداخل:', nestedIframe);
-                                    }
-                                }
-                            }
-                        } catch(e) {
-                            console.warn(`فشل فحص الإطار ${i + 1}:`, e.message);
-                            // نخزن رابط الإطار نفسه للعرض
-                            allCollectedUrls.push(iframeUrl);
-                        }
-                    }
-                }
-
-                // ========== STEP 3: إزالة التكرارات والتصفية ==========
-                updateStep('جاري <span>تصفية وتنظيم النتائج</span>...');
-                allCollectedUrls = [...new Set(allCollectedUrls)];
-                
-                // إزالة الروابط غير المفيدة
-                const filteredUrls = allCollectedUrls.filter(url => {
-                    const lower = url.toLowerCase();
-                    if (lower.includes('google-analytics')) return false;
-                    if (lower.includes('googletagmanager')) return false;
-                    if (lower.includes('facebook.com/tr')) return false;
-                    if (lower.includes('schema.org')) return false;
-                    if (lower.includes('w3.org')) return false;
-                    if (url.endsWith('.js') && !lower.includes('player')) return false;
-                    if (url.endsWith('.css')) return false;
-                    if (url.endsWith('.png') || url.endsWith('.jpg') || url.endsWith('.gif')) return false;
-                    if (url.endsWith('.woff') || url.endsWith('.woff2')) return false;
-                    return true;
-                });
-
-                console.log(`[+] إجمالي الروابط النهائية: ${filteredUrls.length}`);
-                
-                // ========== STEP 4: Render ==========
-                renderResults(filteredUrls, allIframeUrls);
-                
-                if (filteredUrls.length === 0) {
-                    resultsArea.innerHTML += `
-                        <div class="error-box">
-                            <p>⚠️ لم يتم العثور على روابط M3U8/MP4 مباشرة.</p>
-                            <p style="font-size:0.8em;">الموقع قد يستخدم تحميل JavaScript ديناميكي. جرب فتح الرابط في المتصفح واستخدام أدوات المطور (F12 → Network).</p>
-                            <details style="margin-top:10px;">
-                                <summary style="cursor:pointer;color:#ffaa00;">🔧 حل بديل يدوي</summary>
-                                <p style="font-size:0.8em;margin-top:8px;color:#ccc;">
-                                    1. افتح الرابط الأصلي في المتصفح<br>
-                                    2. اضغط F12 واذهب إلى تبويب Network<br>
-                                    3. شغل الفيديو وابحث عن طلبات m3u8 أو mp4<br>
-                                    4. انسخ الرابط واستخدمه هنا
-                                </p>
-                            </details>
-                        </div>`;
-                }
-
-            } catch (err) {
-                console.error('Extraction failed:', err);
-                resultsArea.innerHTML = `
-                    <div class="error-box">
-                        <p>❌ فشل الاستخراج: ${err.message}</p>
-                        <p style="font-size:0.8em;">جميع البروكسيهات فشلت. تاكد من اتصالك بالإنترنت أو جرب لاحقاً.</p>
-                        <details style="margin-top:8px;">
-                            <summary style="cursor:pointer;color:#ffaa00;">🛠️ حلول</summary>
-                            <p style="font-size:0.8em;color:#ccc;">
-                                1. استخدم VPN<br>
-                                2. جرب متصفح آخر<br>
-                                3. الموقع قد يكون محظوراً في منطقتك<br>
-                                4. افتح الرابط مباشرة واستخرج الرابط يدوياً من F12
-                            </p>
-                        </details>
-                    </div>`;
-            } finally {
-                loader.classList.remove('active');
-                extractBtn.disabled = false;
-                updateStep('جاهز');
-            }
-        }
-
-        // ============ EVENT LISTENERS ============
+        // Enter key
         urlInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') extractAll();
+            if (e.key === 'Enter') deepExtract();
         });
 
-        // Auto-run if URL is already present
-        window.addEventListener('DOMContentLoaded', () => {
-            if (urlInput.value.includes('shadwo.pro')) {
-                // لا تشتغل تلقائي - انتظر ضغطة زر
-                console.log('✅ الموقع جاهز. اضغط "استخراج الروابط" للبدء.');
-            }
-        });
-
-        console.log(`
-        ╔══════════════════════════════════════╗
-        ║  Shadwo PRO Extractor v2.0         ║
-        ║  Multi-Proxy | Deep iFrame Scan    ║
-        ║  Ready.                           ║
-        ╚══════════════════════════════════════╝
-        `);
+        console.log('✅ Shadwo PRO M3U8/MP4 Extractor جاهز.');
     </script>
 </body>
 </html>
