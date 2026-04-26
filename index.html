@@ -3,194 +3,26 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1"/>
-    <title>Shadwo PRO - روابط MP4 المباشرة فقط</title>
-    <style>
-        :root {
-            --bg: #0a0a0f; --card: #111118; --border: #222230;
-            --green: #00e676; --orange: #ff9100; --text: #c8c8d0; --gold: #ffd700;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: var(--bg); font-family: 'Segoe UI', system-ui, sans-serif;
-            color: var(--text); min-height: 100vh; padding: 20px;
-        }
-        .container { max-width: 900px; margin: 0 auto; }
-        header { text-align: center; margin-bottom: 18px; }
-        header h1 { font-size: 1.6em; color: var(--green); }
-        header p { color: #666; font-size: 0.8em; }
-
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 12px; }
-        .input-row { display: flex; gap: 8px; flex-wrap: wrap; }
-        .input-row input {
-            flex: 1; min-width: 200px; padding: 13px;
-            background: #0b0b14; border: 2px solid #2a2a38; border-radius: 10px;
-            color: #fff; font-family: 'Consolas', monospace; font-size: 0.85em;
-        }
-        .input-row input:focus { outline: none; border-color: var(--green); }
-        .btn {
-            padding: 13px 22px; border: none; border-radius: 10px;
-            font-weight: 700; font-size: 0.9em; cursor: pointer; transition: all 0.25s; white-space: nowrap;
-        }
-        .btn-go { background: var(--green); color: #000; }
-        .btn-go:hover { background: #00ff84; }
-        .btn-go:disabled { background: #2a2a38; color: #555; cursor: not-allowed; }
-
-        .status-bar {
-            display: none; align-items: center; gap: 10px;
-            padding: 12px 16px; margin: 10px 0;
-            background: #111118; border-radius: 10px; border: 1px solid var(--border);
-        }
-        .status-bar.active { display: flex; }
-        .spinner {
-            width: 20px; height: 20px; border: 2px solid #2a2a38;
-            border-top: 2px solid var(--green); border-radius: 50%; animation: spin 0.7s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .status-text { font-size: 0.82em; color: #888; }
-        .status-text b { color: var(--green); }
-
-        .results-area { margin-top: 12px; }
-        .result-item {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: 14px; padding: 16px; margin-bottom: 8px;
-        }
-        .result-item.best {
-            border-color: var(--green); box-shadow: 0 0 25px rgba(0,230,118,0.2);
-            background: #0a1a11;
-        }
-        .result-top {
-            display: flex; justify-content: space-between; align-items: center;
-            flex-wrap: wrap; gap: 6px; margin-bottom: 8px;
-        }
-        .tag {
-            padding: 6px 14px; border-radius: 16px; font-weight: 800; font-size: 0.7em;
-        }
-        .tag-maybe { background: #ff910022; color: var(--orange); border: 1px solid #ff910044; }
-        .tag-best { background: #ffd70022; color: var(--gold); border: 1px solid #ffd70044; }
-        .link-box {
-            background: #050510; border: 1px solid #1a1a2a; border-radius: 8px;
-            padding: 12px; font-family: 'Consolas', monospace; font-size: 0.7em;
-            color: #0f0; word-break: break-all; margin-bottom: 8px;
-            user-select: all; max-height: 50px; overflow-y: auto;
-            direction: ltr; text-align: left;
-        }
-        .actions { display: flex; gap: 6px; flex-wrap: wrap; }
-        .btn-sm {
-            padding: 9px 14px; border: none; border-radius: 8px;
-            font-weight: 600; font-size: 0.75em; cursor: pointer; transition: all 0.2s;
-            text-decoration: none; display: inline-block;
-        }
-        .btn-copy { background: #2a2a38; color: #ccc; }
-        .btn-copy:hover { background: #3a3a48; }
-        .btn-open { background: var(--green); color: #000; }
-        .btn-open:hover { background: #00ff84; }
-        .btn-dl { background: #ff6600; color: #fff; }
-        .btn-dl:hover { background: #ff7722; }
-
-        .empty-state { text-align: center; padding: 30px; color: #555; }
-        .success-banner {
-            background: #0a1a11; border: 1px solid #00e67644;
-            border-radius: 10px; padding: 12px; text-align: center; margin-bottom: 10px;
-            color: var(--green); font-weight: 700; font-size: 0.85em;
-        }
-        .toast {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: #00e676; color: #000; padding: 10px 20px;
-            border-radius: 25px; font-weight: 700; font-size: 0.85em;
-            z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none;
-        }
-        .toast.show { opacity: 1; }
-
-        .log-panel {
-            background: #0a0a10; border: 1px solid #1a1a2a; border-radius: 8px;
-            padding: 10px; font-family: 'Consolas', monospace; font-size: 0.68em;
-            color: #0f0; max-height: 120px; overflow-y: auto; white-space: pre-wrap;
-            word-break: break-all; margin-top: 8px; display: none;
-        }
-        .log-panel.active { display: block; }
-    </style>
+    <title>محول تلقائي - Shadwo → MP4</title>
 </head>
-<body>
-    <div class="container">
-        <header>
-            <h1>🎯 روابط MP4 المباشرة من Shadwo</h1>
-            <p>يعرض فقط الروابط الحقيقية المستخرجة من iframe - بدون روابط مبنية</p>
-        </header>
-
-        <div class="card">
-            <div class="input-row">
-                <input type="text" id="urlInput"
-                       value="https://w.shadwo.pro/albaplayer/esref-ruya-s01e01/"
-                       placeholder="ضع رابط Shadwo هنا...">
-                <button class="btn btn-go" id="goBtn" onclick="startExtract()">🔍 استخراج الروابط المباشرة</button>
-            </div>
-        </div>
-
-        <div class="status-bar" id="statusBar">
-            <div class="spinner"></div>
-            <div class="status-text" id="statusText">جاري العمل...</div>
-        </div>
-
-        <div class="results-area" id="resultsArea">
-            <div class="empty-state">اضغط على الزر لاستخراج الروابط المباشرة</div>
-        </div>
-
-        <div class="log-panel" id="logPanel"></div>
-    </div>
-
-    <div class="toast" id="toast">✅ تم النسخ!</div>
+<body style="background:#0a0a0f;color:#00e676;font-family:monospace;padding:20px;">
+    <h2>🔄 محول Shadwo → MP4 - تلقائي</h2>
+    <div id="log" style="white-space:pre-wrap;word-break:break-all;font-size:0.8em;"></div>
 
     <script>
+        const FIREBASE_URL = 'https://mo-play-b0cb7-default-rtdb.firebaseio.com';
         const PROXIES = [
             "https://api.allorigins.win/raw?url=",
             "https://corsproxy.io/?",
             "https://api.codetabs.com/v1/proxy?quest=",
         ];
 
-        const urlInput = document.getElementById('urlInput');
-        const goBtn = document.getElementById('goBtn');
-        const statusBar = document.getElementById('statusBar');
-        const statusText = document.getElementById('statusText');
-        const resultsArea = document.getElementById('resultsArea');
-        const logPanel = document.getElementById('logPanel');
-        const toast = document.getElementById('toast');
-
-        let foundMp4Urls = [];
-        let log = '';
-
+        const logDiv = document.getElementById('log');
         function addLog(msg) {
-            log += `[${new Date().toLocaleTimeString()}] ${msg}\n`;
-            logPanel.value = log;
-            logPanel.classList.add('active');
-            logPanel.scrollTop = logPanel.scrollHeight;
+            logDiv.innerHTML += `[${new Date().toLocaleTimeString()}] ${msg}<br>`;
         }
 
-        function setStatus(msg) { statusText.innerHTML = msg; }
-
-        function showToast(msg) {
-            toast.textContent = msg;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 1800);
-        }
-
-        function copyText(text, btn) {
-            navigator.clipboard.writeText(text).then(() => {
-                const orig = btn.textContent;
-                btn.textContent = '✅ تم!';
-                btn.style.background = '#00e676';
-                btn.style.color = '#000';
-                setTimeout(() => { btn.textContent = orig; btn.style.background = '#2a2a38'; btn.style.color = '#ccc'; }, 1500);
-            }).catch(() => {
-                const ta = document.createElement('textarea');
-                ta.value = text;
-                ta.style.position = 'fixed'; ta.style.left = '-9999px';
-                document.body.appendChild(ta); ta.select();
-                document.execCommand('copy');
-                document.body.removeChild(ta);
-                showToast('✅ تم النسخ!');
-            });
-        }
-
+        // ============ نفس دوال الكود الأصلي ============
         async function fetchPage(url) {
             for (const proxy of PROXIES) {
                 try {
@@ -204,7 +36,7 @@
                     if (res.ok) return await res.text();
                 } catch(e) { continue; }
             }
-            throw new Error('فشل الاتصال');
+            throw new Error('فشل');
         }
 
         function extractIframes(html) {
@@ -215,7 +47,6 @@
             return [...new Set(out)];
         }
 
-        // ============ استخراج روابط aflm حصراً ============
         function extractAflmUrls(html) {
             const found = [];
             const patterns = [
@@ -231,139 +62,88 @@
             return found;
         }
 
-        function addResult(url, source) {
-            if (foundMp4Urls.find(u => u.url === url)) return;
-            foundMp4Urls.push({ url, source, time: new Date().toLocaleTimeString() });
-            renderResults();
-        }
-
-        function renderResults() {
-            if (foundMp4Urls.length === 0) {
-                resultsArea.innerHTML = '<div class="empty-state">🔍 لم يتم العثور على روابط بعد...</div>';
-                return;
-            }
-
-            let html = `<div class="success-banner">✅ تم العثور على ${foundMp4Urls.length} رابط MP4 مباشر من iframe</div>`;
-
-            for (const item of foundMp4Urls) {
-                const escaped = item.url.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-
-                html += `
-                <div class="result-item best">
-                    <div class="result-top">
-                        <span class="tag tag-best">⭐ MP4 مباشر</span>
-                        <span style="color:#666;font-size:0.7em;">${item.source} | ${item.time}</span>
-                    </div>
-                    <div class="link-box">${item.url}</div>
-                    <div class="actions">
-                        <button class="btn-sm btn-copy" onclick="copyText('${escaped}', this)">📋 نسخ</button>
-                        <a class="btn-sm btn-open" href="${item.url}" target="_blank" rel="noopener">▶️ فتح</a>
-                        <a class="btn-sm btn-dl" href="${item.url}" download>⬇️ تحميل</a>
-                    </div>
-                </div>`;
-            }
-            resultsArea.innerHTML = html;
-        }
-
-        // ============ CORE ============
-        async function startExtract() {
-            const inputUrl = urlInput.value.trim();
-            if (!inputUrl) return;
-
-            foundMp4Urls = [];
-            log = '';
-            resultsArea.innerHTML = '<div class="empty-state">⏳ جاري البحث في MP4Plus iframe...</div>';
-            logPanel.classList.add('active');
-            statusBar.classList.add('active');
-            goBtn.disabled = true;
-            setStatus('جاري <b>استخراج روابط MP4 من iframe فقط</b>...');
-
-            addLog('🎯 بدء الاستخراج - MP4Plus iframe فقط');
-            addLog(`📄 ${inputUrl}`);
-
-            const baseUrl = inputUrl.includes('serv=') ? inputUrl :
-                           inputUrl + (inputUrl.includes('?') ? '&' : '?') + 'serv=0';
-
+        // ============ استخراج MP4 ============
+        async function extractMp4(shadwoUrl) {
+            const baseUrl = shadwoUrl.includes('serv=') ? shadwoUrl :
+                           shadwoUrl + (shadwoUrl.includes('?') ? '&' : '?') + 'serv=0';
             const mp4plusUrl = baseUrl.replace(/serv=\d+/g, 'serv=2');
             const processedIframes = new Set();
-
-            // ===== نفحص MP4Plus فقط =====
-            setStatus('جاري فحص <b>MP4Plus</b>...');
-            addLog('🔍 فحص MP4Plus');
 
             try {
                 const servHtml = await fetchPage(mp4plusUrl);
                 const iframes = extractIframes(servHtml);
-                addLog(`📺 وجد ${iframes.length} iframe`);
 
                 for (const iframeUrl of iframes) {
                     if (processedIframes.has(iframeUrl)) continue;
                     processedIframes.add(iframeUrl);
 
-                    setStatus('جاري فحص <b>iframe MP4Plus</b>...');
-                    addLog(`🔍 iframe: ${iframeUrl.substring(0, 50)}...`);
-
                     try {
                         const iframeHtml = await fetchPage(iframeUrl);
-
-                        // ===== صيد روابط aflm من الـ iframe =====
                         const aflmUrls = extractAflmUrls(iframeHtml);
-                        
-                        if (aflmUrls.length > 0) {
-                            addLog(`🎯 وجد ${aflmUrls.length} رابط aflm مباشر في iframe`);
-                            aflmUrls.forEach(u => {
-                                addLog(`  ✅ ${u}`);
-                                addResult(u, 'MP4Plus ⭐ iframe');
-                            });
-                        } else {
-                            addLog('  ⚠️ لا توجد روابط aflm في هذا iframe');
-                        }
+                        if (aflmUrls.length > 0) return aflmUrls[0];
 
-                        // iframe متداخل
                         const nestedIframes = extractIframes(iframeHtml);
                         for (const nestedUrl of nestedIframes) {
                             if (processedIframes.has(nestedUrl)) continue;
                             processedIframes.add(nestedUrl);
-
                             try {
                                 const nestedHtml = await fetchPage(nestedUrl);
                                 const nestedAflm = extractAflmUrls(nestedHtml);
-                                if (nestedAflm.length > 0) {
-                                    addLog(`🎯 وجد ${nestedAflm.length} رابط في iframe متداخل`);
-                                    nestedAflm.forEach(u => {
-                                        addLog(`  ✅ ${u}`);
-                                        addResult(u, 'MP4Plus ⭐ iframe');
-                                    });
-                                }
+                                if (nestedAflm.length > 0) return nestedAflm[0];
                             } catch(e) {}
                         }
-
-                    } catch(e) {
-                        addLog(`  ❌ فشل iframe: ${e.message}`);
-                    }
+                    } catch(e) {}
                 }
-            } catch(e) {
-                addLog(`❌ فشل MP4Plus: ${e.message}`);
-            }
-
-            // ===== خلاص =====
-            if (foundMp4Urls.length === 0) {
-                addLog('\n⚠️ لم يتم العثور على روابط aflm في iframe MP4Plus');
-                resultsArea.innerHTML = '<div class="empty-state">❌ لم يتم العثور على روابط. جرب فتح الرابط في المتصفح واستخدام F12</div>';
-            } else {
-                addLog(`\n✅ تم استخراج ${foundMp4Urls.length} رابط MP4 مباشر`);
-            }
-
-            setStatus('<b>✅ انتهى</b>');
-            statusBar.classList.remove('active');
-            goBtn.disabled = false;
+                return null;
+            } catch(e) { return null; }
         }
 
-        urlInput.addEventListener('keypress', e => {
-            if (e.key === 'Enter') startExtract();
-        });
+        // ============ الرئيسية ============
+        (async function() {
+            addLog('🚀 بدء الدورة');
 
-        console.log('✅ مستخرج MP4Plus iframe فقط - بدون روابط مبنية.');
+            const res = await fetch(FIREBASE_URL + '/series.json');
+            const data = await res.json();
+            let done = 0, fail = 0;
+
+            for (const id in data) {
+                if (!data[id].episodes) continue;
+                let changed = false;
+                const eps = JSON.parse(JSON.stringify(data[id].episodes));
+
+                for (let i = 0; i < eps.length; i++) {
+                    for (const f of ['link1', 'link2', 'link3']) {
+                        const link = eps[i][f] || '';
+                        if (!link.includes('shadwo.pro')) continue;
+
+                        addLog(`🔍 ${data[id].title} ح${i+1}`);
+                        const mp4 = await extractMp4(link);
+
+                        if (mp4 && mp4.includes('aflm') && mp4.includes('v.mp4')) {
+                            eps[i][f] = mp4;
+                            changed = true;
+                            done++;
+                            addLog(`✅ ${mp4.substring(0,60)}...`);
+                        } else {
+                            fail++;
+                            addLog(`❌ فشل`);
+                        }
+                        await new Promise(r => setTimeout(r, 2000));
+                    }
+                }
+
+                if (changed) {
+                    await fetch(FIREBASE_URL + '/series/' + id + '/episodes.json', {
+                        method: 'PUT',
+                        body: JSON.stringify(eps),
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    addLog(`💾 تم حفظ ${data[id].title}`);
+                }
+            }
+
+            addLog(`✅ done:${done} fail:${fail}`);
+        })();
     </script>
 </body>
 </html>
