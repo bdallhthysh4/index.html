@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1"/>
-    <title>Shadwo PRO - مستخرج M3U8 كامل</title>
+    <title>Shadwo PRO - مستخرج M3U8 (الروابط الشغالة فقط)</title>
     <style>
         :root {
             --bg: #0a0a0f; --card: #111118; --border: #222230;
@@ -34,6 +34,8 @@
         .btn-go { background: var(--green); color: #000; }
         .btn-go:hover { background: #00ff84; box-shadow: 0 6px 28px rgba(0,230,118,0.35); }
         .btn-go:disabled { background: #2a2a38; color: #555; cursor: not-allowed; }
+        .btn-verify { background: var(--orange); color: #000; }
+        .btn-verify:hover { background: #ffaa00; }
 
         .progress-box {
             display: none; background: #111118; border: 1px solid var(--border);
@@ -45,13 +47,27 @@
             padding: 10px 0; border-bottom: 1px solid #1a1a25; font-size: 0.82em;
         }
         .progress-item:last-child { border-bottom: none; }
-        .prog-icon { width: 22px; text-align: center; font-size: 1em; }
+        .prog-icon { width: 22px; text-align: center; }
         .prog-name { flex: 1; color: #aaa; }
-        .prog-status { color: #555; font-size: 0.85em; }
+        .prog-status { color: #555; font-size: 0.85em; min-width: 100px; text-align: left; }
         .prog-status.done { color: var(--green); }
         .prog-status.running { color: var(--orange); animation: pulse 1.2s infinite; }
         .prog-status.fail { color: var(--red); }
+        .prog-status.skip { color: #555; text-decoration: line-through; }
         @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        .stats-bar {
+            display: flex; gap: 16px; flex-wrap: wrap; margin: 14px 0;
+        }
+        .stat-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 14px 20px; text-align: center; flex: 1; min-width: 100px;
+        }
+        .stat-num { font-size: 2em; font-weight: 800; }
+        .stat-num.green { color: var(--green); }
+        .stat-num.red { color: var(--red); }
+        .stat-num.orange { color: var(--orange); }
+        .stat-label { font-size: 0.7em; color: #666; margin-top: 4px; }
 
         .results-area { margin-top: 16px; }
         .result-item {
@@ -59,8 +75,11 @@
             border-radius: 14px; padding: 18px; margin-bottom: 10px; transition: all 0.2s;
         }
         .result-item.best {
-            border-color: var(--green); box-shadow: 0 0 30px rgba(0,230,118,0.15);
+            border-color: var(--green); box-shadow: 0 0 30px rgba(0,230,118,0.2);
             background: #0a1a11;
+        }
+        .result-item.dead {
+            opacity: 0.4; border-color: #333;
         }
         .result-top {
             display: flex; justify-content: space-between; align-items: center;
@@ -69,9 +88,11 @@
         .tag {
             padding: 6px 14px; border-radius: 16px; font-weight: 800; font-size: 0.7em;
         }
-        .tag-full { background: #00e67622; color: var(--green); border: 1px solid #00e67644; }
+        .tag-live { background: #00e67622; color: var(--green); border: 1px solid #00e67644; }
+        .tag-dead { background: #ff3d3d22; color: var(--red); border: 1px solid #ff3d3d44; }
         .tag-best { background: #ffd70022; color: #ffd700; border: 1px solid #ffd70044; }
-        .tag-api { background: #ff910022; color: var(--orange); border: 1px solid #ff910044; }
+        .tag-checking { background: #ff910022; color: var(--orange); border: 1px solid #ff910044; animation: pulse 1s infinite; }
+        .tag-m3u8 { background: #4488ff22; color: #4488ff; border: 1px solid #4488ff44; }
         .link-box {
             background: #050510; border: 1px solid #1a1a2a; border-radius: 8px;
             padding: 14px; font-family: 'Consolas', monospace; font-size: 0.7em;
@@ -79,6 +100,7 @@
             user-select: all; max-height: 60px; overflow-y: auto; line-height: 1.6;
             direction: ltr; text-align: left;
         }
+        .link-box.dead-link { color: #ff4444; text-decoration: line-through; }
         .actions { display: flex; gap: 8px; flex-wrap: wrap; }
         .btn-sm {
             padding: 10px 16px; border: none; border-radius: 8px;
@@ -96,11 +118,11 @@
             background: #1a000a; border: 1px solid #ff3d3d33;
             border-radius: 12px; padding: 20px; text-align: center; color: var(--red);
         }
-        .success-box {
-            background: #001a0a; border: 1px solid #00e67633;
+        .all-dead-banner {
+            background: #1a0f00; border: 1px solid #ff910033;
             border-radius: 12px; padding: 16px; text-align: center; margin: 14px 0;
         }
-        .success-box h3 { color: var(--green); }
+        .all-dead-banner h3 { color: var(--orange); }
 
         .manual-box { background: #111; border: 1px solid #333; border-radius: 12px; padding: 18px; margin-top: 16px; }
         .manual-box h3 { color: #ffaa00; margin-bottom: 8px; }
@@ -114,13 +136,24 @@
             z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none;
         }
         .toast.show { opacity: 1; }
+
+        .filter-bar {
+            display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0;
+        }
+        .filter-btn {
+            padding: 8px 16px; border: 1px solid #333; border-radius: 20px;
+            background: transparent; color: #888; cursor: pointer;
+            font-size: 0.75em; font-weight: 600; transition: all 0.2s;
+        }
+        .filter-btn:hover { border-color: #555; color: #ccc; }
+        .filter-btn.active { border-color: var(--green); color: var(--green); background: #00e67611; }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🎬 Shadwo PRO - مستخرج M3U8 كامل مع التوكن</h1>
-            <p>استخراج متعدد الطبقات للوصول إلى الرابط الكامل <code style="color:#0f0;">?t=...&amp;s=...</code></p>
+            <h1>🎬 Shadwo PRO - مستخرج M3U8 مع فحص الروابط</h1>
+            <p>يستخرج ثم <span style="color:var(--green);">يفحص كل رابط</span> ويعرض <span style="color:var(--green);">الشغالة فقط</span></p>
         </header>
 
         <div class="card">
@@ -128,7 +161,30 @@
                 <input type="text" id="urlInput"
                        value="https://w.shadwo.pro/albaplayer/esref-ruya-s01e01/"
                        placeholder="ضع رابط Shadwo هنا...">
-                <button class="btn btn-go" id="goBtn" onclick="startDeepExtract()">🔍 استخراج عميق</button>
+                <button class="btn btn-go" id="goBtn" onclick="startDeepExtract()">🔍 استخراج وفحص</button>
+                <button class="btn btn-verify" id="verifyBtn" onclick="verifyExisting()" disabled>✅ فحص الموجود فقط</button>
+            </div>
+
+            <div class="stats-bar" id="statsBar" style="display:none;">
+                <div class="stat-card">
+                    <div class="stat-num orange" id="statTotal">0</div>
+                    <div class="stat-label">إجمالي المستخرج</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-num green" id="statAlive">0</div>
+                    <div class="stat-label">✅ روابط شغالة</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-num red" id="statDead">0</div>
+                    <div class="stat-label">❌ روابط ميتة</div>
+                </div>
+            </div>
+
+            <div class="filter-bar" id="filterBar" style="display:none;">
+                <button class="filter-btn active" onclick="filterResults('all', this)">الكل</button>
+                <button class="filter-btn" onclick="filterResults('alive', this)">✅ الشغالة فقط</button>
+                <button class="filter-btn" onclick="filterResults('dead', this)">❌ الميتة فقط</button>
+                <button class="filter-btn" onclick="filterResults('m3u8', this)">📡 M3U8 فقط</button>
             </div>
         </div>
 
@@ -136,19 +192,14 @@
             <div id="progressItems"></div>
         </div>
 
-        <div id="successBox" style="display:none;"></div>
         <div class="results-area" id="resultsArea"></div>
 
         <div class="manual-box">
-            <h3>🛠️ إذا لم يظهر الرابط الكامل - طريقة مضمونة 100%</h3>
-            <ol>
-                <li>افتح الرابط الأصلي في المتصفح</li>
-                <li>اضغط <code>F12</code> واذهب إلى تبويب <code>Network</code></li>
-                <li>شغّل الفيديو</li>
-                <li>اكتب في الفلتر: <code>m3u8</code></li>
-                <li>اضغط بزر اليمين على الرابط → <code>Copy → Copy link address</code></li>
-                <li>الصق الرابط هنا واستفد منه</li>
-            </ol>
+            <h3>🛠️ ملاحظة</h3>
+            <p style="color:#aaa;font-size:0.85em;">
+                الفحص يتم عبر طلب <code>HEAD</code> سريع لكل رابط. الرابط الشغال يرجع كود <code>200</code>.
+                الروابط الميتة (403/404) تظهر مشطوبة أو مخفية حسب الفلتر.
+            </p>
         </div>
     </div>
 
@@ -173,17 +224,25 @@
             "https://api.codetabs.com/v1/proxy?quest=",
         ];
 
+        // ============ STATE ============
+        let allExtractedUrls = []; // { url, source, method, type, status, statusCode }
+        let progressState = {};
+        let currentFilter = 'all';
+        let verificationInProgress = false;
+
         // ============ DOM ============
         const urlInput = document.getElementById('urlInput');
         const goBtn = document.getElementById('goBtn');
+        const verifyBtn = document.getElementById('verifyBtn');
         const progressBox = document.getElementById('progressBox');
         const progressItems = document.getElementById('progressItems');
         const resultsArea = document.getElementById('resultsArea');
-        const successBox = document.getElementById('successBox');
+        const statsBar = document.getElementById('statsBar');
+        const filterBar = document.getElementById('filterBar');
+        const statTotal = document.getElementById('statTotal');
+        const statAlive = document.getElementById('statAlive');
+        const statDead = document.getElementById('statDead');
         const toast = document.getElementById('toast');
-
-        let capturedUrls = new Map();
-        let progressState = {};
 
         // ============ HELPERS ============
         function showToast(msg) {
@@ -202,72 +261,105 @@
             let html = '';
             for (const [id, state] of Object.entries(progressState)) {
                 const statusClass = state.status === 'done' ? 'done' : 
-                                   state.status === 'running' ? 'running' : 'fail';
-                const statusText = state.status === 'done' ? '✅ ' + state.detail :
-                                  state.status === 'running' ? '⏳ ' + state.detail :
-                                  '❌ ' + state.detail;
+                                   state.status === 'running' ? 'running' : 
+                                   state.status === 'skip' ? 'skip' : 'fail';
                 html += `
                 <div class="progress-item">
                     <span class="prog-icon">${state.icon}</span>
                     <span class="prog-name">${state.name}</span>
-                    <span class="prog-status ${statusClass}">${statusText}</span>
+                    <span class="prog-status ${statusClass}">${state.detail}</span>
                 </div>`;
             }
             progressItems.innerHTML = html;
         }
 
-        function addCapturedUrl(url, source, method) {
-            if (capturedUrls.has(url)) return;
-            const lower = url.toLowerCase();
-            const type = (lower.includes('.m3u8') || lower.includes('hls') || lower.includes('cdnz')) ? 'm3u8' :
-                         (lower.includes('.mp4')) ? 'mp4' : 'stream';
-            const hasToken = url.includes('?t=') || url.includes('&s=') || url.includes('?token=');
-            capturedUrls.set(url, { source, type, hasToken, method, time: new Date().toLocaleTimeString() });
-            renderResults();
+        function updateStats() {
+            const total = allExtractedUrls.length;
+            const alive = allExtractedUrls.filter(u => u.status === 'alive').length;
+            const dead = allExtractedUrls.filter(u => u.status === 'dead').length;
+            const checking = allExtractedUrls.filter(u => u.status === 'checking').length;
 
-            if (hasToken && type === 'm3u8') {
-                successBox.style.display = 'block';
-                successBox.innerHTML = `
-                    <div class="success-box">
-                        <h3>🎯 تم اصطياد رابط M3U8 كامل مع التوكن!</h3>
-                        <p style="color:#aaa;font-size:0.8em;">الرابط جاهز للاستخدام والتحميل</p>
-                    </div>`;
-            }
+            statTotal.textContent = total;
+            statAlive.textContent = alive;
+            statDead.textContent = dead;
+
+            statsBar.style.display = 'flex';
+            filterBar.style.display = 'flex';
+            verifyBtn.disabled = (total === 0 || verificationInProgress);
         }
 
         function renderResults() {
-            if (capturedUrls.size === 0) {
-                resultsArea.innerHTML = '';
+            updateStats();
+
+            let filteredUrls = allExtractedUrls;
+            if (currentFilter === 'alive') {
+                filteredUrls = allExtractedUrls.filter(u => u.status === 'alive');
+            } else if (currentFilter === 'dead') {
+                filteredUrls = allExtractedUrls.filter(u => u.status === 'dead');
+            } else if (currentFilter === 'm3u8') {
+                filteredUrls = allExtractedUrls.filter(u => u.type === 'm3u8');
+            }
+
+            if (filteredUrls.length === 0) {
+                if (currentFilter === 'alive') {
+                    resultsArea.innerHTML = `
+                        <div class="all-dead-banner">
+                            <h3>⚠️ لا توجد روابط شغالة حالياً</h3>
+                            <p style="color:#aaa;font-size:0.8em;">جميع الروابط المستخرجة ميتة أو منتهية الصلاحية. جرب استخراج جديد.</p>
+                        </div>`;
+                } else {
+                    resultsArea.innerHTML = '';
+                }
                 return;
             }
 
-            const items = Array.from(capturedUrls.entries()).map(([url, info]) => ({ url, ...info }));
-            items.sort((a, b) => {
-                if (a.hasToken && !b.hasToken) return -1;
-                if (!a.hasToken && b.hasToken) return 1;
+            // ترتيب: الشغالة أولاً، ثم m3u8، ثم الباقي
+            filteredUrls.sort((a, b) => {
+                if (a.status === 'alive' && b.status !== 'alive') return -1;
+                if (a.status !== 'alive' && b.status === 'alive') return 1;
                 if (a.type === 'm3u8' && b.type !== 'm3u8') return -1;
                 if (a.type !== 'm3u8' && b.type === 'm3u8') return 1;
                 return 0;
             });
 
             let html = '';
-            for (const item of items) {
-                const isBest = item.hasToken && item.type === 'm3u8' && (item.url.includes('cdnz.online') || item.url.includes('albrq'));
-                const tagClass = isBest ? 'tag-best' : (item.hasToken ? 'tag-full' : 'tag-api');
-                const tagText = isBest ? '⭐ M3U8 كامل مع توكن' : (item.hasToken ? '✅ M3U8 كامل' : '📎 ' + item.type.toUpperCase());
+            for (const item of filteredUrls) {
+                const isAlive = item.status === 'alive';
+                const isChecking = item.status === 'checking';
+                const isDead = item.status === 'dead';
+                const isBest = isAlive && item.type === 'm3u8' && (item.url.includes('cdnz.online') || item.url.includes('albrq'));
+
+                const tagClass = isChecking ? 'tag-checking' :
+                                isBest ? 'tag-best' :
+                                isAlive ? 'tag-live' :
+                                isDead ? 'tag-dead' : 'tag-m3u8';
+
+                const tagText = isChecking ? '⏳ جاري الفحص...' :
+                               isBest ? '⭐ M3U8 شغال' :
+                               isAlive ? '✅ شغال (' + (item.statusCode || 'OK') + ')' :
+                               isDead ? '❌ ميت (' + (item.statusCode || 'Error') + ')' :
+                               '📎 ' + item.type.toUpperCase();
+
+                const cardClass = isDead ? ' dead' : (isBest ? ' best' : '');
+                const linkClass = isDead ? ' dead-link' : '';
                 const escaped = item.url.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 
                 html += `
-                <div class="result-item${isBest ? ' best' : ''}">
+                <div class="result-item${cardClass}" data-url="${escaped}" data-status="${item.status}">
                     <div class="result-top">
                         <span class="tag ${tagClass}">${tagText}</span>
-                        <span style="color:#666;font-size:0.7em;">${item.source} | ${item.method} | ${item.time}</span>
+                        <span style="color:#666;font-size:0.7em;">${item.source} | ${item.method} | ${item.time || ''}</span>
                     </div>
-                    <div class="link-box">${item.url}</div>
+                    <div class="link-box${linkClass}">${item.url}</div>
                     <div class="actions">
-                        <button class="btn-sm btn-copy" onclick="copyText('${escaped}', this)">📋 نسخ</button>
-                        <a class="btn-sm btn-open" href="${item.url}" target="_blank" rel="noopener">▶️ فتح</a>
-                        <a class="btn-sm btn-dl" href="${item.url}" download>⬇️ تحميل</a>
+                        ${isAlive ? `
+                            <button class="btn-sm btn-copy" onclick="copyText('${escaped}', this)">📋 نسخ</button>
+                            <a class="btn-sm btn-open" href="${item.url}" target="_blank" rel="noopener">▶️ فتح</a>
+                            <a class="btn-sm btn-dl" href="${item.url}" download>⬇️ تحميل</a>
+                        ` : `
+                            <button class="btn-sm btn-copy" onclick="copyText('${escaped}', this)" style="opacity:0.5;">📋 نسخ</button>
+                            <span style="color:#555;font-size:0.7em;">الرابط غير صالح</span>
+                        `}
                     </div>
                 </div>`;
             }
@@ -298,10 +390,16 @@
             });
         }
 
+        function filterResults(type, btn) {
+            currentFilter = type;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            renderResults();
+        }
+
         // ============ FETCH ============
         async function fetchWithProxy(url, proxyIdx = 0) {
             if (proxyIdx >= PROXIES.length) {
-                // محاولة مباشرة كحل أخير
                 try {
                     const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
                     if (res.ok) return await res.text();
@@ -324,7 +422,119 @@
             }
         }
 
-        // ============ استخراج ============
+        // ============ VERIFICATION ENGINE ============
+        async function verifyUrl(url) {
+            const proxies = [
+                "https://api.allorigins.win/raw?url=",
+                "https://corsproxy.io/?",
+                "https://api.codetabs.com/v1/proxy?quest=",
+            ];
+
+            for (const proxy of proxies) {
+                try {
+                    const ctrl = new AbortController();
+                    const t = setTimeout(() => ctrl.abort(), 8000);
+                    const checkUrl = proxy + encodeURIComponent(url);
+
+                    const res = await fetch(checkUrl, {
+                        method: 'HEAD',
+                        headers: {
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                            'Accept': '*/*',
+                        },
+                        signal: ctrl.signal
+                    });
+                    clearTimeout(t);
+
+                    if (res.ok) {
+                        return { alive: true, code: res.status };
+                    } else if (res.status === 403 || res.status === 404 || res.status === 410) {
+                        return { alive: false, code: res.status };
+                    }
+                    // إذا كان الرد غير 200/403/404، نكمل للبروكسي التالي
+                } catch(e) {
+                    continue;
+                }
+            }
+
+            // محاولة أخيرة: طلب GET صغير
+            try {
+                const ctrl = new AbortController();
+                const t = setTimeout(() => ctrl.abort(), 6000);
+                const res = await fetch(url, {
+                    method: 'HEAD',
+                    headers: { 'User-Agent': 'Mozilla/5.0' },
+                    signal: ctrl.signal
+                });
+                clearTimeout(t);
+                if (res.ok) return { alive: true, code: res.status };
+                if (res.status === 403) return { alive: false, code: 403 };
+                if (res.status === 404) return { alive: false, code: 404 };
+                return { alive: false, code: res.status };
+            } catch(e) {
+                return { alive: false, code: 'Error' };
+            }
+        }
+
+        async function verifyAllUrls() {
+            if (verificationInProgress) return;
+            verificationInProgress = true;
+            verifyBtn.disabled = true;
+            goBtn.disabled = true;
+
+            const urlsToVerify = allExtractedUrls.filter(u => u.status === 'unknown' || u.status === 'checking');
+            
+            if (urlsToVerify.length === 0) {
+                showToast('كل الروابط تم فحصها مسبقاً');
+                verificationInProgress = false;
+                verifyBtn.disabled = false;
+                goBtn.disabled = false;
+                return;
+            }
+
+            updateProgress('verify', 'فحص الروابط', '🔍', 'running', `0/${urlsToVerify.length}`);
+
+            let verified = 0;
+            const batchSize = 3; // نفحص 3 روابط مع بعض
+
+            for (let i = 0; i < urlsToVerify.length; i += batchSize) {
+                const batch = urlsToVerify.slice(i, i + batchSize);
+                const results = await Promise.allSettled(
+                    batch.map(async (item) => {
+                        const result = await verifyUrl(item.url);
+                        item.status = result.alive ? 'alive' : 'dead';
+                        item.statusCode = result.code;
+                        return item;
+                    })
+                );
+
+                verified += batch.length;
+                updateProgress('verify', 'فحص الروابط', '🔍', 'running', `${verified}/${urlsToVerify.length}`);
+                renderResults();
+            }
+
+            const aliveCount = urlsToVerify.filter(u => u.status === 'alive').length;
+            const deadCount = urlsToVerify.filter(u => u.status === 'dead').length;
+
+            updateProgress('verify', 'فحص الروابط', '🔍', 'done',
+                `${aliveCount} شغال, ${deadCount} ميت`);
+            updateStats();
+            renderResults();
+
+            verificationInProgress = false;
+            verifyBtn.disabled = false;
+            goBtn.disabled = false;
+
+            if (aliveCount === 0 && allExtractedUrls.length > 0) {
+                showToast('⚠️ جميع الروابط ميتة - جرب رابط مختلف');
+            } else if (aliveCount > 0) {
+                showToast(`✅ تم العثور على ${aliveCount} رابط شغال`);
+                // تلقائياً فلترة للشغالة فقط
+                filterResults('alive', document.querySelector('.filter-btn:nth-child(2)'));
+            }
+        }
+
+        // ============ EXTRACTION ============
         function extractIframes(html) {
             const r = /<iframe[^>]+src=["']([^"']+)["']/gi;
             const out = [];
@@ -343,35 +553,23 @@
 
         function extractAllUrls(html) {
             const found = [];
-
-            // أي رابط m3u8
             const r1 = /https?:\/\/[^\s"'<>]*\.m3u8[^\s"'<>]*/gi;
             let m;
             while ((m = r1.exec(html))) found.push(m[0]);
-
-            // cdnz.online
             const r2 = /https?:\/\/[^\s"'<>]*cdnz\.online[^\s"'<>]*/gi;
             while ((m = r2.exec(html))) found.push(m[0]);
-
-            // albrq
             const r3 = /https?:\/\/[^\s"'<>]*albrq[^\s"'<>]*/gi;
             while ((m = r3.exec(html))) found.push(m[0]);
-
-            // hls/token/index-v1
             const r4 = /https?:\/\/[^\s"'<>]*(?:hls\/|token=|index-v1|manifest)[^\s"'<>]*/gi;
             while ((m = r4.exec(html))) {
                 if (!found.includes(m[0])) found.push(m[0]);
             }
-
-            // أي رابط طويل داخل quotes
             const r5 = /["']((?:https?:)?\/\/[^"']*(?:cdnz|albrq|hls|stream|m3u8|mp4|token)[^"']{10,})["']/gi;
             while ((m = r5.exec(html))) {
                 let u = m[1];
                 if (u.startsWith('//')) u = 'https:' + u;
                 if (!found.includes(u)) found.push(u);
             }
-
-            // Base64
             const r6 = /atob\s*\(\s*["']([A-Za-z0-9+/=]{20,})["']\s*\)/g;
             while ((m = r6.exec(html))) {
                 try {
@@ -380,70 +578,38 @@
                     found.push(...nested);
                 } catch(e) {}
             }
-
-            // base64 مباشر
-            const r7 = /["']([A-Za-z0-9+/=]{50,})["']/g;
-            while ((m = r7.exec(html))) {
-                try {
-                    const decoded = atob(m[1]);
-                    if (decoded.includes('http') && (decoded.includes('m3u8') || decoded.includes('cdnz'))) {
-                        const nested = extractAllUrls(decoded);
-                        found.push(...nested);
-                    }
-                } catch(e) {}
-            }
-
             return [...new Set(found)];
         }
 
-        // ============ API PATTERNS للتجربة ============
         function buildApiUrls(videoId) {
-            const patterns = [];
-            // أنماط CDNPlus
-            patterns.push(`https://cdnplus.cyou/api/source/${videoId}`);
-            patterns.push(`https://cdnplus.cyou/player/index.php?data=${videoId}&do=getVideo`);
-            // أنماط albrq/cdnz - الأكثر احتمالاً
-            patterns.push(`https://albrq-cdn1-lcd.cdnz.online/hls2/02/00005/${videoId}_l/index-v1-a1.m3u8`);
-            patterns.push(`https://albrq-cdn1-lcd.cdnz.online/hls/02/00005/${videoId}/index-v1-a1.m3u8`);
-            patterns.push(`https://albrq-store1-tgb.cdnz.quest/hls2/02/00005/${videoId}_l/index-v1-a1.m3u8`);
-            patterns.push(`https://albrq-store1-tgb.cdnz.quest/hls/02/00005/${videoId}/index-v1-a1.m3u8`);
-            // أنماط إضافية
-            patterns.push(`https://albrq-cdn1-lcd.cdnz.online/hls2/02/00005/${videoId}/index-v1-a1.m3u8`);
-            patterns.push(`https://albrq-store1-tgb.cdnz.quest/i/07/00004/${videoId}.jpg`);
-            return patterns;
+            return [
+                `https://albrq-cdn1-lcd.cdnz.online/hls2/02/00005/${videoId}_l/index-v1-a1.m3u8`,
+                `https://albrq-cdn1-lcd.cdnz.online/hls/02/00005/${videoId}/index-v1-a1.m3u8`,
+                `https://albrq-store1-tgb.cdnz.quest/hls2/02/00005/${videoId}_l/index-v1-a1.m3u8`,
+                `https://albrq-store1-tgb.cdnz.quest/hls/02/00005/${videoId}/index-v1-a1.m3u8`,
+                `https://cdnplus.cyou/api/source/${videoId}`,
+                `https://cdnplus.cyou/player/index.php?data=${videoId}&do=getVideo`,
+            ];
         }
 
-        // ============ API CALL - نحاول نطلب الرابط ونشوف الـ redirect ============
-        async function tryApiWithRedirect(apiUrl) {
-            try {
-                const ctrl = new AbortController();
-                const t = setTimeout(() => ctrl.abort(), 10000);
-                const res = await fetch(apiUrl, {
-                    headers: {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                        'Accept': '*/*',
-                        'Referer': 'https://cdnplus.cyou/',
-                    },
-                    signal: ctrl.signal,
-                    redirect: 'follow'
-                });
-                clearTimeout(t);
+        function addUrl(url, source, method) {
+            const lower = url.toLowerCase();
+            const type = (lower.includes('.m3u8') || lower.includes('hls') || lower.includes('cdnz')) ? 'm3u8' :
+                         (lower.includes('.mp4')) ? 'mp4' : 'stream';
 
-                // إذا وصلنا لرابط m3u8 فعلي
-                const finalUrl = res.url;
-                if (finalUrl.includes('m3u8') || finalUrl.includes('cdnz') || finalUrl.includes('hls')) {
-                    return finalUrl;
-                }
+            // نتجنب الصور والملفات الغير فيديو
+            if (url.endsWith('.jpg') || url.endsWith('.png') || url.endsWith('.gif') || 
+                url.endsWith('.css') || url.endsWith('.js') || url.endsWith('.woff')) return;
 
-                // نجرب ناخذ body
-                const text = await res.text();
-                const urls = extractAllUrls(text);
-                if (urls.length > 0) return urls[0];
+            // نتجنب التكرار
+            if (allExtractedUrls.find(u => u.url === url)) return;
 
-                return null;
-            } catch(e) {
-                return null;
-            }
+            allExtractedUrls.push({
+                url, source, method, type,
+                status: 'unknown',
+                statusCode: null,
+                time: new Date().toLocaleTimeString()
+            });
         }
 
         // ============ CORE ============
@@ -452,28 +618,31 @@
             if (!inputUrl) return;
 
             // Reset
-            capturedUrls.clear();
+            allExtractedUrls = [];
             progressState = {};
             resultsArea.innerHTML = '';
-            successBox.style.display = 'none';
+            statsBar.style.display = 'none';
+            filterBar.style.display = 'none';
             progressBox.classList.add('active');
             goBtn.disabled = true;
+            verifyBtn.disabled = true;
+            currentFilter = 'all';
 
             const baseUrl = inputUrl.includes('serv=') ? inputUrl : 
                            inputUrl + (inputUrl.includes('?') ? '&' : '?') + 'serv=0';
 
-            // الخطوة 1: فحص الصفحة الرئيسية
+            // الخطوة 1: الصفحة الرئيسية
             updateProgress('main', 'الصفحة الرئيسية', '🏠', 'running', 'جاري التحميل...');
             try {
                 const mainHtml = await fetchWithProxy(baseUrl);
                 const mainUrls = extractAllUrls(mainHtml);
-                mainUrls.forEach(u => addCapturedUrl(u, 'الصفحة الرئيسية', 'HTML'));
+                mainUrls.forEach(u => addUrl(u, 'الصفحة الرئيسية', 'HTML'));
                 updateProgress('main', 'الصفحة الرئيسية', '🏠', 'done', mainUrls.length + ' روابط');
             } catch(e) {
                 updateProgress('main', 'الصفحة الرئيسية', '🏠', 'fail', e.message);
             }
 
-            // الخطوة 2: فحص كل سيرفر على حدة
+            // الخطوة 2: كل السيرفرات
             for (const srv of SERVERS) {
                 const servUrl = baseUrl.replace(/serv=\d+/g, 'serv=' + srv.id);
                 updateProgress('srv' + srv.id, srv.name, srv.icon, 'running', 'جاري الفحص...');
@@ -481,65 +650,58 @@
                 try {
                     const servHtml = await fetchWithProxy(servUrl);
                     const servUrls = extractAllUrls(servHtml);
-                    servUrls.forEach(u => addCapturedUrl(u, srv.name, 'HTML'));
+                    servUrls.forEach(u => addUrl(u, srv.name, 'HTML'));
 
                     const iframes = extractIframes(servHtml);
-
-                    // فحص iframe
                     for (const iframeUrl of iframes) {
                         updateProgress('srv' + srv.id, srv.name, srv.icon, 'running', 'فحص iframe...');
                         try {
                             const iframeHtml = await fetchWithProxy(iframeUrl);
                             const iframeUrls = extractAllUrls(iframeHtml);
-                            iframeUrls.forEach(u => addCapturedUrl(u, srv.name, 'iframe'));
+                            iframeUrls.forEach(u => addUrl(u, srv.name, 'iframe'));
 
                             const vidId = extractVideoId(iframeUrl);
                             if (vidId) {
-                                updateProgress('srv' + srv.id, srv.name, srv.icon, 'running', 'تجربة API...');
+                                updateProgress('srv' + srv.id, srv.name, srv.icon, 'running', 'بناء API...');
                                 const apiUrls = buildApiUrls(vidId);
-                                for (const apiUrl of apiUrls) {
-                                    const result = await tryApiWithRedirect(apiUrl);
-                                    if (result) {
-                                        addCapturedUrl(result, srv.name, 'API Redirect');
+                                apiUrls.forEach(u => {
+                                    if (u.includes('m3u8') || u.includes('cdnz.online')) {
+                                        addUrl(u, srv.name, 'API');
                                     }
-                                    // حتى لو ما اشتغل، أضف الرابط إذا شكله m3u8
-                                    if (apiUrl.includes('m3u8') || apiUrl.includes('cdnz.online')) {
-                                        addCapturedUrl(apiUrl, srv.name, 'API URL');
-                                    }
-                                }
+                                });
                             }
                         } catch(e) {}
                     }
-
-                    updateProgress('srv' + srv.id, srv.name, srv.icon, 'done',
-                        capturedUrls.size + ' روابط مجمعة');
-
+                    updateProgress('srv' + srv.id, srv.name, srv.icon, 'done', 'تم');
                 } catch(e) {
                     updateProgress('srv' + srv.id, srv.name, srv.icon, 'fail', e.message);
                 }
             }
 
-            // خلاص
-            goBtn.disabled = false;
-            renderProgress();
-
-            if (capturedUrls.size === 0) {
-                resultsArea.innerHTML = `
-                    <div class="no-result">
-                        <p>❌ لم يتم العثور على روابط M3U8/MP4</p>
-                        <p style="font-size:0.8em;color:#ff8888;">استخدم الطريقة اليدوية (F12 → Network → m3u8)</p>
-                    </div>`;
-            }
-
-            // مسح الروابط المكررة اللي تنتهي بـ jpg
-            const toRemove = [];
-            for (const [url] of capturedUrls) {
-                if (url.endsWith('.jpg') || url.endsWith('.png') || url.endsWith('.gif')) {
-                    toRemove.push(url);
-                }
-            }
-            toRemove.forEach(u => capturedUrls.delete(u));
+            // عرض النتائج المستخرجة
+            updateStats();
             renderResults();
+            goBtn.disabled = false;
+            verifyBtn.disabled = false;
+
+            // ==== بدء الفحص التلقائي ====
+            updateProgress('verify', 'فحص الروابط تلقائياً', '🔍', 'running', 'جاري...');
+            await verifyAllUrls();
+
+            const aliveCount = allExtractedUrls.filter(u => u.status === 'alive').length;
+            if (aliveCount === 0) {
+                updateProgress('verify', 'فحص الروابط', '🔍', 'done', 'لا توجد روابط شغالة');
+            }
+        }
+
+        async function verifyExisting() {
+            updateProgress('verify', 'إعادة فحص الروابط', '🔍', 'running', 'جاري...');
+            // إعادة تعيين حالة الروابط
+            allExtractedUrls.forEach(u => {
+                u.status = 'unknown';
+                u.statusCode = null;
+            });
+            await verifyAllUrls();
         }
 
         // ============ EVENTS ============
@@ -547,7 +709,7 @@
             if (e.key === 'Enter') startDeepExtract();
         });
 
-        console.log('✅ Shadwo PRO Deep Extractor v7 جاهز.');
+        console.log('✅ Shadwo PRO Extractor + Link Checker جاهز.');
     </script>
 </body>
 </html>
