@@ -1,147 +1,92 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1"/>
-    <title>محول تلقائي - Shadwo → MP4</title>
-</head>
-<body style="background:#0a0a0f;color:#ccc;font-family:monospace;padding:20px;font-size:0.75em;">
-    <div id="log" style="white-space:pre-wrap;"></div>
+<html>
+<head><meta charset="UTF-8"><title>محول تلقائي</title></head>
+<body style="background:#0a0a0f;color:#0f0;font-family:monospace;padding:20px;font-size:0.75em;">
+<div id="log" style="white-space:pre-wrap;"></div>
 
-    <script>
-        // ============ نفس إعداداتك ============
-        const FIREBASE_URL = 'https://mo-play-b0cb7-default-rtdb.firebaseio.com';
-        const PROXIES = [
-            "https://api.allorigins.win/raw?url=",
-            "https://corsproxy.io/?",
-            "https://api.codetabs.com/v1/proxy?quest=",
-        ];
+<script>
+// ============ إعدادات Firebase ============
+const FIREBASE_URL = 'https://mo-play-b0cb7-default-rtdb.firebaseio.com';
 
-        const logDiv = document.getElementById('log');
-        function addLog(msg) {
-            logDiv.textContent += `[${new Date().toLocaleTimeString()}] ${msg}\n`;
+// ============ دوالك الأصلية بدون أي تغيير ============
+const PROXIES = ["https://api.allorigins.win/raw?url=","https://corsproxy.io/?","https://api.codetabs.com/v1/proxy?quest="];
+const logDiv=document.getElementById('log');
+function addLog(m){logDiv.textContent+=`[${new Date().toLocaleTimeString()}] ${m}\n`;}
+
+async function fetchPage(url){for(const p of PROXIES){try{const c=new AbortController();const t=setTimeout(()=>c.abort(),10000);const r=await fetch(p+encodeURIComponent(url),{headers:{'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36','Accept':'*/*'},signal:c.signal});clearTimeout(t);if(r.ok)return await r.text();}catch(e){continue;}}return null;}
+
+function extractIframes(html){const r=/<iframe[^>]+src=["']([^"']+)["']/gi;const o=[];let m;while((m=r.exec(html)))o.push(m[1]);return [...new Set(o)];}
+
+function extractAflmUrls(html){const f=[];const p=[/https?:\/\/aflm[^\s"'<>]*cdnz\.quest\/[a-z0-9]+\/v\.mp4/gi];for(const pt of p){let m;while((m=pt.exec(html))){let u=m[0].replace(/["'<>\\]+$/,'').replace(/&amp;/g,'&');if(!f.includes(u))f.push(u);}}return f;}
+
+// ============ دالة الاستخراج الأصلية ============
+async function startExtract(inputUrl){
+    const baseUrl=inputUrl.includes('serv=')?inputUrl:inputUrl+(inputUrl.includes('?')?'&':'?')+'serv=0';
+    const mp4plusUrl=baseUrl.replace(/serv=\d+/g,'serv=2');
+    const processedIframes=new Set();
+    try{
+        const servHtml=await fetchPage(mp4plusUrl);
+        if(!servHtml)return null;
+        const iframes=extractIframes(servHtml);
+        for(const iframeUrl of iframes){
+            if(processedIframes.has(iframeUrl))continue;
+            processedIframes.add(iframeUrl);
+            try{
+                const iframeHtml=await fetchPage(iframeUrl);
+                if(!iframeHtml)continue;
+                const aflmUrls=extractAflmUrls(iframeHtml);
+                if(aflmUrls.length>0)return aflmUrls[0];
+                const nestedIframes=extractIframes(iframeHtml);
+                for(const nestedUrl of nestedIframes){
+                    if(processedIframes.has(nestedUrl))continue;
+                    processedIframes.add(nestedUrl);
+                    try{
+                        const nestedHtml=await fetchPage(nestedUrl);
+                        if(!nestedHtml)continue;
+                        const nestedAflm=extractAflmUrls(nestedHtml);
+                        if(nestedAflm.length>0)return nestedAflm[0];
+                    }catch(e){}
+                }
+            }catch(e){}
         }
+        return null;
+    }catch(e){return null;}
+}
 
-        // ============ دوالك الأصلية ============
-        async function fetchPage(url) {
-            for (const proxy of PROXIES) {
-                try {
-                    const ctrl = new AbortController();
-                    const t = setTimeout(() => ctrl.abort(), 10000);
-                    const res = await fetch(proxy + encodeURIComponent(url), {
-                        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', 'Accept': '*/*' },
-                        signal: ctrl.signal
-                    });
-                    clearTimeout(t);
-                    if (res.ok) return await res.text();
-                } catch(e) { continue; }
+// ============ جزء التشغيل التلقائي (هذا الوحيد اللي أضفته) ============
+(async function(){
+    addLog('🚀 بدء');
+    const res=await fetch(FIREBASE_URL+'/series.json');
+    const data=await res.json();
+    let done=0;
+    for(const id in data){
+        if(!data[id].episodes)continue;
+        let changed=false;
+        const eps=JSON.parse(JSON.stringify(data[id].episodes));
+        for(let i=0;i<eps.length;i++){
+            for(const f of['link1','link2','link3']){
+                const link=eps[i][f]||'';
+                if(!link.includes('shadwo.pro'))continue;
+                addLog(`🔍 ${(data[id].title||'').substring(0,25)} ح${i+1}`);
+                const mp4=await startExtract(link);
+                if(mp4&&mp4.includes('aflm')&&mp4.endsWith('/v.mp4')){
+                    eps[i][f]=mp4;
+                    changed=true;
+                    done++;
+                    addLog(`✅ ${mp4.substring(0,70)}`);
+                }else{
+                    addLog(`❌ فشل`);
+                }
+                await new Promise(r=>setTimeout(r,2000));
             }
-            return null;
         }
-
-        function extractIframes(html) {
-            const r = /<iframe[^>]+src=["']([^"']+)["']/gi;
-            const out = [];
-            let m;
-            while ((m = r.exec(html))) out.push(m[1]);
-            return [...new Set(out)];
+        if(changed){
+            await fetch(`${FIREBASE_URL}/series/${id}/episodes.json`,{method:'PUT',body:JSON.stringify(eps),headers:{'Content-Type':'application/json'}});
+            addLog(`💾 ${data[id].title}`);
         }
-
-        function extractAflmUrls(html) {
-            const found = [];
-            const patterns = [
-                /https?:\/\/aflm[^\s"'<>]*cdnz\.quest\/[a-z0-9]+\/v\.mp4/gi,
-            ];
-            for (const p of patterns) {
-                let m;
-                while ((m = p.exec(html))) {
-                    let u = m[0].replace(/["'<>\\]+$/, '').replace(/&amp;/g, '&');
-                    if (!found.includes(u)) found.push(u);
-                }
-            }
-            return found;
-        }
-
-        async function startExtract(shadwoUrl) {
-            const baseUrl = shadwoUrl.includes('serv=') ? shadwoUrl :
-                           shadwoUrl + (shadwoUrl.includes('?') ? '&' : '?') + 'serv=0';
-            const mp4plusUrl = baseUrl.replace(/serv=\d+/g, 'serv=2');
-            const processedIframes = new Set();
-
-            try {
-                const servHtml = await fetchPage(mp4plusUrl);
-                if (!servHtml) return null;
-                const iframes = extractIframes(servHtml);
-
-                for (const iframeUrl of iframes) {
-                    if (processedIframes.has(iframeUrl)) continue;
-                    processedIframes.add(iframeUrl);
-                    try {
-                        const iframeHtml = await fetchPage(iframeUrl);
-                        if (!iframeHtml) continue;
-                        const aflmUrls = extractAflmUrls(iframeHtml);
-                        if (aflmUrls.length > 0) return aflmUrls[0];
-
-                        const nestedIframes = extractIframes(iframeHtml);
-                        for (const nestedUrl of nestedIframes) {
-                            if (processedIframes.has(nestedUrl)) continue;
-                            processedIframes.add(nestedUrl);
-                            try {
-                                const nestedHtml = await fetchPage(nestedUrl);
-                                if (!nestedHtml) continue;
-                                const nestedAflm = extractAflmUrls(nestedHtml);
-                                if (nestedAflm.length > 0) return nestedAflm[0];
-                            } catch(e) {}
-                        }
-                    } catch(e) {}
-                }
-                return null;
-            } catch(e) { return null; }
-        }
-
-        // ============ تلقائي ============
-        (async function() {
-            addLog('🚀 بدء');
-            const res = await fetch(FIREBASE_URL + '/series.json');
-            const data = await res.json();
-            let done = 0;
-
-            for (const id in data) {
-                if (!data[id].episodes) continue;
-                let changed = false;
-                const eps = JSON.parse(JSON.stringify(data[id].episodes));
-
-                for (let i = 0; i < eps.length; i++) {
-                    for (const f of ['link1', 'link2', 'link3']) {
-                        const link = eps[i][f] || '';
-                        if (!link.includes('shadwo.pro')) continue;
-
-                        addLog(`🔍 ${(data[id].title||'').substring(0,25)} ح${i+1}`);
-                        const mp4 = await startExtract(link);
-
-                        if (mp4 && mp4.includes('aflm') && mp4.includes('v.mp4')) {
-                            eps[i][f] = mp4;
-                            changed = true;
-                            done++;
-                            addLog(`✅ ${mp4.substring(0,60)}`);
-                        } else {
-                            addLog(`❌ فشل`);
-                        }
-                        await new Promise(r => setTimeout(r, 2000));
-                    }
-                }
-
-                if (changed) {
-                    await fetch(`${FIREBASE_URL}/series/${id}/episodes.json`, {
-                        method: 'PUT',
-                        body: JSON.stringify(eps),
-                        headers: { 'Content-Type': 'application/json' }
-                    });
-                    addLog(`💾 ${data[id].title}`);
-                }
-            }
-            addLog(`✅ done:${done}`);
-        })();
-    </script>
+    }
+    addLog(`✅ تم:${done}`);
+})();
+</script>
 </body>
 </html>
