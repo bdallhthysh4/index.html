@@ -3,116 +3,76 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1"/>
-    <title>Shadwo PRO - صياد روابط MP4 المباشرة</title>
+    <title>Shadwo PRO - مستخرج روابط MP4 المباشرة</title>
     <style>
         :root {
             --bg: #0a0a0f; --card: #111118; --border: #222230;
-            --green: #00e676; --red: #ff3d3d; --orange: #ff9100; --blue: #4488ff;
-            --text: #c8c8d0; --gold: #ffd700;
+            --green: #00e676; --red: #ff3d3d; --orange: #ff9100; --text: #c8c8d0;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: var(--bg); font-family: 'Segoe UI', system-ui, sans-serif;
-            color: var(--text); min-height: 100vh; padding: 20px;
+            color: var(--text); min-height: 100vh; padding: 16px;
         }
-        .container { max-width: 1000px; margin: 0 auto; }
-        header { text-align: center; margin-bottom: 20px; }
-        header h1 { font-size: 1.7em; color: var(--green); text-shadow: 0 0 20px rgba(0,230,118,0.15); }
-        header p { color: #666; font-size: 0.82em; }
+        .container { max-width: 960px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 18px; }
+        header h1 { font-size: 1.6em; color: var(--green); }
+        header p { color: #666; font-size: 0.8em; }
 
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 14px; }
-        .input-row { display: flex; gap: 10px; flex-wrap: wrap; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 12px; }
+        .input-row { display: flex; gap: 8px; flex-wrap: wrap; }
         .input-row input {
-            flex: 1; min-width: 220px; padding: 14px;
+            flex: 1; min-width: 200px; padding: 13px;
             background: #0b0b14; border: 2px solid #2a2a38; border-radius: 10px;
-            color: #fff; font-family: 'Consolas', monospace; font-size: 0.88em;
+            color: #fff; font-family: 'Consolas', monospace; font-size: 0.85em;
         }
         .input-row input:focus { outline: none; border-color: var(--green); }
         .btn {
-            padding: 14px 24px; border: none; border-radius: 10px;
+            padding: 13px 22px; border: none; border-radius: 10px;
             font-weight: 700; font-size: 0.9em; cursor: pointer; transition: all 0.25s; white-space: nowrap;
         }
         .btn-go { background: var(--green); color: #000; }
-        .btn-go:hover { background: #00ff84; box-shadow: 0 6px 28px rgba(0,230,118,0.35); }
+        .btn-go:hover { background: #00ff84; }
         .btn-go:disabled { background: #2a2a38; color: #555; cursor: not-allowed; }
-        .btn-stop { background: var(--red); color: #fff; display: none; }
-        .btn-stop:hover { background: #ff5555; }
-        .btn-stop.active { display: inline-block; }
 
-        .intercept-area {
-            display: none; margin: 14px 0;
+        .log-panel {
+            background: #0a0a10; border: 1px solid #1a1a2a; border-radius: 10px;
+            padding: 12px; font-family: 'Consolas', monospace; font-size: 0.7em;
+            color: #0f0; max-height: 180px; overflow-y: auto; white-space: pre-wrap;
+            word-break: break-all; margin: 10px 0; display: none;
         }
-        .intercept-area.active { display: block; }
-        
-        .iframe-holder {
-            position: relative; width: 100%; max-width: 640px; margin: 0 auto;
-            background: #000; border-radius: 14px; overflow: hidden;
-            border: 2px solid #222; height: 360px;
-        }
-        .iframe-holder iframe {
-            width: 100%; height: 100%; border: none;
-        }
-        .iframe-overlay {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            display: flex; align-items: center; justify-content: center;
-            background: rgba(0,0,0,0.7); z-index: 10; cursor: pointer;
-            transition: opacity 0.3s;
-        }
-        .iframe-overlay.hidden { opacity: 0; pointer-events: none; }
-        .play-hint {
-            color: #fff; font-size: 1.2em; font-weight: 700;
-            background: rgba(0,230,118,0.3); padding: 16px 32px;
-            border-radius: 30px; border: 2px solid var(--green);
-        }
+        .log-panel.active { display: block; }
 
-        .status-bar {
-            display: flex; align-items: center; gap: 10px;
-            padding: 14px; margin: 14px 0;
-            background: #111118; border-radius: 12px; border: 1px solid var(--border);
-        }
-        .status-dot {
-            width: 12px; height: 12px; border-radius: 50%; background: #555;
-        }
-        .status-dot.active { background: var(--green); animation: blink 0.8s infinite; }
-        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
-        .status-text { font-size: 0.85em; color: #888; }
-        .status-text b { color: var(--green); }
-
-        .results-area { margin-top: 16px; }
+        .results-area { margin-top: 14px; }
         .result-item {
             background: var(--card); border: 1px solid var(--border);
-            border-radius: 14px; padding: 18px; margin-bottom: 10px;
+            border-radius: 14px; padding: 16px; margin-bottom: 8px;
             transition: all 0.2s;
         }
-        .result-item.new {
-            border-color: var(--green); box-shadow: 0 0 30px rgba(0,230,118,0.25);
-            background: #0a1a11; animation: highlightIn 0.5s ease-out;
-        }
-        @keyframes highlightIn {
-            from { background: #002200; transform: scale(1.02); }
-            to { background: #0a1a11; transform: scale(1); }
+        .result-item.best {
+            border-color: var(--green); box-shadow: 0 0 25px rgba(0,230,118,0.15);
+            background: #0a1a11;
         }
         .result-top {
             display: flex; justify-content: space-between; align-items: center;
-            flex-wrap: wrap; gap: 8px; margin-bottom: 10px;
+            flex-wrap: wrap; gap: 6px; margin-bottom: 8px;
         }
         .tag {
-            padding: 6px 14px; border-radius: 16px; font-weight: 800; font-size: 0.7em;
+            padding: 5px 12px; border-radius: 14px; font-weight: 800; font-size: 0.68em;
         }
-        .tag-mp4 { background: #ff910022; color: var(--orange); border: 1px solid #ff910044; }
-        .tag-live { background: #00e67622; color: var(--green); border: 1px solid #00e67644; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .tag-alive { background: #00e67622; color: var(--green); border: 1px solid #00e67644; }
+        .tag-dead { background: #ff3d3d22; color: var(--red); border: 1px solid #ff3d3d44; }
         .link-box {
             background: #050510; border: 1px solid #1a1a2a; border-radius: 8px;
-            padding: 14px; font-family: 'Consolas', monospace; font-size: 0.7em;
-            color: #0f0; word-break: break-all; margin-bottom: 10px;
-            user-select: all; max-height: 55px; overflow-y: auto; line-height: 1.6;
+            padding: 12px; font-family: 'Consolas', monospace; font-size: 0.7em;
+            color: #0f0; word-break: break-all; margin-bottom: 8px;
+            user-select: all; max-height: 50px; overflow-y: auto;
             direction: ltr; text-align: left;
         }
-        .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .actions { display: flex; gap: 6px; flex-wrap: wrap; }
         .btn-sm {
-            padding: 10px 16px; border: none; border-radius: 8px;
-            font-weight: 600; font-size: 0.78em; cursor: pointer; transition: all 0.2s;
+            padding: 9px 14px; border: none; border-radius: 8px;
+            font-weight: 600; font-size: 0.75em; cursor: pointer; transition: all 0.2s;
             text-decoration: none; display: inline-block;
         }
         .btn-copy { background: #2a2a38; color: #ccc; }
@@ -122,25 +82,10 @@
         .btn-dl { background: #ff6600; color: #fff; }
         .btn-dl:hover { background: #ff7722; }
 
-        .counter-badge {
-            display: inline-block; background: #00e676; color: #000;
-            padding: 2px 8px; border-radius: 10px; font-size: 0.7em;
-            font-weight: 800; animation: popIn 0.3s ease-out;
-        }
-        @keyframes popIn {
-            from { transform: scale(1.4); }
-            to { transform: scale(1); }
-        }
-
-        .manual-box { background: #111; border: 1px solid #333; border-radius: 12px; padding: 18px; margin-top: 16px; }
-        .manual-box h3 { color: #ffaa00; margin-bottom: 8px; }
-        .manual-box ul { padding-right: 20px; color: #aaa; font-size: 0.85em; line-height: 2; }
-        .manual-box code { background: #1a1a1a; padding: 2px 8px; border-radius: 4px; color: #ffaa00; font-family: 'Consolas', monospace; }
-
         .toast {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-            background: #00e676; color: #000; padding: 12px 24px;
-            border-radius: 30px; font-weight: 700; font-size: 0.9em;
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: #00e676; color: #000; padding: 10px 20px;
+            border-radius: 25px; font-weight: 700; font-size: 0.85em;
             z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none;
         }
         .toast.show { opacity: 1; }
@@ -149,79 +94,200 @@
 <body>
     <div class="container">
         <header>
-            <h1>🎯 Shadwo PRO - صياد روابط MP4 المباشرة</h1>
-            <p>يفتح iframe فعلي ويلتقط روابط <code style="color:#0f0;">aflm-eco2-akf.cdnz.quest</code> من الشبكة</p>
+            <h1>🎬 مستخرج روابط MP4 المباشرة</h1>
+            <p>ضع أي رابط Shadwo - يستخرج الروابط المباشرة تلقائياً</p>
         </header>
 
         <div class="card">
             <div class="input-row">
                 <input type="text" id="urlInput"
-                       value="https://w.shadwo.pro/albaplayer/esref-ruya-s01e01/?serv=2"
-                       placeholder="ضع رابط Shadwo هنا (MP4Plus serv=2)...">
-                <button class="btn btn-go" id="goBtn" onclick="startIntercept()">🎯 بدء الاصطياد</button>
-                <button class="btn btn-stop" id="stopBtn" onclick="stopIntercept()">⏹️ إيقاف</button>
+                       value="https://w.shadwo.pro/albaplayer/esref-ruya-s01e01/"
+                       placeholder="ضع رابط Shadwo هنا...">
+                <button class="btn btn-go" id="goBtn" onclick="extract()">🔍 استخراج</button>
             </div>
         </div>
 
-        <div class="intercept-area" id="interceptArea">
-            <div class="status-bar">
-                <div class="status-dot active" id="statusDot"></div>
-                <div class="status-text" id="statusText">
-                    🟢 <b>جاري المراقبة...</b> شغّل الفيديو داخل الإطار
-                </div>
-                <span style="margin-right:auto;color:#aaa;font-size:0.8em;" id="captureCount">0 رابط</span>
-            </div>
-
-            <div class="iframe-holder">
-                <div class="iframe-overlay" id="iframeOverlay" onclick="clickPlay()">
-                    <span class="play-hint">▶️ اضغط هنا لتشغيل الفيديو</span>
-                </div>
-                <iframe id="targetFrame" allowfullscreen="true" scrolling="no"
-                        allow="autoplay; encrypted-media; gyroscope; picture-in-picture"
-                        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation allow-downloads">
-                </iframe>
-            </div>
-        </div>
-
+        <div class="log-panel" id="logPanel"></div>
         <div class="results-area" id="resultsArea"></div>
-
-        <div class="manual-box">
-            <h3>📋 طريقة الاستخدام</h3>
-            <ul>
-                <li>تأكد إن الرابط فيه <code>?serv=2</code> (MP4Plus)</li>
-                <li>اضغط <b>بدء الاصطياد</b></li>
-                <li>اضغط على الفيديو لتشغيله</li>
-                <li>الروابط المباشرة <code>aflm-eco2-akf.cdnz.quest/.../v.mp4</code> ستظهر هنا</li>
-            </ul>
-        </div>
     </div>
 
     <div class="toast" id="toast">✅ تم النسخ!</div>
 
     <script>
-        // ============ DOM ============
+        const PROXIES = [
+            "https://api.allorigins.win/raw?url=",
+            "https://corsproxy.io/?",
+            "https://api.codetabs.com/v1/proxy?quest=",
+        ];
+
         const urlInput = document.getElementById('urlInput');
         const goBtn = document.getElementById('goBtn');
-        const stopBtn = document.getElementById('stopBtn');
-        const interceptArea = document.getElementById('interceptArea');
-        const targetFrame = document.getElementById('targetFrame');
-        const iframeOverlay = document.getElementById('iframeOverlay');
-        const statusDot = document.getElementById('statusDot');
-        const statusText = document.getElementById('statusText');
-        const captureCount = document.getElementById('captureCount');
+        const logPanel = document.getElementById('logPanel');
         const resultsArea = document.getElementById('resultsArea');
         const toast = document.getElementById('toast');
 
-        let capturedUrls = [];
-        let isIntercepting = false;
-        let checkInterval = null;
-        let serviceWorkerRegistered = false;
+        let foundUrls = [];
+        let logText = '';
 
-        // ============ HELPERS ============
+        function addLog(msg) {
+            logText += `[${new Date().toLocaleTimeString()}] ${msg}\n`;
+            logPanel.value = logText;
+            logPanel.classList.add('active');
+            logPanel.scrollTop = logPanel.scrollHeight;
+        }
+
         function showToast(msg) {
             toast.textContent = msg;
             toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2000);
+            setTimeout(() => toast.classList.remove('show'), 1800);
+        }
+
+        // ============ FETCH ============
+        async function fetchPage(url) {
+            for (const proxy of PROXIES) {
+                try {
+                    const ctrl = new AbortController();
+                    const t = setTimeout(() => ctrl.abort(), 12000);
+                    const res = await fetch(proxy + encodeURIComponent(url), {
+                        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', 'Accept': '*/*' },
+                        signal: ctrl.signal
+                    });
+                    clearTimeout(t);
+                    if (res.ok) return await res.text();
+                } catch(e) { continue; }
+            }
+            throw new Error('فشل الاتصال');
+        }
+
+        // ============ استخراج ============
+        function extractIframes(html) {
+            const r = /<iframe[^>]+src=["']([^"']+)["']/gi;
+            const out = [];
+            let m;
+            while ((m = r.exec(html))) out.push(m[1]);
+            return [...new Set(out)];
+        }
+
+        function extractVideoId(html, url) {
+            // من iframe: embed-xxxx.html
+            let m = url.match(/embed-([a-z0-9]+)\.html/i);
+            if (m) return m[1];
+            // من HTML
+            m = html.match(/embed-([a-z0-9]+)\.html/i);
+            if (m) return m[1];
+            // من رابط MP4Plus
+            m = url.match(/mp4plus\.\w+\/([a-z0-9]+)\.html/i);
+            if (m) return m[1];
+            m = html.match(/file_code=([a-z0-9]+)/i);
+            if (m) return m[1];
+            return null;
+        }
+
+        function extractAllUrls(html) {
+            const found = [];
+            const patterns = [
+                /https?:\/\/[^\s"'<>]*aflm[^\s"'<>]*\.mp4[^\s"'<>]*/gi,
+                /https?:\/\/[^\s"'<>]*cdnz\.quest[^\s"'<>]*\.mp4[^\s"'<>]*/gi,
+                /https?:\/\/[^\s"'<>]*\.m3u8[^\s"'<>]*/gi,
+                /https?:\/\/[^\s"'<>]*cdnz\.online[^\s"'<>]*/gi,
+                /https?:\/\/[^\s"'<>]*albrq[^\s"'<>]*/gi,
+            ];
+            for (const p of patterns) {
+                let m;
+                while ((m = p.exec(html))) {
+                    let u = m[0].replace(/["'<>\\]+$/, '');
+                    if (!found.includes(u)) found.push(u);
+                }
+            }
+            return found;
+        }
+
+        // ============ فحص الرابط ============
+        async function checkUrl(url) {
+            for (const proxy of PROXIES) {
+                try {
+                    const ctrl = new AbortController();
+                    const t = setTimeout(() => ctrl.abort(), 8000);
+                    const res = await fetch(proxy + encodeURIComponent(url), {
+                        method: 'GET',
+                        headers: {
+                            'User-Agent': 'Mozilla/5.0',
+                            'Range': 'bytes=0-1023',
+                        },
+                        signal: ctrl.signal
+                    });
+                    clearTimeout(t);
+                    if (res.ok || res.status === 206) return true;
+                    if (res.status === 403) return 'maybe';
+                } catch(e) { continue; }
+            }
+            // مباشر
+            try {
+                const ctrl = new AbortController();
+                const t = setTimeout(() => ctrl.abort(), 6000);
+                const res = await fetch(url, {
+                    method: 'GET',
+                    headers: { 'User-Agent': 'Mozilla/5.0', 'Range': 'bytes=0-1023' },
+                    signal: ctrl.signal
+                });
+                clearTimeout(t);
+                if (res.ok || res.status === 206) return true;
+                if (res.status === 403) return 'maybe';
+            } catch(e) {}
+            return false;
+        }
+
+        // ============ بناء روابط MP4 مباشرة ============
+        function buildMp4Urls(videoId) {
+            // الأنماط اللي شغالة فعلاً
+            return [
+                // النمط المباشر من MP4Plus iframe
+                `https://aflm-eco2-akf.cdnz.quest/${videoId}/v.mp4`,
+                `https://aflm-eco2-akf.cdnz.quest/${videoId}_l/v.mp4`,
+                // أنماط إضافية
+                `https://aflm-eco2-akf.cdnz.quest/hls/${videoId}/v.mp4`,
+                `https://aflm-eco2-akf.cdnz.quest/hls2/${videoId}/v.mp4`,
+            ];
+        }
+
+        // ============ النتيجة ============
+        function addResult(url, source, status) {
+            if (foundUrls.find(u => u.url === url)) return;
+            foundUrls.push({ url, source, status, time: new Date().toLocaleTimeString() });
+            renderResults();
+        }
+
+        function renderResults() {
+            if (foundUrls.length === 0) {
+                resultsArea.innerHTML = '<p style="text-align:center;color:#555;">لا توجد نتائج بعد</p>';
+                return;
+            }
+            const sorted = [...foundUrls].sort((a, b) => {
+                if (a.status === true && b.status !== true) return -1;
+                if (a.status !== true && b.status === true) return 1;
+                return 0;
+            });
+            let html = '';
+            for (const item of sorted) {
+                const isAlive = item.status === true;
+                const isMaybe = item.status === 'maybe';
+                const isBest = isAlive && item.url.includes('.mp4');
+                const escaped = item.url.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+                html += `
+                <div class="result-item${isBest ? ' best' : ''}">
+                    <div class="result-top">
+                        <span class="tag ${isAlive ? 'tag-alive' : 'tag-dead'}">${isAlive ? '✅ شغال' : (isMaybe ? '⚠️ محتمل' : '❌ ميت')}</span>
+                        <span style="color:#666;font-size:0.7em;">${item.source} | ${item.time}</span>
+                    </div>
+                    <div class="link-box">${item.url}</div>
+                    <div class="actions">
+                        <button class="btn-sm btn-copy" onclick="copyText('${escaped}', this)">📋 نسخ</button>
+                        <a class="btn-sm btn-open" href="${item.url}" target="_blank" rel="noopener">▶️ فتح</a>
+                        ${isAlive || isMaybe ? `<a class="btn-sm btn-dl" href="${item.url}" download>⬇️ تحميل</a>` : ''}
+                    </div>
+                </div>`;
+            }
+            resultsArea.innerHTML = html;
         }
 
         function copyText(text, btn) {
@@ -230,332 +296,162 @@
                 btn.textContent = '✅ تم!';
                 btn.style.background = '#00e676';
                 btn.style.color = '#000';
-                setTimeout(() => {
-                    btn.textContent = orig;
-                    btn.style.background = '#2a2a38';
-                    btn.style.color = '#ccc';
-                }, 1800);
+                setTimeout(() => { btn.textContent = orig; btn.style.background = '#2a2a38'; btn.style.color = '#ccc'; }, 1500);
             }).catch(() => {
                 const ta = document.createElement('textarea');
                 ta.value = text;
                 ta.style.position = 'fixed'; ta.style.left = '-9999px';
-                document.body.appendChild(ta);
-                ta.select();
+                document.body.appendChild(ta); ta.select();
                 document.execCommand('copy');
                 document.body.removeChild(ta);
                 showToast('✅ تم النسخ!');
             });
         }
 
-        function addCapturedUrl(url) {
-            // نتأكد إنه الرابط من النوع المطلوب
-            if (!url.includes('aflm-eco2-akf.cdnz.quest') && !url.includes('.mp4')) return;
-            if (!url.startsWith('http')) return;
-            
-            // تجنب التكرار
-            if (capturedUrls.find(u => u.url === url)) return;
-
-            const item = {
-                url: url,
-                time: new Date().toLocaleTimeString(),
-                isNew: true
-            };
-            capturedUrls.unshift(item);
-            
-            // إزالة علامة "جديد" بعد 3 ثواني
-            setTimeout(() => { item.isNew = false; renderResults(); }, 3000);
-
-            renderResults();
-            captureCount.textContent = capturedUrls.length + ' رابط';
-            
-            // إشعار
-            showToast('🎯 تم اصطياد رابط MP4 جديد!');
-            
-            // إخفاء الـ overlay
-            iframeOverlay.classList.add('hidden');
-        }
-
-        function renderResults() {
-            if (capturedUrls.length === 0) {
-                resultsArea.innerHTML = '';
-                return;
-            }
-
-            let html = '';
-            for (const item of capturedUrls) {
-                const escaped = item.url.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-                html += `
-                <div class="result-item${item.isNew ? ' new' : ''}">
-                    <div class="result-top">
-                        <span class="tag ${item.isNew ? 'tag-live' : 'tag-mp4'}">${item.isNew ? '🆕 جديد!' : '🎬 MP4 مباشر'}</span>
-                        <span style="color:#666;font-size:0.7em;">${item.time}</span>
-                    </div>
-                    <div class="link-box">${item.url}</div>
-                    <div class="actions">
-                        <button class="btn-sm btn-copy" onclick="copyText('${escaped}', this)">📋 نسخ</button>
-                        <a class="btn-sm btn-open" href="${item.url}" target="_blank" rel="noopener">▶️ فتح</a>
-                        <a class="btn-sm btn-dl" href="${item.url}" download>⬇️ تحميل</a>
-                    </div>
-                </div>`;
-            }
-
-            resultsArea.innerHTML = html;
-        }
-
-        // ============ INTERCEPTION ENGINE ============
-        
-        // الطريقة 1: Service Worker
-        async function setupServiceWorker() {
-            if (!('serviceWorker' in navigator)) {
-                console.log('Service Worker غير مدعوم');
-                return false;
-            }
-
-            try {
-                // نبني كود Service Worker على شكل Blob
-                const swCode = `
-                    self.addEventListener('fetch', function(event) {
-                        const url = event.request.url;
-                        if (url.includes('aflm-eco2-akf.cdnz.quest') && url.includes('.mp4')) {
-                            // إرسال الرابط للصفحة الرئيسية
-                            self.clients.matchAll().then(function(clients) {
-                                clients.forEach(function(client) {
-                                    client.postMessage({
-                                        type: 'INTERCEPTED_URL',
-                                        url: url
-                                    });
-                                });
-                            });
-                        }
-                    });
-                `;
-
-                const blob = new Blob([swCode], { type: 'application/javascript' });
-                const swUrl = URL.createObjectURL(blob);
-
-                const registration = await navigator.serviceWorker.register(swUrl, { scope: '/' });
-                console.log('✅ Service Worker تم تسجيله');
-                
-                // تنظيف
-                setTimeout(() => {
-                    registration.unregister();
-                    URL.revokeObjectURL(swUrl);
-                }, 300000); // 5 دقايق
-
-                serviceWorkerRegistered = true;
-                return true;
-            } catch(e) {
-                console.warn('Service Worker فشل:', e.message);
-                return false;
-            }
-        }
-
-        // الطريقة 2: مراقبة postMessage من الـ iframe
-        function setupMessageListener() {
-            window.addEventListener('message', function(event) {
-                if (!event.data) return;
-                
-                let url = null;
-                if (typeof event.data === 'string' && event.data.startsWith('http')) {
-                    url = event.data;
-                } else if (event.data.url && typeof event.data.url === 'string') {
-                    url = event.data.url;
-                } else if (event.data.type === 'INTERCEPTED_URL' && event.data.url) {
-                    url = event.data.url;
-                }
-
-                if (url && (url.includes('aflm-eco2-akf.cdnz.quest') || url.includes('.mp4'))) {
-                    addCapturedUrl(url);
-                }
-            });
-        }
-
-        // الطريقة 3: حقن كود في iframe
-        function injectInterceptor() {
-            try {
-                const iframeWin = targetFrame.contentWindow;
-                if (!iframeWin) return;
-
-                const script = iframeWin.document.createElement('script');
-                script.textContent = `
-                    (function() {
-                        console.log('[Interceptor] نشط داخل iframe');
-
-                        // اعتراض fetch
-                        var origFetch = window.fetch;
-                        window.fetch = function(url, opts) {
-                            var urlStr = typeof url === 'string' ? url : (url.url || '');
-                            if (urlStr.includes('aflm-eco2-akf.cdnz.quest') || urlStr.includes('.mp4')) {
-                                try {
-                                    window.parent.postMessage({ url: urlStr, type: 'INTERCEPTED_URL' }, '*');
-                                } catch(e) {}
-                            }
-                            return origFetch.apply(this, arguments);
-                        };
-
-                        // اعتراض XMLHttpRequest
-                        var origOpen = XMLHttpRequest.prototype.open;
-                        XMLHttpRequest.prototype.open = function(method, url) {
-                            if (typeof url === 'string' && (url.includes('aflm-eco2-akf.cdnz.quest') || url.includes('.mp4'))) {
-                                try {
-                                    window.parent.postMessage({ url: url, type: 'INTERCEPTED_URL' }, '*');
-                                } catch(e) {}
-                            }
-                            return origOpen.apply(this, arguments);
-                        };
-
-                        // مراقبة عناصر video
-                        var observer = new MutationObserver(function(mutations) {
-                            mutations.forEach(function(mutation) {
-                                mutation.addedNodes.forEach(function(node) {
-                                    if (node.tagName === 'VIDEO' || node.tagName === 'SOURCE') {
-                                        var src = node.src || node.currentSrc || '';
-                                        if (src && src.includes('aflm-eco2-akf.cdnz.quest')) {
-                                            try {
-                                                window.parent.postMessage({ url: src, type: 'INTERCEPTED_URL' }, '*');
-                                            } catch(e) {}
-                                        }
-                                    }
-                                });
-                            });
-                        });
-                        observer.observe(document.documentElement, { childList: true, subtree: true });
-
-                        console.log('[Interceptor] ✅ جاهز');
-                    })();
-                `;
-                iframeWin.document.head.appendChild(script);
-                console.log('✅ تم حقن المعترض في iframe');
-            } catch(e) {
-                console.warn('حقن iframe فشل (تقييد cross-origin):', e.message);
-            }
-        }
-
-        // الطريقة 4: فحص src العناصر بشكل دوري
-        function startPeriodicCheck() {
-            if (checkInterval) clearInterval(checkInterval);
-            
-            checkInterval = setInterval(() => {
-                try {
-                    const iframeDoc = targetFrame.contentDocument || targetFrame.contentWindow.document;
-                    if (!iframeDoc) return;
-
-                    // فحص عناصر video
-                    const videos = iframeDoc.querySelectorAll('video, source');
-                    videos.forEach(v => {
-                        const src = v.src || v.currentSrc || '';
-                        if (src && src.includes('aflm-eco2-akf.cdnz.quest') && src.includes('.mp4')) {
-                            addCapturedUrl(src);
-                        }
-                    });
-
-                    // فحص كل الروابط في الصفحة
-                    const links = iframeDoc.querySelectorAll('a[href]');
-                    links.forEach(a => {
-                        const href = a.href;
-                        if (href && href.includes('aflm-eco2-akf.cdnz.quest') && href.includes('.mp4')) {
-                            addCapturedUrl(href);
-                        }
-                    });
-                } catch(e) {
-                    // cross-origin - طبيعي
-                }
-            }, 1500);
-        }
-
-        // ============ START / STOP ============
-        async function startIntercept() {
+        // ============ CORE ============
+        async function extract() {
             const inputUrl = urlInput.value.trim();
             if (!inputUrl) return;
 
-            // Reset
-            capturedUrls = [];
-            renderResults();
-            captureCount.textContent = '0 رابط';
-            if (checkInterval) clearInterval(checkInterval);
-
-            // UI
-            interceptArea.classList.add('active');
-            goBtn.disabled = true;
-            stopBtn.classList.add('active');
-            iframeOverlay.classList.remove('hidden');
-            statusDot.classList.add('active');
-            statusText.innerHTML = '🟢 <b>جاري المراقبة...</b> شغّل الفيديو داخل الإطار';
+            foundUrls = [];
+            logText = '';
             resultsArea.innerHTML = '';
+            logPanel.classList.add('active');
+            goBtn.disabled = true;
 
-            // Setup interception
-            setupMessageListener();
-            await setupServiceWorker();
+            addLog('🚀 بدء الاستخراج...');
+            addLog(`📄 الرابط: ${inputUrl}`);
 
-            // تحميل MP4Plus مباشرة (serv=2)
-            let targetUrl = inputUrl;
-            if (!targetUrl.includes('serv=2')) {
-                targetUrl = targetUrl.replace(/serv=\d+/g, 'serv=2');
-                if (!targetUrl.includes('serv=')) {
-                    targetUrl += (targetUrl.includes('?') ? '&' : '?') + 'serv=2';
-                }
+            const baseUrl = inputUrl.includes('serv=') ? inputUrl :
+                           inputUrl + (inputUrl.includes('?') ? '&' : '?') + 'serv=0';
+
+            // نجمع كل video IDs
+            const allVideoIds = new Set();
+            const allFoundUrls = [];
+
+            // 1. فحص الصفحة الرئيسية
+            addLog('📡 فحص الصفحة الرئيسية...');
+            try {
+                const mainHtml = await fetchPage(baseUrl);
+                const mainUrls = extractAllUrls(mainHtml);
+                mainUrls.forEach(u => allFoundUrls.push({ url: u, source: 'الرئيسية' }));
+                const mainId = extractVideoId(mainHtml, baseUrl);
+                if (mainId) allVideoIds.add(mainId);
+                addLog(`✅ الرئيسية: ${mainUrls.length} روابط, ID: ${mainId || 'لا يوجد'}`);
+            } catch(e) {
+                addLog(`❌ فشل الرئيسية: ${e.message}`);
             }
 
-            // إذا الرابط لـ MP4Plus مباشرة، نستخدمه
-            // وإلا نستخدم iframe لمشغل Shadwo
-            targetFrame.src = targetUrl;
+            // 2. فحص كل سيرفر
+            const servers = [
+                { id: 1, name: 'CDNPlus' },
+                { id: 2, name: 'MP4Plus' },
+                { id: 3, name: 'AnaFast' },
+                { id: 4, name: 'Vidoba' },
+                { id: 5, name: 'VidSpeed' },
+                { id: 6, name: 'Larhu' },
+                { id: 7, name: 'VK' },
+                { id: 8, name: 'OK' },
+            ];
 
-            // انتظر تحميل iframe ثم حاول حقن الكود
-            targetFrame.addEventListener('load', function() {
-                setTimeout(() => {
-                    injectInterceptor();
-                    startPeriodicCheck();
-                }, 2000);
-            }, { once: true });
+            for (const srv of servers) {
+                const servUrl = baseUrl.replace(/serv=\d+/g, 'serv=' + srv.id);
+                addLog(`🔍 فحص ${srv.name}...`);
+                try {
+                    const servHtml = await fetchPage(servUrl);
+                    const servUrls = extractAllUrls(servHtml);
+                    servUrls.forEach(u => allFoundUrls.push({ url: u, source: srv.name }));
+                    
+                    const servId = extractVideoId(servHtml, servUrl);
+                    if (servId) allVideoIds.add(servId);
 
-            isIntercepting = true;
-            statusText.innerHTML = '🟢 <b>جاري المراقبة...</b> اضغط Play';
-        }
-
-        function stopIntercept() {
-            isIntercepting = false;
-            if (checkInterval) clearInterval(checkInterval);
-            
-            targetFrame.src = 'about:blank';
-            interceptArea.classList.remove('active');
-            goBtn.disabled = false;
-            stopBtn.classList.remove('active');
-            statusDot.classList.remove('active');
-            statusText.innerHTML = '⏹️ تم الإيقاف';
-        }
-
-        function clickPlay() {
-            iframeOverlay.classList.add('hidden');
-            // محاولة تشغيل الفيديو داخل iframe
-            try {
-                const iframeDoc = targetFrame.contentDocument || targetFrame.contentWindow.document;
-                if (iframeDoc) {
-                    const playBtn = iframeDoc.querySelector('button[aria-label="Play"], .play-button, .vjs-big-play-button, video');
-                    if (playBtn) {
-                        if (playBtn.tagName === 'VIDEO') {
-                            playBtn.play();
-                        } else {
-                            playBtn.click();
+                    // فحص iframes
+                    const iframes = extractIframes(servHtml);
+                    for (const iframeUrl of iframes) {
+                        addLog(`  📺 iframe: ${iframeUrl.substring(0, 60)}...`);
+                        try {
+                            const iframeHtml = await fetchPage(iframeUrl);
+                            const iframeUrls = extractAllUrls(iframeHtml);
+                            iframeUrls.forEach(u => allFoundUrls.push({ url: u, source: srv.name + ' iframe' }));
+                            
+                            const iframeId = extractVideoId(iframeHtml, iframeUrl);
+                            if (iframeId) allVideoIds.add(iframeId);
+                        } catch(e) {
+                            addLog(`  ⚠️ فشل iframe: ${e.message}`);
                         }
                     }
+                    addLog(`  ✅ ${srv.name}: ${servUrls.length} روابط`);
+                } catch(e) {
+                    addLog(`  ❌ فشل ${srv.name}: ${e.message}`);
                 }
-            } catch(e) {}
-            statusText.innerHTML = '🟢 <b>جاري المراقبة...</b> انتظر ظهور الرابط';
+            }
+
+            // 3. بناء روابط MP4 من كل video ID
+            addLog(`\n🎯 تم العثور على ${allVideoIds.size} Video IDs`);
+            const mp4Candidates = [];
+            for (const vidId of allVideoIds) {
+                const urls = buildMp4Urls(vidId);
+                urls.forEach(u => mp4Candidates.push({ url: u, source: 'MP4 Builder' }));
+                addLog(`  🏗️ ID: ${vidId} → ${urls.length} روابط محتملة`);
+            }
+
+            // 4. دمج الكل
+            const allCandidates = [...allFoundUrls, ...mp4Candidates];
+            // إزالة التكرار
+            const unique = [];
+            const seen = new Set();
+            for (const item of allCandidates) {
+                if (!seen.has(item.url) && item.url.length > 20 && item.url.startsWith('http')) {
+                    seen.add(item.url);
+                    unique.push(item);
+                }
+            }
+
+            addLog(`\n📦 إجمالي الروابط الفريدة: ${unique.length}`);
+
+            // 5. فحص الروابط
+            addLog('🔍 جاري فحص الروابط...');
+            const mp4Links = unique.filter(u => u.url.includes('.mp4') || u.url.includes('aflm'));
+            const otherLinks = unique.filter(u => !mp4Links.includes(u));
+
+            // نفحص MP4 أولاً
+            let aliveCount = 0;
+            for (const item of mp4Links) {
+                addLog(`  فحص: ${item.url.substring(0, 70)}...`);
+                const status = await checkUrl(item.url);
+                if (status === true || status === 'maybe') {
+                    aliveCount++;
+                    addLog(`  ✅ ${status === true ? 'شغال' : 'محتمل'}`);
+                } else {
+                    addLog(`  ❌ ميت`);
+                }
+                addResult(item.url, item.source, status);
+            }
+
+            // نفحص البقية
+            for (const item of otherLinks.slice(0, 20)) {
+                const status = await checkUrl(item.url);
+                if (status === true) aliveCount++;
+                addResult(item.url, item.source, status);
+            }
+
+            addLog(`\n✅ انتهى. ${aliveCount} رابط صالح من ${unique.length}`);
+            goBtn.disabled = false;
+
+            if (aliveCount === 0) {
+                addLog('⚠️ لا توجد روابط شغالة. جرب:');
+                addLog('  1. افتح الرابط في المتصفح واضغط F12');
+                addLog('  2. اذهب لتبويب Network وشغل الفيديو');
+                addLog('  3. ابحث عن aflm-eco2-akf.cdnz.quest');
+            }
         }
 
-        // ============ EVENTS ============
+        // Enter
         urlInput.addEventListener('keypress', e => {
-            if (e.key === 'Enter') startIntercept();
+            if (e.key === 'Enter') extract();
         });
 
-        // استقبال رسائل من Service Worker
-        navigator.serviceWorker?.addEventListener('message', function(event) {
-            if (event.data && event.data.type === 'INTERCEPTED_URL' && event.data.url) {
-                addCapturedUrl(event.data.url);
-            }
-        });
-
-        console.log('✅ Shadwo PRO MP4 Interceptor جاهز.');
+        console.log('✅ مستخرج MP4 المباشر جاهز.');
     </script>
 </body>
 </html>
