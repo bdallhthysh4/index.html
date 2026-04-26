@@ -1,1481 +1,453 @@
-<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html>
-<html dir='rtl' lang='ar'>
+<html dir="rtl" lang="ar">
 <head>
-  <meta charset='UTF-8'/>
-  <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes' name='viewport'/>
-  <meta content='no-referrer' name='referrer'/>
-  <title>لوحة تحكم الأدمن - حكايتنا</title>
-  <meta content='لوحة تحكم لإدارة المسلسلات' name='description'/>
-  <meta content='noindex, nofollow' name='robots'/>
-  <meta content='#e50914' name='theme-color'/>
-  <!-- الخطوط والأيقونات -->
-  <link href='https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap' rel='stylesheet'/>
-  <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css' rel='stylesheet'/>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Cairo', sans-serif;
-    }
-
-    body {
-      background: #141414;
-      min-height: 100vh;
-    }
-
-    /* ========== شاشة تسجيل الدخول ========== */
-    .login-container {
-      max-width: 450px;
-      margin: 100px auto;
-      background: rgba(0,0,0,0.85);
-      border-radius: 20px;
-      padding: 50px 40px;
-      box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-      border: 1px solid rgba(255,255,255,0.1);
-      backdrop-filter: blur(10px);
-    }
-
-    .login-header {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-
-    .login-header i {
-      font-size: 70px;
-      color: #e50914;
-      margin-bottom: 20px;
-    }
-
-    .login-header h1 {
-      color: #fff;
-      font-size: 32px;
-      font-weight: 900;
-      letter-spacing: -1px;
-    }
-
-    .login-header p {
-      color: #aaa;
-      font-size: 14px;
-      margin-top: 10px;
-    }
-
-    .login-form .input-group {
-      margin-bottom: 20px;
-    }
-
-    .login-form label {
-      display: block;
-      margin-bottom: 8px;
-      color: #fff;
-      font-weight: 600;
-      font-size: 14px;
-    }
-
-    .login-form input {
-      width: 100%;
-      padding: 14px 18px;
-      background: #333;
-      border: 1px solid #444;
-      border-radius: 8px;
-      font-size: 16px;
-      transition: all 0.3s;
-      font-family: 'Cairo', sans-serif;
-      color: #fff;
-    }
-
-    .login-form input:focus {
-      border-color: #e50914;
-      outline: none;
-      background: #3a3a3a;
-    }
-
-    .login-btn {
-      width: 100%;
-      padding: 14px;
-      background: #e50914;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 18px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: 0.3s;
-      font-family: 'Cairo', sans-serif;
-      margin-top: 10px;
-    }
-
-    .login-btn:hover {
-      background: #f40612;
-      transform: translateY(-2px);
-    }
-
-    .error-message {
-      background: rgba(229, 9, 20, 0.2);
-      border: 1px solid #e50914;
-      color: #e50914;
-      padding: 12px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      text-align: center;
-      font-size: 14px;
-      display: none;
-    }
-
-    /* ========== لوحة التحكم الرئيسية (Netflix Style) ========== */
-    .admin-panel {
-      max-width: 1600px;
-      margin: 0 auto;
-      padding: 20px;
-      display: none;
-    }
-
-    /* شريط التنقل العلوي */
-    .nav-bar {
-      background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, transparent 100%);
-      padding: 20px 30px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 20px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .logo-area {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-
-    .logo-area h1 {
-      color: #e50914;
-      font-size: 28px;
-      font-weight: 900;
-      letter-spacing: -1px;
-    }
-
-    .menu-toggle {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 24px;
-      cursor: pointer;
-      display: none;
-    }
-
-    .stats-area {
-      display: flex;
-      gap: 20px;
-    }
-
-    .stat-card {
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(10px);
-      padding: 10px 25px;
-      border-radius: 40px;
-      text-align: center;
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .stat-card .number {
-      font-size: 24px;
-      font-weight: 900;
-      color: #e50914;
-    }
-
-    .stat-card .label {
-      font-size: 12px;
-      color: #aaa;
-    }
-
-    .logout-btn {
-      background: rgba(255,255,255,0.1);
-      color: white;
-      border: 1px solid rgba(255,255,255,0.2);
-      padding: 10px 25px;
-      border-radius: 30px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.3s;
-      font-family: 'Cairo', sans-serif;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .logout-btn:hover {
-      background: #e50914;
-      border-color: #e50914;
-    }
-
-    /* شريط جانبي منبثق (Netflix Sidebar) */
-    .sidebar {
-      position: fixed;
-      top: 0;
-      right: -300px;
-      width: 300px;
-      height: 100%;
-      background: #0a0a0a;
-      z-index: 1000;
-      transition: 0.3s ease;
-      padding: 80px 25px 30px;
-      box-shadow: -5px 0 30px rgba(0,0,0,0.5);
-      border-left: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .sidebar.active {
-      right: 0;
-    }
-
-    .sidebar-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.7);
-      z-index: 999;
-      display: none;
-    }
-
-    .sidebar-overlay.active {
-      display: block;
-    }
-
-    .sidebar .close-sidebar {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      background: none;
-      border: none;
-      color: #fff;
-      font-size: 24px;
-      cursor: pointer;
-    }
-
-    .sidebar-menu {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    .sidebar-btn {
-      background: rgba(255,255,255,0.05);
-      border: none;
-      padding: 15px 20px;
-      border-radius: 12px;
-      color: white;
-      font-weight: 700;
-      font-size: 16px;
-      cursor: pointer;
-      transition: 0.2s;
-      text-align: right;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-
-    .sidebar-btn i {
-      width: 25px;
-      font-size: 18px;
-    }
-
-    .sidebar-btn.active {
-      background: #e50914;
-    }
-
-    .sidebar-btn:hover:not(.active) {
-      background: rgba(229, 9, 20, 0.3);
-    }
-
-    /* محتوى الصفحة */
-    .page-content {
-      padding: 30px;
-    }
-
-    .page {
-      display: none;
-      animation: fadeIn 0.3s ease;
-    }
-
-    .page.active {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ========== نماذج الإضافة (Netflix Style) ========== */
-    .form-card {
-      background: #1a1a1a;
-      border-radius: 20px;
-      padding: 30px;
-      margin-bottom: 30px;
-      border: 1px solid #2a2a2a;
-    }
-
-    .form-card h2 {
-      color: #fff;
-      font-size: 24px;
-      margin-bottom: 25px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      border-right: 4px solid #e50914;
-      padding-right: 15px;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 8px;
-      color: #ccc;
-      font-weight: 600;
-      font-size: 14px;
-    }
-
-    .form-group input,
-    .form-group textarea,
-    .form-group select {
-      width: 100%;
-      padding: 12px 16px;
-      background: #2a2a2a;
-      border: 1px solid #3a3a3a;
-      border-radius: 12px;
-      font-size: 15px;
-      transition: 0.3s;
-      font-family: 'Cairo', sans-serif;
-      color: #fff;
-    }
-
-    .form-group input:focus,
-    .form-group textarea:focus,
-    .form-group select:focus {
-      border-color: #e50914;
-      outline: none;
-      background: #333;
-    }
-
-    .form-group textarea {
-      min-height: 100px;
-      resize: vertical;
-    }
-
-    /* قسم إضافة حلقات دفعة واحدة */
-    .batch-episode {
-      background: #0f0f0f;
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 25px;
-      border: 1px solid #2a2a2a;
-    }
-
-    .batch-episode h3 {
-      color: #fff;
-      margin-bottom: 15px;
-      font-size: 18px;
-    }
-
-    .batch-controls {
-      display: flex;
-      gap: 15px;
-      flex-wrap: wrap;
-      align-items: flex-end;
-    }
-
-    .batch-controls .form-group {
-      flex: 1;
-      min-width: 150px;
-      margin-bottom: 0;
-    }
-
-    .generate-btn {
-      background: #e50914;
-      color: white;
-      border: none;
-      padding: 12px 25px;
-      border-radius: 30px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .generate-btn:hover {
-      background: #f40612;
-      transform: scale(1.02);
-    }
-
-    /* قائمة الحلقات */
-    .episodes-list {
-      margin-top: 20px;
-      max-height: 500px;
-      overflow-y: auto;
-    }
-
-    .episode-item {
-      background: #0f0f0f;
-      padding: 20px;
-      border-radius: 16px;
-      margin-bottom: 15px;
-      border: 1px solid #2a2a2a;
-      transition: 0.2s;
-    }
-
-    .episode-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .episode-title-input {
-      flex: 1;
-      background: #2a2a2a;
-      border: 1px solid #3a3a3a;
-      padding: 8px 15px;
-      border-radius: 30px;
-      color: white;
-      font-family: 'Cairo', sans-serif;
-    }
-
-    .episode-links {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 12px;
-    }
-
-    .episode-links input {
-      background: #2a2a2a;
-      border: 1px solid #3a3a3a;
-      padding: 10px 12px;
-      border-radius: 10px;
-      color: white;
-      font-size: 13px;
-    }
-
-    .remove-episode {
-      background: #ff4757;
-      color: white;
-      border: none;
-      padding: 8px 18px;
-      border-radius: 30px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 13px;
-    }
-
-    .remove-episode:hover {
-      background: #ff6b81;
-    }
-
-    .add-episode-btn {
-      background: rgba(229, 9, 20, 0.3);
-      color: #e50914;
-      border: 1px dashed #e50914;
-      padding: 12px;
-      border-radius: 12px;
-      width: 100%;
-      cursor: pointer;
-      font-weight: 700;
-      margin-top: 15px;
-      font-family: 'Cairo', sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .add-episode-btn:hover {
-      background: rgba(229, 9, 20, 0.5);
-    }
-
-    /* قسم الأبطال */
-    .cast-list {
-      margin-top: 15px;
-    }
-
-    .cast-item {
-      background: #0f0f0f;
-      padding: 15px;
-      border-radius: 16px;
-      margin-bottom: 12px;
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr auto;
-      gap: 12px;
-      align-items: center;
-      border: 1px solid #2a2a2a;
-    }
-
-    .cast-item input {
-      background: #2a2a2a;
-      border: 1px solid #3a3a3a;
-      padding: 10px 12px;
-      border-radius: 10px;
-      color: white;
-    }
-
-    .remove-cast {
-      background: #ff4757;
-      color: white;
-      border: none;
-      width: 38px;
-      height: 38px;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-
-    .add-cast-btn {
-      background: rgba(229, 9, 20, 0.3);
-      color: #e50914;
-      border: 1px dashed #e50914;
-      padding: 12px;
-      border-radius: 12px;
-      width: 100%;
-      cursor: pointer;
-      font-weight: 700;
-      margin-top: 15px;
-      font-family: 'Cairo', sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    /* أزرار الإجراءات */
-    .form-actions {
-      display: flex;
-      gap: 15px;
-      margin-top: 30px;
-      flex-wrap: wrap;
-    }
-
-    .save-btn {
-      background: #e50914;
-      color: white;
-      border: none;
-      padding: 14px 35px;
-      border-radius: 40px;
-      font-weight: 700;
-      font-size: 18px;
-      cursor: pointer;
-      transition: 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .save-btn:hover {
-      background: #f40612;
-      transform: scale(1.02);
-    }
-
-    .clear-btn {
-      background: #333;
-      color: white;
-      border: none;
-      padding: 14px 30px;
-      border-radius: 40px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    /* ========== قائمة المسلسلات (Netflix Cards) ========== */
-    .series-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 25px;
-    }
-
-    .series-card {
-      background: #1a1a1a;
-      border-radius: 16px;
-      overflow: hidden;
-      transition: 0.3s;
-      cursor: pointer;
-      border: 1px solid #2a2a2a;
-    }
-
-    .series-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 20px 30px rgba(0,0,0,0.5);
-      border-color: #e50914;
-    }
-
-    .series-image {
-      width: 100%;
-      aspect-ratio: 2/3;
-      object-fit: cover;
-    }
-
-    .series-info {
-      padding: 15px;
-    }
-
-    .series-info h3 {
-      color: #fff;
-      font-size: 16px;
-      margin-bottom: 8px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .series-meta {
-      display: flex;
-      gap: 12px;
-      font-size: 12px;
-      color: #aaa;
-      margin-bottom: 8px;
-    }
-
-    .series-stats {
-      display: flex;
-      gap: 15px;
-      font-size: 12px;
-      color: #e50914;
-      margin-bottom: 12px;
-    }
-
-    .card-actions {
-      display: flex;
-      gap: 10px;
-    }
-
-    .card-actions button {
-      flex: 1;
-      padding: 8px;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: 'Cairo', sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
-      font-size: 12px;
-    }
-
-    .edit-card {
-      background: #ffc107;
-      color: #000;
-    }
-
-    .delete-card {
-      background: #ff4757;
-      color: white;
-    }
-
-    .search-box {
-      margin-bottom: 30px;
-      position: relative;
-    }
-
-    .search-box input {
-      width: 100%;
-      padding: 15px 20px;
-      background: #1a1a1a;
-      border: 1px solid #2a2a2a;
-      border-radius: 50px;
-      color: white;
-      font-size: 16px;
-      padding-right: 50px;
-    }
-
-    .search-box i {
-      position: absolute;
-      right: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #888;
-    }
-
-    /* ========== رسائل التنبيه ========== */
-    .alert {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      right: 20px;
-      max-width: 400px;
-      margin: 0 auto;
-      padding: 15px 20px;
-      border-radius: 12px;
-      z-index: 2000;
-      animation: slideDown 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .alert-success {
-      background: #28a745;
-      color: white;
-    }
-
-    .alert-error {
-      background: #dc3545;
-      color: white;
-    }
-
-    .alert-info {
-      background: #17a2b8;
-      color: white;
-    }
-
-    .close-alert {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 20px;
-      cursor: pointer;
-    }
-
-    @keyframes slideDown {
-      from { opacity: 0; transform: translateY(-50px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ========== مودال الحذف ========== */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.8);
-      z-index: 3000;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .modal.active {
-      display: flex;
-    }
-
-    .modal-content {
-      background: #1a1a1a;
-      padding: 35px;
-      border-radius: 24px;
-      max-width: 450px;
-      width: 90%;
-      text-align: center;
-      border: 1px solid #e50914;
-    }
-
-    .modal-content i {
-      font-size: 60px;
-      color: #e50914;
-      margin-bottom: 20px;
-    }
-
-    .modal-content h3 {
-      color: white;
-      margin-bottom: 15px;
-      font-size: 24px;
-    }
-
-    .modal-content p {
-      color: #aaa;
-      margin-bottom: 25px;
-    }
-
-    .modal-actions {
-      display: flex;
-      gap: 15px;
-      justify-content: center;
-    }
-
-    .confirm-btn {
-      background: #e50914;
-      color: white;
-      border: none;
-      padding: 12px 30px;
-      border-radius: 40px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .cancel-btn {
-      background: #333;
-      color: white;
-      border: none;
-      padding: 12px 30px;
-      border-radius: 40px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    /* ========== متجاوب ========== */
-    @media (max-width: 768px) {
-      .nav-bar {
-        padding: 15px;
-      }
-      .menu-toggle {
-        display: block;
-      }
-      .stats-area {
-        display: none;
-      }
-      .logout-btn span {
-        display: none;
-      }
-      .page-content {
-        padding: 15px;
-      }
-      .form-card {
-        padding: 20px;
-      }
-      .cast-item {
-        grid-template-columns: 1fr;
-      }
-      .series-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مستخرج الروابط المباشرة</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #0a0a0a;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #111;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(0,255,136,0.08);
+            border: 1px solid #222;
+        }
+        h1 {
+            text-align: center;
+            color: #00ff88;
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 25px;
+            font-size: 0.9em;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        input {
+            flex: 1;
+            min-width: 250px;
+            padding: 14px 18px;
+            background: #1a1a1a;
+            border: 2px solid #333;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 15px rgba(0,255,136,0.15);
+        }
+        button {
+            padding: 14px 28px;
+            background: #00ff88;
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        button:hover {
+            background: #00cc6a;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(0,255,136,0.3);
+        }
+        button:disabled {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .loader.active {
+            display: block;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #333;
+            border-top: 3px solid #00ff88;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 10px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .results {
+            margin-top: 20px;
+        }
+        .server-card {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            transition: all 0.2s;
+        }
+        .server-card:hover {
+            border-color: #00ff8855;
+            background: #1c1c1c;
+        }
+        .server-name {
+            font-weight: bold;
+            color: #00ff88;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .server-name .icon {
+            font-size: 1.3em;
+        }
+        .link-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .btn-sm {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: bold;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-copy {
+            background: #2a2a2a;
+            color: #fff;
+        }
+        .btn-copy:hover {
+            background: #3a3a3a;
+        }
+        .btn-open {
+            background: #00ff88;
+            color: #000;
+        }
+        .btn-open:hover {
+            background: #00cc6a;
+        }
+        .btn-download {
+            background: #ff6600;
+            color: #fff;
+        }
+        .btn-download:hover {
+            background: #e55d00;
+        }
+        .no-results {
+            text-align: center;
+            padding: 30px;
+            color: #ff4444;
+            background: #1a0000;
+            border-radius: 10px;
+            border: 1px solid #330000;
+        }
+        .hidden {
+            display: none;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 10px;
+            color: #0f0;
+            font-family: monospace;
+            padding: 15px;
+            margin-top: 15px;
+            resize: vertical;
+            font-size: 0.85em;
+        }
+        .raw-section {
+            margin-top: 20px;
+        }
+        .raw-section summary {
+            cursor: pointer;
+            color: #888;
+            padding: 10px;
+            background: #1a1a1a;
+            border-radius: 8px;
+        }
+    </style>
 </head>
 <body>
-
-<!-- شاشة تسجيل الدخول -->
-<div class="login-container" id="loginScreen">
-  <div class="login-header">
-    <i class="fas fa-tv"></i>
-    <h1>حكايتنا</h1>
-    <p>لوحة تحكم الأدمن</p>
-  </div>
-  <div class="error-message" id="loginError">
-    <i class="fas fa-exclamation-circle"></i>
-    <span>بيانات الدخول غير صحيحة</span>
-  </div>
-  <div class="login-form">
-    <div class="input-group">
-      <label><i class="fas fa-user"></i> اسم المستخدم</label>
-      <input type="text" id="username" placeholder="أدخل اسم المستخدم" value="admin">
-    </div>
-    <div class="input-group">
-      <label><i class="fas fa-lock"></i> كلمة المرور</label>
-      <input type="password" id="password" placeholder="أدخل كلمة المرور" value="admin123">
-    </div>
-    <button class="login-btn" onclick="login()">
-      <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
-    </button>
-  </div>
-</div>
-
-<!-- لوحة التحكم -->
-<div class="admin-panel" id="adminPanel">
-  <!-- شريط التنقل العلوي -->
-  <div class="nav-bar">
-    <div class="logo-area">
-      <button class="menu-toggle" onclick="toggleSidebar()">
-        <i class="fas fa-bars"></i>
-      </button>
-      <h1><i class="fas fa-crown" style="color: #ffd700; font-size: 24px;"></i> حكايتنا</h1>
-    </div>
-    <div class="stats-area">
-      <div class="stat-card">
-        <div class="number" id="totalSeries">0</div>
-        <div class="label">مسلسل</div>
-      </div>
-      <div class="stat-card">
-        <div class="number" id="totalEpisodes">0</div>
-        <div class="label">حلقة</div>
-      </div>
-    </div>
-    <button class="logout-btn" onclick="logout()">
-      <i class="fas fa-sign-out-alt"></i> <span>تسجيل خروج</span>
-    </button>
-  </div>
-
-  <!-- الشريط الجانبي المنبثق -->
-  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-  <div class="sidebar" id="sidebar">
-    <button class="close-sidebar" onclick="toggleSidebar()">
-      <i class="fas fa-times"></i>
-    </button>
-    <div class="sidebar-menu">
-      <button class="sidebar-btn active" onclick="switchPage('add', this)">
-        <i class="fas fa-plus-circle"></i> إضافة مسلسل
-      </button>
-      <button class="sidebar-btn" onclick="switchPage('list', this)">
-        <i class="fas fa-list"></i> قائمة المسلسلات
-      </button>
-    </div>
-  </div>
-
-  <!-- رسائل التنبيه -->
-  <div id="alertContainer"></div>
-
-  <!-- محتوى الصفحات -->
-  <div class="page-content">
-    <!-- صفحة إضافة مسلسل -->
-    <div class="page active" id="pageAdd">
-      <div class="form-card">
-        <h2><i class="fas fa-info-circle"></i> معلومات المسلسل</h2>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>عنوان المسلسل *</label>
-            <input type="text" id="seriesTitle" placeholder="مثال: وادي الذئاب">
-          </div>
-          <div class="form-group">
-            <label>رابط الصورة *</label>
-            <input type="url" id="seriesImage" placeholder="https://example.com/image.jpg">
-          </div>
-          <div class="form-group">
-            <label>رابط الإعلان (trailer)</label>
-            <input type="url" id="seriesTrailer" placeholder="رابط يوتيوب أو فيديو">
-          </div>
-          <div class="form-group">
-            <label>التصنيف</label>
-            <select id="seriesCategory">
-              <option value="تركي">تركي</option>
-              <option value="عربي">عربي</option>
-              <option value="انمي">انمي</option>
-              <option value="افلام">افلام</option>
-              <option value="اكشن">اكشن</option>
-              <option value="دراما">دراما</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>سنة الإنتاج</label>
-            <input type="text" id="seriesYear" placeholder="2024">
-          </div>
-          <div class="form-group">
-            <label>الدولة</label>
-            <input type="text" id="seriesCountry" placeholder="تركيا">
-          </div>
-        </div>
-        <div class="form-group">
-          <label>قصة المسلسل</label>
-          <textarea id="seriesDescription" placeholder="اكتب قصة المسلسل هنا..."></textarea>
-        </div>
-      </div>
-
-      <!-- قسم الأبطال -->
-      <div class="form-card">
-        <h2><i class="fas fa-users"></i> الأبطال</h2>
-        <div id="castContainer" class="cast-list"></div>
-        <button class="add-cast-btn" onclick="addCastField()">
-          <i class="fas fa-plus"></i> إضافة ممثل
-        </button>
-      </div>
-
-      <!-- قسم الحلقات - مع إضافة دفعة واحدة -->
-      <div class="form-card">
-        <h2><i class="fas fa-film"></i> الحلقات</h2>
+    <div class="container">
+        <h1>🎬 مستخرج الروابط المباشرة</h1>
+        <p class="subtitle">أدخل رابط لاعب Shadwo PRO لاستخراج جميع روابط المشاهدة والتحميل</p>
         
-        <!-- إضافة حلقات دفعة واحدة -->
-        <div class="batch-episode">
-          <h3><i class="fas fa-layer-group"></i> إضافة حلقات دفعة واحدة</h3>
-          <div class="batch-controls">
-            <div class="form-group">
-              <label>عدد الحلقات</label>
-              <input type="number" id="batchCount" min="1" max="500" value="10">
-            </div>
-            <div class="form-group">
-              <label>رقم البداية</label>
-              <input type="number" id="batchStart" min="1" value="1">
-            </div>
-            <div class="form-group">
-              <label>رابط السيرفر الأساسي (اختياري)</label>
-              <input type="text" id="batchLinkTemplate" placeholder="https://example.com/episode/">
-            </div>
-            <button class="generate-btn" onclick="generateBatchEpisodes()">
-              <i class="fas fa-magic"></i> إنشاء الحلقات
-            </button>
-          </div>
+        <div class="input-group">
+            <input type="text" id="urlInput" placeholder="https://w.shadwo.pro/albaplayer/.../?serv=0" value="https://w.shadwo.pro/albaplayer/doktor-baska-hayatta-2026-s01e06/?serv=0">
+            <button id="extractBtn" onclick="extractLinks()">🔍 استخراج الروابط</button>
         </div>
-
-        <div id="episodesContainer" class="episodes-list"></div>
-        <button class="add-episode-btn" onclick="addEpisode()">
-          <i class="fas fa-plus"></i> إضافة حلقة يدوياً
-        </button>
-      </div>
-
-      <div class="form-actions">
-        <button class="save-btn" onclick="saveSeries()">
-          <i class="fas fa-save"></i> حفظ المسلسل
-        </button>
-        <button class="clear-btn" onclick="clearForm()">
-          <i class="fas fa-undo"></i> تفريغ الحقول
-        </button>
-      </div>
-    </div>
-
-    <!-- صفحة قائمة المسلسلات -->
-    <div class="page" id="pageList">
-      <div class="search-box">
-        <i class="fas fa-search"></i>
-        <input type="text" id="searchSeries" placeholder="بحث عن مسلسل..." onkeyup="searchSeries()">
-      </div>
-      <div id="seriesListContainer" class="series-grid"></div>
-    </div>
-  </div>
-</div>
-
-<!-- مودال تأكيد الحذف -->
-<div class="modal" id="deleteModal">
-  <div class="modal-content">
-    <i class="fas fa-exclamation-triangle"></i>
-    <h3>تأكيد الحذف</h3>
-    <p>هل أنت متأكد من حذف هذا المسلسل؟ لا يمكن التراجع عن هذا الإجراء.</p>
-    <div class="modal-actions">
-      <button class="confirm-btn" onclick="confirmDelete()"><i class="fas fa-trash"></i> حذف</button>
-      <button class="cancel-btn" onclick="closeModal()"><i class="fas fa-times"></i> إلغاء</button>
-    </div>
-  </div>
-</div>
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
-<script>
-  // تهيئة Firebase
-  const firebaseConfig = {
-    apiKey: "AIzaSyCEaxXR5eqzg0e5JvjWAFjZ5ZeMraMYREn",
-    authDomain: "mo-play-b0cb7.firebaseapp.com",
-    databaseURL: "https://mo-play-b0cb7-default-rtdb.firebaseio.com",
-    projectId: "mo-play-b0cb7",
-    storageBucket: "mo-play-b0cb7.firebasestorage.app",
-    appId: "1:575424024738:web:0b1736c0c2e496adf607fb"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-
-  // ========== متغيرات عامة ==========
-  let allSeries = [];
-  let currentEditId = null;
-  let deleteId = null;
-  let episodeCounter = 0;
-  let castCounter = 0;
-
-  // ========== تسجيل الدخول ==========
-  function login() {
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-    if (username === 'admin' && password === 'admin123') {
-      localStorage.setItem('adminLoggedIn', 'true');
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('adminPanel').style.display = 'block';
-      loadSeries();
-    } else {
-      document.getElementById('loginError').style.display = 'block';
-    }
-  }
-
-  function logout() {
-    localStorage.removeItem('adminLoggedIn');
-    document.getElementById('loginScreen').style.display = 'block';
-    document.getElementById('adminPanel').style.display = 'none';
-    document.getElementById('username').value = 'admin';
-    document.getElementById('password').value = 'admin123';
-    document.getElementById('loginError').style.display = 'none';
-  }
-
-  // ========== الشريط الجانبي ==========
-  function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('active');
-    document.getElementById('sidebarOverlay').classList.toggle('active');
-  }
-
-  // ========== تبديل الصفحات ==========
-  function switchPage(page, btn) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById(`page${page === 'add' ? 'Add' : 'List'}`).classList.add('active');
-    
-    document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    
-    if (page === 'list') {
-      loadSeries();
-    }
-    
-    if (window.innerWidth <= 768) {
-      toggleSidebar();
-    }
-  }
-
-  // ========== إدارة الأبطال ==========
-  function addCastField(name = '', character = '', image = '') {
-    const container = document.getElementById('castContainer');
-    const castItem = document.createElement('div');
-    castItem.className = 'cast-item';
-    castItem.id = `cast_${castCounter}`;
-    castItem.innerHTML = `
-      <input type="text" placeholder="اسم الممثل" value="${escapeHtml(name)}" class="cast-name">
-      <input type="text" placeholder="اسم الشخصية" value="${escapeHtml(character)}" class="cast-character">
-      <input type="url" placeholder="رابط الصورة" value="${escapeHtml(image)}" class="cast-image">
-      <button class="remove-cast" onclick="removeCast('cast_${castCounter}')">
-        <i class="fas fa-times"></i>
-      </button>
-    `;
-    container.appendChild(castItem);
-    castCounter++;
-  }
-
-  function removeCast(id) {
-    const el = document.getElementById(id);
-    if (el) el.remove();
-  }
-
-  // ========== إدارة الحلقات ==========
-  function addEpisode(title = '', link1 = '', link2 = '', link3 = '') {
-    const container = document.getElementById('episodesContainer');
-    const episodeItem = document.createElement('div');
-    episodeItem.className = 'episode-item';
-    episodeItem.id = `episode_${episodeCounter}`;
-    episodeItem.innerHTML = `
-      <div class="episode-header">
-        <input type="text" class="episode-title" placeholder="رقم/عنوان الحلقة" value="${escapeHtml(title)}">
-        <button class="remove-episode" onclick="removeEpisode('episode_${episodeCounter}')">
-          <i class="fas fa-trash"></i> حذف
-        </button>
-      </div>
-      <div class="episode-links">
-        <input type="url" class="episode-link1" placeholder="رابط السيرفر 1" value="${escapeHtml(link1)}">
-        <input type="url" class="episode-link2" placeholder="رابط السيرفر 2 (اختياري)" value="${escapeHtml(link2)}">
-        <input type="url" class="episode-link3" placeholder="رابط السيرفر 3 (اختياري)" value="${escapeHtml(link3)}">
-      </div>
-    `;
-    container.appendChild(episodeItem);
-    episodeCounter++;
-  }
-
-  function removeEpisode(id) {
-    const el = document.getElementById(id);
-    if (el) el.remove();
-  }
-
-  // ========== إضافة حلقات دفعة واحدة ==========
-  function generateBatchEpisodes() {
-    const count = parseInt(document.getElementById('batchCount').value) || 10;
-    const start = parseInt(document.getElementById('batchStart').value) || 1;
-    const linkTemplate = document.getElementById('batchLinkTemplate').value;
-    
-    if (count < 1 || count > 500) {
-      showAlert('عدد الحلقات يجب أن يكون بين 1 و 500', 'error');
-      return;
-    }
-    
-    for (let i = 0; i < count; i++) {
-      const episodeNum = start + i;
-      let title = episodeNum.toString();
-      let link1 = '';
-      let link2 = '';
-      let link3 = '';
-      
-      if (linkTemplate) {
-        link1 = linkTemplate + episodeNum;
-      }
-      
-      addEpisode(title, link1, link2, link3);
-    }
-    
-    showAlert(`تم إضافة ${count} حلقة بنجاح`, 'success');
-  }
-
-  // ========== حفظ المسلسل ==========
-  function saveSeries() {
-    const title = document.getElementById('seriesTitle').value.trim();
-    const image = document.getElementById('seriesImage').value.trim();
-    
-    if (!title || !image) {
-      showAlert('الرجاء إدخال عنوان المسلسل والصورة على الأقل', 'error');
-      return;
-    }
-    
-    // جمع بيانات المسلسل
-    const newSeriesData = {
-      title: title,
-      image: image,
-      trailer: document.getElementById('seriesTrailer').value,
-      category: document.getElementById('seriesCategory').value,
-      year: document.getElementById('seriesYear').value,
-      country: document.getElementById('seriesCountry').value,
-      description: document.getElementById('seriesDescription').value,
-      cast: [],
-      episodes: []
-    };
-    
-    // جمع الأبطال
-    document.querySelectorAll('.cast-item').forEach(item => {
-      const name = item.querySelector('.cast-name').value;
-      if (name) {
-        newSeriesData.cast.push({
-          name: name,
-          character: item.querySelector('.cast-character').value,
-          image: item.querySelector('.cast-image').value
-        });
-      }
-    });
-    
-    // جمع الحلقات
-    document.querySelectorAll('.episode-item').forEach(item => {
-      const titleEp = item.querySelector('.episode-title').value;
-      if (titleEp) {
-        newSeriesData.episodes.push({
-          title: titleEp,
-          link1: item.querySelector('.episode-link1').value,
-          link2: item.querySelector('.episode-link2').value,
-          link3: item.querySelector('.episode-link3').value
-        });
-      }
-    });
-    
-    if (currentEditId) {
-      // تعديل مسلسل موجود
-      db.ref('series/' + currentEditId).once('value')
-        .then((snapshot) => {
-          const oldData = snapshot.val() || {};
-          const updatedData = {
-            ...newSeriesData,
-            rating: oldData.rating || 0,
-            ratingCount: oldData.ratingCount || 0,
-            views: oldData.views || 0
-          };
-          return db.ref('series/' + currentEditId).update(updatedData);
-        })
-        .then(() => {
-          showAlert('تم تحديث المسلسل بنجاح', 'success');
-          clearForm();
-          currentEditId = null;
-          loadSeries();
-        })
-        .catch(error => showAlert('خطأ: ' + error.message, 'error'));
-    } else {
-      // إضافة مسلسل جديد
-      const newSeriesRef = db.ref('series').push();
-      const finalData = {
-        ...newSeriesData,
-        rating: 0,
-        ratingCount: 0,
-        views: 0
-      };
-      newSeriesRef.set(finalData)
-        .then(() => {
-          showAlert('تم إضافة المسلسل بنجاح', 'success');
-          clearForm();
-          loadSeries();
-        })
-        .catch(error => showAlert('خطأ: ' + error.message, 'error'));
-    }
-  }
-
-  // ========== جلب المسلسلات ==========
-  function loadSeries() {
-    const container = document.getElementById('seriesListContainer');
-    if (container) container.innerHTML = '<div class="loading" style="text-align:center; padding:50px;"><i class="fas fa-spinner fa-spin fa-2x" style="color:#e50914;"></i></div>';
-    
-    db.ref('series').on('value', (snapshot) => {
-      const data = snapshot.val();
-      allSeries = [];
-      if (data) {
-        allSeries = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-      }
-      updateStats();
-      displaySeries(allSeries);
-    });
-  }
-
-  function updateStats() {
-    let totalEpisodes = 0;
-    allSeries.forEach(series => {
-      totalEpisodes += (series.episodes ? series.episodes.length : 0);
-    });
-    const totalSeriesEl = document.getElementById('totalSeries');
-    const totalEpisodesEl = document.getElementById('totalEpisodes');
-    if (totalSeriesEl) totalSeriesEl.innerText = allSeries.length;
-    if (totalEpisodesEl) totalEpisodesEl.innerText = totalEpisodes;
-  }
-
-  function displaySeries(series) {
-    const container = document.getElementById('seriesListContainer');
-    if (!container) return;
-    
-    if (series.length === 0) {
-      container.innerHTML = '<div style="text-align:center; padding:50px; color:#aaa;">لا توجد مسلسلات</div>';
-      return;
-    }
-    
-    let html = '';
-    series.forEach(item => {
-      const episodesCount = item.episodes ? item.episodes.length : 0;
-      const rating = item.rating ? item.rating.toFixed(1) : '0';
-      const views = item.views || 0;
-      const imageUrl = item.image || 'https://via.placeholder.com/300x450/1a1a1a/e50914?text=No+Image';
-      
-      html += `
-        <div class="series-card">
-          <img src="${imageUrl}" class="series-image" onerror="this.src='https://via.placeholder.com/300x450/1a1a1a/e50914?text=No+Image'">
-          <div class="series-info">
-            <h3>${escapeHtml(item.title || 'بدون عنوان')}</h3>
-            <div class="series-meta">
-              <span><i class="fas fa-calendar"></i> ${item.year || '?'}</span>
-              <span><i class="fas fa-globe"></i> ${item.country || '?'}</span>
-            </div>
-            <div class="series-stats">
-              <span><i class="fas fa-star"></i> ${rating}</span>
-              <span><i class="fas fa-eye"></i> ${views}</span>
-              <span><i class="fas fa-film"></i> ${episodesCount}</span>
-            </div>
-            <div class="card-actions">
-              <button class="edit-card" onclick="editSeries('${item.id}')"><i class="fas fa-edit"></i> تعديل</button>
-              <button class="delete-card" onclick="openDeleteModal('${item.id}')"><i class="fas fa-trash"></i> حذف</button>
-            </div>
-          </div>
+        
+        <div class="loader" id="loader">
+            <div class="spinner"></div>
+            <p>جاري استخراج الروابط...</p>
         </div>
-      `;
-    });
-    container.innerHTML = html;
-  }
+        
+        <div class="results" id="results"></div>
+        
+        <details class="raw-section" id="rawSection" style="display:none;">
+            <summary>📄 عرض البيانات الخام (Raw Response)</summary>
+            <textarea id="rawData" readonly></textarea>
+        </details>
+    </div>
 
-  // ========== تعديل مسلسل ==========
-  function editSeries(id) {
-    const series = allSeries.find(s => s.id === id);
-    if (!series) return;
-    
-    currentEditId = id;
-    
-    // تعبئة الحقول الأساسية
-    document.getElementById('seriesTitle').value = series.title || '';
-    document.getElementById('seriesImage').value = series.image || '';
-    document.getElementById('seriesTrailer').value = series.trailer || '';
-    document.getElementById('seriesCategory').value = series.category || 'تركي';
-    document.getElementById('seriesYear').value = series.year || '';
-    document.getElementById('seriesCountry').value = series.country || '';
-    document.getElementById('seriesDescription').value = series.description || '';
-    
-    // تعبئة الأبطال
-    document.getElementById('castContainer').innerHTML = '';
-    castCounter = 0;
-    if (series.cast && series.cast.length > 0) {
-      series.cast.forEach(actor => {
-        addCastField(actor.name, actor.character, actor.image);
-      });
-    }
-    
-    // تعبئة الحلقات
-    document.getElementById('episodesContainer').innerHTML = '';
-    episodeCounter = 0;
-    if (series.episodes && series.episodes.length > 0) {
-      series.episodes.forEach(ep => {
-        addEpisode(ep.title, ep.link1, ep.link2, ep.link3);
-      });
-    }
-    
-    // التبديل لصفحة الإضافة
-    switchPage('add', document.querySelector('.sidebar-btn'));
-    showAlert('يمكنك تعديل البيانات الآن - سيتم الحفاظ على المشاهدات والتقييم', 'info');
-  }
+    <script>
+        const DEFAULT_URL = "https://w.shadwo.pro/albaplayer/doktor-baska-hayatta-2026-s01e06/?serv=0";
+        
+        // السيرفرات المعروفة
+        const SERVER_PATTERNS = [
+            { name: "CDNPlus", pattern: /cdnplus|cdn\+/i, icon: "⚡" },
+            { name: "MP4Plus", pattern: /mp4plus|mp4\+/i, icon: "🎥" },
+            { name: "AnaFast", pattern: /anafast|ana-fast/i, icon: "🚀" },
+            { name: "Vidoba", pattern: /vidoba/i, icon: "📺" },
+            { name: "VidSpeed", pattern: /vidspeed|vid-speed/i, icon: "💨" },
+            { name: "Larhu", pattern: /larhu/i, icon: "🔴" },
+            { name: "VK", pattern: /vk\.com|vk\.ru|vkontakte|userapi/i, icon: "🔵" },
+            { name: "OK", pattern: /ok\.ru|odnoklassniki/i, icon: "🟠" }
+        ];
 
-  // ========== حذف مسلسل ==========
-  function openDeleteModal(id) {
-    deleteId = id;
-    document.getElementById('deleteModal').classList.add('active');
-  }
-  
-  function closeModal() {
-    document.getElementById('deleteModal').classList.remove('active');
-    deleteId = null;
-  }
-  
-  function confirmDelete() {
-    if (!deleteId) return;
-    db.ref('series/' + deleteId).remove()
-      .then(() => {
-        showAlert('تم حذف المسلسل بنجاح', 'success');
-        closeModal();
-        loadSeries();
-      })
-      .catch(error => showAlert('خطأ: ' + error.message, 'error'));
-  }
+        function getServerInfo(url) {
+            for (let server of SERVER_PATTERNS) {
+                if (server.pattern.test(url)) {
+                    return server;
+                }
+            }
+            // محاولة تخمين من الدومين
+            try {
+                const domain = new URL(url).hostname.replace("www.", "").split(".")[0];
+                return { name: domain.charAt(0).toUpperCase() + domain.slice(1), pattern: null, icon: "🔗" };
+            } catch(e) {
+                return { name: "خادم غير معروف", pattern: null, icon: "❓" };
+            }
+        }
 
-  // ========== بحث ==========
-  function searchSeries() {
-    const query = document.getElementById('searchSeries').value.toLowerCase();
-    if (!query) {
-      displaySeries(allSeries);
-      return;
-    }
-    const filtered = allSeries.filter(item => item.title && item.title.toLowerCase().includes(query));
-    displaySeries(filtered);
-  }
+        function extractIframeSrc(html) {
+            const iframeRegex = /<iframe[^>]+src=["']([^"']+)["']/gi;
+            const matches = [];
+            let match;
+            while ((match = iframeRegex.exec(html)) !== null) {
+                matches.push(match[1]);
+            }
+            return matches;
+        }
 
-  // ========== تفريغ الحقول ==========
-  function clearForm() {
-    document.getElementById('seriesTitle').value = '';
-    document.getElementById('seriesImage').value = '';
-    document.getElementById('seriesTrailer').value = '';
-    document.getElementById('seriesCategory').value = 'تركي';
-    document.getElementById('seriesYear').value = '';
-    document.getElementById('seriesCountry').value = '';
-    document.getElementById('seriesDescription').value = '';
-    document.getElementById('castContainer').innerHTML = '';
-    document.getElementById('episodesContainer').innerHTML = '';
-    castCounter = 0;
-    episodeCounter = 0;
-    currentEditId = null;
-    document.getElementById('batchCount').value = '10';
-    document.getElementById('batchStart').value = '1';
-    document.getElementById('batchLinkTemplate').value = '';
-  }
+        function extractAllUrls(html) {
+            const urlRegex = /https?:\/\/[^\s"'<>]+/gi;
+            const matches = [];
+            let match;
+            while ((match = urlRegex.exec(html)) !== null) {
+                let url = match[0].replace(/["'<>]$/, '').replace(/\\/g, '');
+                if (url.includes('google') || url.includes('facebook') || url.includes('twitter')) continue;
+                if (url.endsWith('.js') || url.endsWith('.css') || url.endsWith('.png') || url.endsWith('.jpg')) continue;
+                matches.push(url);
+            }
+            return [...new Set(matches)];
+        }
 
-  // ========== عرض التنبيهات ==========
-  function showAlert(message, type) {
-    const container = document.getElementById('alertContainer');
-    const alert = document.createElement('div');
-    alert.className = `alert alert-${type}`;
-    alert.innerHTML = `
-      <span><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i> ${message}</span>
-      <button class="close-alert" onclick="this.parentElement.remove()">&times;</button>
-    `;
-    container.appendChild(alert);
-    setTimeout(() => {
-      if (alert.parentElement) alert.remove();
-    }, 4000);
-  }
+        function findVideoUrls(urls) {
+            const videoExtensions = ['.mp4', '.m3u8', '.ts', '.mkv', '.webm', '.flv', '.avi', '.mov', '.wmv'];
+            const streamingKeywords = ['stream', 'video', 'play', 'vod', 'hls', 'dash', 'manifest', 'm3u8', 'mp4', 'token'];
+            
+            return urls.filter(url => {
+                const lower = url.toLowerCase();
+                if (videoExtensions.some(ext => lower.includes(ext))) return true;
+                if (streamingKeywords.some(kw => lower.includes(kw))) return true;
+                return false;
+            });
+        }
 
-  function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/[&<>]/g, function(m) {
-      if (m === '&') return '&amp;';
-      if (m === '<') return '&lt;';
-      if (m === '>') return '&gt;';
-      return m;
-    });
-  }
-
-  // التحقق عند تحميل الصفحة
-  window.onload = function() {
-    if (localStorage.getItem('adminLoggedIn') === 'true') {
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('adminPanel').style.display = 'block';
-      loadSeries();
-    }
-  };
-</script>
+        async function extractLinks(url) {
+            const inputUrl = url || document.getElementById('urlInput').value.trim() || DEFAULT_URL;
+            document.getElementById('urlInput').value = inputUrl;
+            
+            const loader = document.getElementById('loader');
+            const resultsDiv = document.getElementById('results');
+            const rawSection = document.getElementById('rawSection');
+            const rawData = document.getElementById('rawData');
+            const btn = document.getElementById('extractBtn');
+            
+            loader.classList.add('active');
+            resultsDiv.innerHTML = '';
+            rawSection.style.display = 'none';
+            btn.disabled = true;
+            
+            try {
+                const corsProxy = "https://api.allorigins.win/raw?url=";
+                const targetUrl = encodeURIComponent(inputUrl);
+                
+                const response = await fetch(corsProxy + targetUrl, {
+                    method: 'GET',
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP Error: ${response.status}`);
+                }
+                
+                const html = await response.text();
+                rawData.value = html;
+                rawSection.style.display = 'block';
+                
+                let allUrls = [];
+                
+                // استخراج من iframes
+                const iframeUrls = extractIframeSrc(html);
+                allUrls = [...allUrls, ...iframeUrls];
+                
+                // استخراج كل الروابط
+                const pageUrls = extractAllUrls(html);
+                allUrls = [...allUrls, ...pageUrls];
+                
+                // إزالة التكرارات
+                allUrls = [...new Set(allUrls)];
+                
+                // تصفية روابط الفيديو المحتملة
+                const videoUrls = findVideoUrls(allUrls);
+                const otherUrls = allUrls.filter(u => !videoUrls.includes(u));
+                
+                // دمج مع إعطاء أولوية لروابط الفيديو
+                const priorityUrls = [...videoUrls, ...otherUrls];
+                
+                // إذا لم نجد روابط مباشرة، نحاول استخراج من الإطارات المضمنة
+                if (priorityUrls.length === 0 && iframeUrls.length > 0) {
+                    resultsDiv.innerHTML = `
+                        <div class="no-results" style="background:#1a1a00;border-color:#333300;color:#ffaa00;">
+                            <p>⚠️ تم العثور على ${iframeUrls.length} إطار مضمن. جاري فتحها لاستخراج الروابط...</p>
+                        </div>`;
+                    
+                    for (let iframeUrl of iframeUrls) {
+                        try {
+                            const iframeResponse = await fetch(corsProxy + encodeURIComponent(iframeUrl));
+                            const iframeHtml = await iframeResponse.text();
+                            const nestedUrls = extractAllUrls(iframeHtml);
+                            allUrls = [...allUrls, ...nestedUrls];
+                        } catch(e) {
+                            console.log("خطأ في استخراج الإطار:", iframeUrl, e);
+                        }
+                    }
+                    allUrls = [...new Set(allUrls)];
+                }
+                
+                // عرض النتائج
+                if (allUrls.length === 0) {
+                    resultsDiv.innerHTML = '<div class="no-results">❌ لم يتم العثور على روابط. قد يكون الموقع محمياً أو يتطلب تحميل ديناميكي.</div>';
+                } else {
+                    let htmlOutput = '';
+                    let count = 0;
+                    
+                    for (let link of allUrls) {
+                        if (link.includes('google') || link.includes('facebook') || link.includes('twitter') || 
+                            link.includes('schema.org') || link.includes('w3.org') || link.includes('youtube.com')) continue;
+                        
+                        count++;
+                        const server = getServerInfo(link);
+                        
+                        htmlOutput += `
+                            <div class="server-card">
+                                <div class="server-name">
+                                    <span class="icon">${server.icon}</span>
+                                    ${server.name}
+                                </div>
+                                <div class="link-actions">
+                                    <button class="btn-sm btn-copy" onclick="copyToClipboard('${link.replace(/'/g, "\\'")}', this)">📋 نسخ</button>
+                                    <a class="btn-sm btn-open" href="${link}" target="_blank">▶️ فتح</a>
+                                    <a class="btn-sm btn-download" href="${link}" download>⬇️ تحميل</a>
+                                </div>
+                            </div>`;
+                    }
+                    
+                    if (count === 0) {
+                        htmlOutput = '<div class="no-results">❌ لا توجد روابط صالحة بعد التصفية.</div>';
+                    }
+                    
+                    resultsDiv.innerHTML = htmlOutput || '<div class="no-results">❌ لم يتم العثور على روابط.</div>';
+                }
+                
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="no-results">❌ فشل الاتصال: ${error.message}<br><br>جرب استخدام رابط مختلف أو تاكد من أن الموقع متاح.</div>`;
+                console.error("Extraction error:", error);
+            } finally {
+                loader.classList.remove('active');
+                btn.disabled = false;
+            }
+        }
+        
+        function copyToClipboard(text, btn) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = btn.textContent;
+                btn.textContent = '✅ تم النسخ!';
+                btn.style.background = '#00cc6a';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#2a2a2a';
+                }, 1500);
+            }).catch(() => {
+                // Fallback
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                btn.textContent = '✅ تم!';
+                setTimeout(() => { btn.textContent = '📋 نسخ'; }, 1500);
+            });
+        }
+        
+        // دعم زر Enter
+        document.getElementById('urlInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') extractLinks();
+        });
+        
+        // تشغيل تلقائي عند التحميل
+        window.addEventListener('DOMContentLoaded', function() {
+            const input = document.getElementById('urlInput');
+            if (input.value && input.value.includes('shadwo.pro')) {
+                extractLinks();
+            }
+        });
+    </script>
 </body>
 </html>
