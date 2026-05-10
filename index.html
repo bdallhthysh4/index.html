@@ -2,55 +2,79 @@
 <!DOCTYPE html>
 <html dir='rtl' lang='ar' xmlns='http://www.w3.org/1999/xhtml'>
 <head>
-    <meta name="google-adsense-account" content="ca-pub-5985288941774654">
     <meta charset='UTF-8'/>
     <meta content='width=device-width, initial-scale=1.0' name='viewport'/>
-    <title>حكايتنا - المحتوى الحصري</title>
-    
-    <link href='https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&amp;display=swap' rel='stylesheet'/>
+    <title>حكايتنا - مشاهدة الفيديو</title>
     
     <style>
-        body { background-color: #000; color: #fff; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        header { padding: 20px; text-align: center; }
-        .logo h1 { color: #e50914; font-size: 2.5rem; margin: 0; }
-        .content-area { max-width: 800px; width: 90%; background: #141414; padding: 20px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); line-height: 1.8; text-align: center; margin-bottom: 20px; }
-        .ad-slot { margin: 15px 0; min-height: 50px; display: flex; justify-content: center; align-items: center; }
-        .footer { margin-top: auto; padding: 20px; color: #666; font-size: 14px; }
+        body { background-color: #000; color: #fff; font-family: sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .container { width: 100%; max-width: 800px; padding: 20px; text-align: center; }
+        
+        /* تصميم مشغل الفيديو */
+        .video-wrapper {
+            position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;
+            border: 2px solid #e50914; border-radius: 10px; background: #000;
+            box-shadow: 0 0 30px rgba(229, 9, 20, 0.3);
+        }
+        .video-wrapper iframe {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        }
+
+        /* طبقة وهمية فوق الفيديو لإجبار الزائر على نقرة الإعلان أولاً */
+        .video-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 10; cursor: pointer; background: rgba(0,0,0,0);
+        }
+
+        .ad-unit { margin: 15px 0; min-height: 50px; }
+        .logo { color: #e50914; font-size: 2.5rem; font-weight: bold; margin: 20px 0; }
     </style>
+
+    <!-- 1. إعلانات Adsterra (Popunder & Social Bar) -->
+    <script type='text/javascript' src='//pl29305597.highperformanceformat.com/a5/e6/17/a5e6173b3b36cb3d30f4394d194eaa61.js'></script>
+    <script src="https://pl29406212.profitablecpmratenetwork.com/db/ed/b1/dbedb1a74446e5fd07b4b596602cadb9.js"></script>
+
 </head>
 <body>
 
-    <header>
-        <div class="logo">
-            <h1>حكايتنا</h1>
-        </div>
-    </header>
+    <div class="container">
+        <div class="logo">حكايتنا</div>
 
-    <!-- إعلان البانر العلوي (320x50) الخاص بك -->
-    <div class="ad-slot">
-        <script type="text/javascript">
-            atOptions = {
-                'key' : '96ffe7b5f8b8221bcb2e2d2d679a370e', // تأكد من ضغط Get Code في Adsterra ونسخ المفتاح هنا إذا اختلف
-                'format' : 'iframe',
-                'height' : 50,
-                'width' : 320,
-                'params' : {}
-            };
-        </script>
-        <script type="text/javascript" src="//www.highperformanceformat.com/96ffe7b5f8b8221bcb2e2d2d679a370e/invoke.js"></script>
+        <!-- إعلان بانر علوي -->
+        <div class="ad-unit">
+            <script type="text/javascript">
+                atOptions = {'key' : '96ffe7b5f8b8221bcb2e2d2d679a370e', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {}};
+            </script>
+            <script type="text/javascript" src="//www.highperformanceformat.com/96ffe7b5f8b8221bcb2e2d2d679a370e/invoke.js"></script>
+        </div>
+
+        <!-- منطقة الفيديو مع حماية النقر الإجباري -->
+        <div class="video-wrapper">
+            <div class="video-overlay" id="overlay" onclick="startVideo()"></div>
+            <iframe id="myVideo" src="https://www.dailymotion.com/embed/video/xa8yj90?autoplay=0&mute=0" 
+                    allowfullscreen="" allow="autoplay"></iframe>
+        </div>
+
+        <h2 style="margin-top: 20px;">مشاهدة ممتعة</h2>
+
+        <!-- إعلان Native -->
+        <div id="container-7dacab675384095f5eacc10b98238e8e"></div>
+        <script async="async" data-cfasync="false" src="https://pl29406222.profitablecpmratenetwork.com/7dacab675384095f5eacc10b98238e8e/invoke.js"></script>
     </div>
 
-    <main class="content-area">
-        <h2>مرحباً بك في موقع حكايتنا</h2>
-        <p>المحتوى سيظهر هنا قريباً...</p>
-    </main>
-
-    <footer class="footer">
-        © 2024 حكايتنا - جميع الحقوق محفوظة
-    </footer>
-
-    <!-- إعلان البوب اندر (Popunder) الخاص بك - المربح جداً -->
-    <script type='text/javascript' src='//pl29305597.highperformanceformat.com/a5/e6/17/a5e6173b3b36cb3d30f4394d194eaa61.js'></script>
+    <script>
+        function startVideo() {
+            // 1. فتح الرابط المباشر (Direct Link) لزيادة الربح
+            window.open('https://www.profitablecpmratenetwork.com/n5afwdtr78?key=21317cc52736e0f8228abe7f47a236ca', '_blank');
+            
+            // 2. إخفاء الطبقة الشفافة للسماح للزائر بالتحكم في فيديو Dailymotion
+            document.getElementById('overlay').style.display = 'none';
+            
+            // 3. تشغيل فيديو Dailymotion تلقائياً بعد النقرة (اختياري)
+            var iframe = document.getElementById('myVideo');
+            iframe.src += "&autoplay=1";
+        }
+    </script>
 
 </body>
 </html>
