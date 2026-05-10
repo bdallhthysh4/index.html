@@ -2,402 +2,85 @@
 <!DOCTYPE html>
 <html dir='rtl' lang='ar' xmlns='http://www.w3.org/1999/xhtml'>
 <head>
-  <meta name="google-adsense-account" content="ca-pub-5985288941774654">
-  <meta charset='UTF-8'/>
-  <meta content='width=device-width, initial-scale=1.0, user-scalable=yes' name='viewport'/>
-  <meta content='no-referrer' name='referrer'/>
-  <title>إعلان - حكايتنا</title>
-  <meta content='index, follow' name='robots'/>
-  <meta content='#e50914' name='theme-color'/>
-  <link href='https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&amp;display=swap' rel='stylesheet'/>
-  
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      background: #000;
-      color: #fff;
-      font-family: 'Cairo', sans-serif;
-      direction: rtl;
-      height: 100vh;
-      width: 100%;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      user-select: none;
-      -webkit-user-select: none;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    /* ========== شاشة التحميل ========== */
-    .loading-screen {
-      position: fixed;
-      inset: 0;
-      background: #000;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-    }
-
-    .spinner {
-      width: 60px;
-      height: 60px;
-      border: 5px solid #1a1a1a;
-      border-top-color: #e50914;
-      border-radius: 50%;
-      animation: spin 0.8s infinite linear;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .loading-text {
-      color: #aaa;
-      font-size: 16px;
-    }
-
-    /* ========== الحاوية الرئيسية ========== */
-    .ad-wall {
-      width: 100%;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      gap: 20px;
-      background: linear-gradient(180deg, #050505 0%, #0a0a0a 100%);
-    }
-
-    /* ========== الشعار ========== */
-    .logo-area {
-      text-align: center;
-      margin-bottom: 10px;
-    }
-
-    .logo-area img {
-      height: 60px;
-      width: auto;
-      margin-bottom: 10px;
-    }
-
-    .logo-area h1 {
-      font-size: 28px;
-      font-weight: 900;
-      color: #e50914;
-      margin: 0;
-    }
-
-    /* ========== صندوق الإعلان ========== */
-    .ad-container {
-      width: 100%;
-      max-width: 750px;
-      background: #0f0f0f;
-      border: 3px solid #e50914;
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 0 60px rgba(229, 9, 20, 0.4);
-      position: relative;
-      animation: popIn 0.5s ease;
-    }
-
-    @keyframes popIn {
-      from { transform: scale(0.8); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-
-    .ad-header {
-      background: #e50914;
-      color: #fff;
-      padding: 12px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-weight: 700;
-      font-size: 16px;
-    }
-
-    .ad-header .badge {
-      background: #ffd700;
-      color: #000;
-      padding: 3px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 900;
-    }
-
-    .ad-frame {
-      width: 100%;
-      height: 400px;
-      border: none;
-      display: block;
-      background: #000;
-    }
-
-    @media (max-width: 600px) {
-      .ad-frame { height: 280px; }
-      .ad-container { max-width: 95%; }
-    }
-
-    /* ========== شريط التقدم ========== */
-    .progress-area {
-      width: 100%;
-      max-width: 750px;
-      text-align: center;
-    }
-
-    .progress-text {
-      font-size: 18px;
-      color: #aaa;
-      margin-bottom: 10px;
-    }
-
-    .progress-text span {
-      color: #e50914;
-      font-weight: 900;
-      font-size: 32px;
-    }
-
-    .progress-bar {
-      width: 100%;
-      height: 8px;
-      background: #1a1a1a;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #e50914, #ff4444);
-      border-radius: 10px;
-      transition: width 1s linear;
-      width: 0%;
-    }
-
-    /* ========== زر التخطي ========== */
-    .skip-btn {
-      background: #222;
-      color: #666;
-      border: 2px solid #333;
-      padding: 15px 50px;
-      border-radius: 60px;
-      font-family: 'Cairo';
-      font-weight: 900;
-      font-size: 20px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      pointer-events: none;
-      opacity: 0.4;
-    }
-
-    .skip-btn.active {
-      background: #e50914;
-      color: #fff;
-      border-color: #e50914;
-      pointer-events: all;
-      opacity: 1;
-      box-shadow: 0 5px 30px rgba(229, 9, 20, 0.5);
-      animation: pulse-btn 1.5s infinite;
-    }
-
-    .skip-btn.active:hover {
-      transform: scale(1.08);
-      background: #ff0f1a;
-    }
-
-    @keyframes pulse-btn {
-      0%, 100% { box-shadow: 0 5px 30px rgba(229, 9, 20, 0.5); }
-      50% { box-shadow: 0 5px 50px rgba(229, 9, 20, 0.8); }
-    }
-
-    /* ========== الإعلان الثاني (مخفي) ========== */
-    .ad-secondary {
-      width: 100%;
-      max-width: 750px;
-      background: #0f0f0f;
-      border: 2px solid #222;
-      border-radius: 15px;
-      overflow: hidden;
-      display: none;
-    }
-
-    .ad-secondary.show {
-      display: block;
-    }
-
-    .ad-secondary iframe {
-      width: 100%;
-      height: 100px;
-      border: none;
-    }
-
-    /* ========== التذييل ========== */
-    .footer-text {
-      color: #555;
-      font-size: 13px;
-      text-align: center;
-      margin-top: 5px;
-    }
-
-    .footer-text a {
-      color: #777;
-      text-decoration: none;
-    }
-  </style>
-</head>
-
-<body oncontextmenu='return false'>
-
-  <!-- ========== شاشة التحميل ========== -->
-  <div class='loading-screen' id='loadingScreen'>
-    <div class='spinner'></div>
-    <div class='loading-text'>جاري تجهيز الإعلان...</div>
-  </div>
-
-  <!-- ========== الحاوية الرئيسية ========== -->
-  <div class='ad-wall' id='adWall' style='display:none;'>
+    <!-- كود التحقق الخاص بحسابك في أدسنس - لا تحذفه -->
+    <meta name="google-adsense-account" content="ca-pub-5985288941774654">
     
-    <!-- الشعار -->
-    <div class='logo-area'>
-      <img alt='حكايتنا' src='https://i.ibb.co/0wvJfBH/file-00000000c1e4720a9aba88f120b35bd1.png' onerror='this.style.display="none"'/>
-      <h1>حكايتنا</h1>
-    </div>
-
-    <!-- صندوق الإعلان الرئيسي -->
-    <div class='ad-container' id='mainAdBox'>
-      <div class='ad-header'>
-        <span>🎬 إعلان</span>
-        <span class='badge'>دعم للموقع</span>
-      </div>
-      <iframe class='ad-frame' id='mainAdFrame' allow='autoplay; fullscreen' frameborder='0' scrolling='no'></iframe>
-    </div>
-
-    <!-- شريط التقدم -->
-    <div class='progress-area'>
-      <div class='progress-text'>
-        يمكنك التخطي بعد <span id='countdown'>10</span> ثوانٍ
-      </div>
-      <div class='progress-bar'>
-        <div class='progress-fill' id='progressFill'></div>
-      </div>
-    </div>
-
-    <!-- زر التخطي -->
-    <button class='skip-btn' id='skipBtn' onclick='redirectNow()'>
-      ⏭ تخطي الإعلان
-    </button>
-
-    <!-- إعلان ثانوي -->
-    <div class='ad-secondary' id='secondaryAd'>
-      <iframe allow='fullscreen' frameborder='0' scrolling='no' src='https://omg10.com/4/10966278'></iframe>
-    </div>
-
-    <!-- تذييل -->
-    <div class='footer-text'>
-      شكراً لدعمك • <a href='https://t.me/hikaytnamy' target='_blank'>قناة التليجرام</a>
-    </div>
-
-  </div>
-
-  <!-- ========== Popunder ========== -->
-  <script>
-    try {
-      var popunder = window.open('https://omg10.com/4/10670674', '_blank', 'width=1,height=1');
-      if (popunder) {
-        popunder.blur();
-        window.focus();
-      }
-    } catch(e) {}
-  </script>
-
-  <!-- ========== سكريبتات الإعلانات ========== -->
-  <script async='async' data-cfasync='false' data-zone='10732130' src='https://quge5.com/88/tag.min.js'></script>
-  <script async='async' data-cfasync='false' data-zone='216819' src='https://quge5.com/88/tag.min.js'></script>
-
-  <script>
-    // ========== الإعدادات ==========
-    const TARGET_URL = 'https://YOURBLOG.blogspot.com/?m=1'; // ⚠️ غير هذا الرابط لموقعك
-    const AD_URL_1 = 'https://omg10.com/4/10966278';
-    const AD_URL_2 = 'https://omg10.com/4/10966278';
-    const WAIT_SECONDS = 10; // عدد الثواني قبل التفعيل
+    <meta charset='UTF-8'/>
+    <meta content='width=device-width, initial-scale=1.0' name='viewport'/>
+    <title>حكايتنا - المحتوى الحصري</title>
     
-    let timeLeft = WAIT_SECONDS;
-    let redirectTriggered = false;
+    <meta content='index, follow' name='robots'/>
+    <meta content='#e50914' name='theme-color'/>
     
-    // ========== دوال التوجيه ==========
-    function redirectNow() {
-      if (redirectTriggered) return;
-      redirectTriggered = true;
-      
-      // عرض الإعلان الثانوي قبل التوجيه
-      var secAd = document.getElementById('secondaryAd');
-      if (secAd) secAd.classList.add('show');
-      
-      // توجيه بعد نصف ثانية
-      setTimeout(function() {
-        window.location.href = TARGET_URL;
-      }, 500);
-    }
+    <!-- الخطوط -->
+    <link href='https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&amp;display=swap' rel='stylesheet'/>
     
-    // ========== العد التنازلي ==========
-    function startCountdown() {
-      document.getElementById('loadingScreen').style.display = 'none';
-      document.getElementById('adWall').style.display = 'flex';
-      
-      // تحميل الإعلان الرئيسي
-      document.getElementById('mainAdFrame').src = AD_URL_1;
-      
-      var countdownEl = document.getElementById('countdown');
-      var progressFill = document.getElementById('progressFill');
-      var skipBtn = document.getElementById('skipBtn');
-      
-      var timer = setInterval(function() {
-        timeLeft--;
-        countdownEl.innerText = timeLeft;
-        
-        // تحديث شريط التقدم
-        var progress = ((WAIT_SECONDS - timeLeft) / WAIT_SECONDS) * 100;
-        progressFill.style.width = progress + '%';
-        
-        if (timeLeft <= 0) {
-          clearInterval(timer);
-          countdownEl.parentElement.innerHTML = '<span style="color:#4caf50;">✅ يمكنك المتابعة الآن</span>';
-          skipBtn.classList.add('active');
-          skipBtn.innerText = '▶ مشاهدة المسلسل';
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
         }
-      }, 1000);
-    }
-    
-    // ========== بدء التشغيل ==========
-    window.addEventListener('load', function() {
-      // تأخير بسيط لتحميل الإعلانات
-      setTimeout(startCountdown, 2000);
-    });
-    
-    // ========== منع الخروج ==========
-    document.addEventListener('visibilitychange', function() {
-      if (document.hidden && !redirectTriggered) {
-        // المستخدم فتح تبويب آخر، يمكن إظهار تنبيه
-      }
-    });
-    
-    // ========== النقر على الإعلان ==========
-    document.getElementById('mainAdBox').addEventListener('click', function() {
-      // تقليل وقت الانتظار كمكافأة
-      if (timeLeft > 3) {
-        timeLeft = 3;
-      }
-    });
-  </script>
+        header {
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .logo h1 {
+            color: #e50914;
+            font-size: 3rem;
+            margin: 0;
+        }
+        .content-area {
+            max-width: 800px;
+            width: 90%;
+            background: #141414;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            line-height: 1.8;
+            margin-bottom: 50px;
+        }
+        .footer {
+            margin-top: auto;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+        /* مكان مخصص لظهور إعلانات أدسنس التلقائية لاحقاً */
+        .ad-placeholder {
+            margin: 20px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <h1>حكايتنا</h1>
+        </div>
+    </header>
+
+    <main class="content-area">
+        <h2>مرحباً بك في موقع حكايتنا</h2>
+        <p>نحن نقدم لكم أفضل القصص والمحتوى الحصري. نسعى دائماً لتقديم تجربة مستخدم مميزة وخالية من الإزعاج.</p>
+        
+        <div class="ad-placeholder">
+            <!-- سيقوم جوجل أدسنس بوضع الإعلانات هنا تلقائياً بمجرد القبول -->
+        </div>
+
+        <p>استمتع بقراءة أحدث المقالات والقصص عبر تصنيفاتنا المختلفة. شكراً لزيارتكم وثقتكم بنا.</p>
+    </main>
+
+    <footer class="footer">
+        © 2024 حكايتنا - جميع الحقوق محفوظة
+    </footer>
 
 </body>
 </html>
