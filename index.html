@@ -4,97 +4,63 @@
 <head>
     <meta charset='UTF-8'/>
     <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' name='viewport'/>
-    <title>المشغل الذكي</title>
+    <title>المشغل الذكي - أرباح مضاعفة</title>
     
+    <!-- 1. تعريف تطبيق AdMob الخاص بك لجوجل -->
+    <script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5985288941774654" crossorigin="anonymous"></script>
+
     <style>
-        /* إلغاء أي هوامش وجعل الخلفية سوداء بالكامل */
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #000;
-            overflow: hidden; /* منع التمرير ليبقى الفيديو ثابتاً */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        html, body { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .full-screen-container { position: relative; width: 100vw; height: 100vh; }
+        iframe { width: 100%; height: 100%; border: none; }
+        
+        /* طبقة الربح المباشر من Adsterra */
+        .ad-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; cursor: pointer; background: rgba(0,0,0,0.01); }
 
-        /* حاوية الفيديو: تملأ الشاشة بالكامل */
-        .full-screen-video {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        /* طبقة "فخ الأرباح" الشفافة تغطي الشاشة بالكامل فوق الفيديو */
-        .ad-trigger-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 9999; /* فوق كل شيء */
-            cursor: pointer;
-            background: rgba(0,0,0,0.01); /* شفافة لا تُرى */
-        }
-
-        /* إعلان بانر مخفي في الأسفل، يظهر فقط إذا أردت زيادة الربح */
-        .bottom-sticky-ad {
-            position: fixed;
-            bottom: 0;
-            z-index: 100;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            pointer-events: none; /* لا يتداخل مع النقرات */
+        /* حاوية إعلان البانر (AdMob) في الأسفل */
+        .admob-banner {
+            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+            z-index: 1000; width: 100%; text-align: center; background: rgba(0,0,0,0.5);
         }
     </style>
 
-    <!-- إعلانات Adsterra التلقائية (تشتغل في الخلفية) -->
+    <!-- إعلانات Adsterra التلقائية (Popunder & Social Bar) -->
     <script type='text/javascript' src='//pl29305597.highperformanceformat.com/a5/e6/17/a5e6173b3b36cb3d30f4394d194eaa61.js'></script>
-    <script src="https://pl29406212.profitablecpmratenetwork.com/db/ed/b1/dbedb1a74446e5fd07b4b596602cadb9.js"></script>
 </head>
 <body>
 
-    <div class="full-screen-video">
-        <!-- أي لمسة هنا ستفتح رابط الربح المباشر فوراً -->
-        <div class="ad-trigger-layer" id="adLayer" onclick="playAndEarn()"></div>
+    <div class="full-screen-container">
+        <!-- طبقة النقر لفتح الرابط المباشر من Adsterra -->
+        <div class="ad-layer" id="earnLayer" onclick="triggerAds()"></div>
         
-        <!-- مشغل الفيديو يملأ المكان -->
-        <iframe id="videoPlayer" 
-            src="https://www.dailymotion.com/embed/video/xa8yj90?autoplay=0&ui-logo=false&ui-start-screen-info=false" 
+        <!-- مشغل الفيديو الخاص بك -->
+        <iframe id="video" 
+            src="https://www.dailymotion.com/embed/video/xa8yj90?autoplay=0&ui-logo=false" 
             allow="autoplay; fullscreen">
         </iframe>
     </div>
 
-    <!-- إعلان بانر سفلي بسيط لزيادة الـ CPM -->
-    <div class="bottom-sticky-ad">
-        <script type="text/javascript">
-            atOptions = {'key' : '96ffe7b5f8b8221bcb2e2d2d679a370e', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {}};
+    <!-- 2. وحدة إعلان البانر من AdMob (التي أنشأتها للتو) -->
+    <div class="admob-banner">
+        <ins class="adsbygoogle"
+             style="display:inline-block;width:320px;height:50px"
+             data-ad-client="ca-pub-5985288941774654"
+             data-ad-slot="4891819896"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
         </script>
-        <script type="text/javascript" src="//www.highperformanceformat.com/96ffe7b5f8b8221bcb2e2d2d679a370e/invoke.js"></script>
     </div>
 
     <script>
-        function playAndEarn() {
-            // 1. فتح الرابط المباشر في نافذة جديدة (الربح الأكبر)
+        function triggerAds() {
+            // فتح الرابط المباشر (Adsterra Direct Link)
             window.open('https://www.profitablecpmratenetwork.com/n5afwdtr78?key=21317cc52736e0f8228abe7f47a236ca', '_blank');
             
-            // 2. إزالة الطبقة الشفافة فوراً للسماح للزائر بالتحكم في الفيديو
-            document.getElementById('adLayer').style.display = 'none';
+            // إزالة الطبقة لتمكين الفيديو
+            document.getElementById('earnLayer').style.display = 'none';
             
-            // 3. تحويل الفيديو إلى وضع التشغيل التلقائي بعد النقرة الأولى
-            var player = document.getElementById('videoPlayer');
+            // تشغيل الفيديو تلقائياً
+            var player = document.getElementById('video');
             player.src += "&autoplay=1";
         }
     </script>
