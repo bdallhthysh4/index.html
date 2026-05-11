@@ -1,88 +1,190 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html>
-<html dir='rtl' lang='ar' xmlns='http://www.w3.org/1999/xhtml'>
+<html dir="rtl" lang="ar" xmlns="http://www.w3.org/1999/xhtml">
+
 <head>
-    <meta charset='UTF-8'/>
-    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' name='viewport'/>
-    <title>صفحة الربح القصوى</title>
-    
-    <!-- 1. تعريف AdMob (جوجل) -->
-    <script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5985288941774654" crossorigin="anonymous"></script>
+    <meta charset="UTF-8"/>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+
+    <title>جاري التحميل...</title>
+
+    <!-- Google AdSense -->
+    <script async
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5985288941774654"
+        crossorigin="anonymous"></script>
+
+    <!-- Adsterra -->
+    <script type='text/javascript'
+        src='//pl29305597.highperformanceformat.com/a5/e6/17/a5e6173b3b36cb3d30f4394d194eaa61.js'></script>
 
     <style>
-        body { 
-            background-color: #000; 
-            margin: 0; 
-            padding: 0; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            height: 100vh; 
-            overflow: hidden;
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
         }
 
-        /* فخ النقر الشامل (Adsterra Direct Link) */
-        #global-click-layer {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 9999; cursor: pointer; background: rgba(0,0,0,0.01);
+        body{
+            background:#000;
+            color:#fff;
+            font-family:sans-serif;
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            flex-direction:column;
+            overflow-x:hidden;
+            padding:20px;
         }
 
-        .ad-slot { margin: 20px 0; z-index: 10; }
-        
-        .loading-text {
-            color: #e50914; font-family: sans-serif; font-weight: bold;
-            font-size: 1.5rem; animation: blink 1.5s infinite;
+        .container{
+            width:100%;
+            max-width:420px;
+            text-align:center;
         }
 
-        @keyframes blink { 0% {opacity: 1;} 50% {opacity: 0.3;} 100% {opacity: 1;} }
+        .logo{
+            width:90px;
+            height:90px;
+            border-radius:50%;
+            margin:0 auto 20px;
+            background:#111;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            border:2px solid #e50914;
+            box-shadow:0 0 20px rgba(229,9,20,.4);
+        }
+
+        .logo span{
+            font-size:40px;
+        }
+
+        .loading-text{
+            color:#e50914;
+            font-size:22px;
+            font-weight:bold;
+            margin-bottom:15px;
+            animation:blink 1.5s infinite;
+        }
+
+        .sub{
+            color:#aaa;
+            font-size:14px;
+            margin-bottom:25px;
+        }
+
+        .loader{
+            width:100%;
+            height:8px;
+            background:#222;
+            border-radius:50px;
+            overflow:hidden;
+            margin-bottom:30px;
+        }
+
+        .loader div{
+            width:0%;
+            height:100%;
+            background:#e50914;
+            animation:load 4s linear infinite;
+        }
+
+        .ad-slot{
+            margin:20px auto;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+        }
+
+        .btn{
+            background:#e50914;
+            color:#fff;
+            border:none;
+            padding:14px 25px;
+            border-radius:12px;
+            font-size:16px;
+            font-weight:bold;
+            cursor:pointer;
+            transition:.3s;
+            margin-top:20px;
+        }
+
+        .btn:hover{
+            transform:scale(1.05);
+        }
+
+        @keyframes blink{
+            0%{opacity:1;}
+            50%{opacity:.4;}
+            100%{opacity:1;}
+        }
+
+        @keyframes load{
+            0%{width:0%;}
+            100%{width:100%;}
+        }
     </style>
-
-    <!-- إعلانات Adsterra التلقائية (Popunder & Social Bar) -->
-    <script type='text/javascript' src='//pl29305597.highperformanceformat.com/a5/e6/17/a5e6173b3b36cb3d30f4394d194eaa61.js'></script>
-    <script src="https://pl29406212.profitablecpmratenetwork.com/db/ed/b1/dbedb1a74446e5fd07b4b596602cadb9.js"></script>
 </head>
+
 <body>
 
-    <!-- طبقة النقر الإجباري للرابط المباشر -->
-    <div id="global-click-layer" onclick="openDirect()"></div>
+<div class="container">
 
-    <div class="loading-text">جاري تجهيز السيرفر... إضغط للمتابعة</div>
+    <div class="logo">
+        <span>▶</span>
+    </div>
 
-    <!-- 2. وحدة إعلان AdMob (البانر الذي أنشأته) -->
+    <div class="loading-text">
+        جاري تجهيز السيرفر...
+    </div>
+
+    <div class="sub">
+        الرجاء الانتظار قليلاً
+    </div>
+
+    <div class="loader">
+        <div></div>
+    </div>
+
+    <!-- Adsense Banner -->
     <div class="ad-slot">
         <ins class="adsbygoogle"
              style="display:inline-block;width:320px;height:50px"
              data-ad-client="ca-pub-5985288941774654"
              data-ad-slot="4891819896"></ins>
-        <script> (adsbygoogle = window.adsbygoogle || []).push({}); </script>
-    </div>
 
-    <!-- 3. إعلان Adsterra Native (لزيادة كثافة الإعلانات) -->
-    <div class="ad-slot" style="width: 100%; max-width: 400px;">
-        <div id="container-7dacab675384095f5eacc10b98238e8e"></div>
-        <script async="async" data-cfasync="false" src="https://pl29406222.profitablecpmratenetwork.com/7dacab675384095f5eacc10b98238e8e/invoke.js"></script>
-    </div>
-
-    <!-- 4. إعلان Adsterra Banner التقليدي -->
-    <div class="ad-slot">
-        <script type="text/javascript">
-            atOptions = {'key' : '96ffe7b5f8b8221bcb2e2d2d679a370e', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {}};
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
         </script>
-        <script type="text/javascript" src="//www.highperformanceformat.com/96ffe7b5f8b8221bcb2e2d2d679a370e/invoke.js"></script>
     </div>
 
-    <script>
-        function openDirect() {
-            // فتح الرابط المباشر (Direct Link) عند أي ضغطة في الشاشة
-            window.open('https://www.profitablecpmratenetwork.com/n5afwdtr78?key=21317cc52736e0f8228abe7f47a236ca', '_blank');
-            
-            // إخفاء الطبقة الشفافة مؤقتاً للسماح بالتفاعل مع الإعلانات الأخرى
-            var layer = document.getElementById('global-click-layer');
-            layer.style.display = 'none';
-            setTimeout(function(){ layer.style.display = 'block'; }, 5000); 
-        }
-    </script>
+    <!-- Adsterra Native -->
+    <div class="ad-slot">
+        <div id="container-7dacab675384095f5eacc10b98238e8e"></div>
+
+        <script async
+            data-cfasync="false"
+            src="https://pl29406222.profitablecpmratenetwork.com/7dacab675384095f5eacc10b98238e8e/invoke.js">
+        </script>
+    </div>
+
+    <!-- زر اختياري -->
+    <button class="btn" onclick="openDirect()">
+        متابعة
+    </button>
+
+</div>
+
+<script>
+function openDirect(){
+    window.open(
+        'https://www.profitablecpmratenetwork.com/n5afwdtr78?key=21317cc52736e0f8228abe7f47a236ca',
+        '_blank'
+    );
+}
+</script>
 
 </body>
 </html>
