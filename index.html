@@ -4,64 +4,83 @@
 <head>
     <meta charset='UTF-8'/>
     <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' name='viewport'/>
-    <title>المشغل الذكي - أرباح مضاعفة</title>
+    <title>صفحة الربح القصوى</title>
     
-    <!-- 1. تعريف تطبيق AdMob الخاص بك لجوجل -->
+    <!-- 1. تعريف AdMob (جوجل) -->
     <script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5985288941774654" crossorigin="anonymous"></script>
 
     <style>
-        html, body { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        .full-screen-container { position: relative; width: 100vw; height: 100vh; }
-        iframe { width: 100%; height: 100%; border: none; }
-        
-        /* طبقة الربح المباشر من Adsterra */
-        .ad-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; cursor: pointer; background: rgba(0,0,0,0.01); }
-
-        /* حاوية إعلان البانر (AdMob) في الأسفل */
-        .admob-banner {
-            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-            z-index: 1000; width: 100%; text-align: center; background: rgba(0,0,0,0.5);
+        body { 
+            background-color: #000; 
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            overflow: hidden;
         }
+
+        /* فخ النقر الشامل (Adsterra Direct Link) */
+        #global-click-layer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 9999; cursor: pointer; background: rgba(0,0,0,0.01);
+        }
+
+        .ad-slot { margin: 20px 0; z-index: 10; }
+        
+        .loading-text {
+            color: #e50914; font-family: sans-serif; font-weight: bold;
+            font-size: 1.5rem; animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink { 0% {opacity: 1;} 50% {opacity: 0.3;} 100% {opacity: 1;} }
     </style>
 
     <!-- إعلانات Adsterra التلقائية (Popunder & Social Bar) -->
     <script type='text/javascript' src='//pl29305597.highperformanceformat.com/a5/e6/17/a5e6173b3b36cb3d30f4394d194eaa61.js'></script>
+    <script src="https://pl29406212.profitablecpmratenetwork.com/db/ed/b1/dbedb1a74446e5fd07b4b596602cadb9.js"></script>
 </head>
 <body>
 
-    <div class="full-screen-container">
-        <!-- طبقة النقر لفتح الرابط المباشر من Adsterra -->
-        <div class="ad-layer" id="earnLayer" onclick="triggerAds()"></div>
-        
-        <!-- مشغل الفيديو الخاص بك -->
-        <iframe id="video" 
-            src="https://www.dailymotion.com/embed/video/xa8yj90?autoplay=0&ui-logo=false" 
-            allow="autoplay; fullscreen">
-        </iframe>
-    </div>
+    <!-- طبقة النقر الإجباري للرابط المباشر -->
+    <div id="global-click-layer" onclick="openDirect()"></div>
 
-    <!-- 2. وحدة إعلان البانر من AdMob (التي أنشأتها للتو) -->
-    <div class="admob-banner">
+    <div class="loading-text">جاري تجهيز السيرفر... إضغط للمتابعة</div>
+
+    <!-- 2. وحدة إعلان AdMob (البانر الذي أنشأته) -->
+    <div class="ad-slot">
         <ins class="adsbygoogle"
              style="display:inline-block;width:320px;height:50px"
              data-ad-client="ca-pub-5985288941774654"
              data-ad-slot="4891819896"></ins>
-        <script>
-             (adsbygoogle = window.adsbygoogle || []).push({});
+        <script> (adsbygoogle = window.adsbygoogle || []).push({}); </script>
+    </div>
+
+    <!-- 3. إعلان Adsterra Native (لزيادة كثافة الإعلانات) -->
+    <div class="ad-slot" style="width: 100%; max-width: 400px;">
+        <div id="container-7dacab675384095f5eacc10b98238e8e"></div>
+        <script async="async" data-cfasync="false" src="https://pl29406222.profitablecpmratenetwork.com/7dacab675384095f5eacc10b98238e8e/invoke.js"></script>
+    </div>
+
+    <!-- 4. إعلان Adsterra Banner التقليدي -->
+    <div class="ad-slot">
+        <script type="text/javascript">
+            atOptions = {'key' : '96ffe7b5f8b8221bcb2e2d2d679a370e', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {}};
         </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/96ffe7b5f8b8221bcb2e2d2d679a370e/invoke.js"></script>
     </div>
 
     <script>
-        function triggerAds() {
-            // فتح الرابط المباشر (Adsterra Direct Link)
+        function openDirect() {
+            // فتح الرابط المباشر (Direct Link) عند أي ضغطة في الشاشة
             window.open('https://www.profitablecpmratenetwork.com/n5afwdtr78?key=21317cc52736e0f8228abe7f47a236ca', '_blank');
             
-            // إزالة الطبقة لتمكين الفيديو
-            document.getElementById('earnLayer').style.display = 'none';
-            
-            // تشغيل الفيديو تلقائياً
-            var player = document.getElementById('video');
-            player.src += "&autoplay=1";
+            // إخفاء الطبقة الشفافة مؤقتاً للسماح بالتفاعل مع الإعلانات الأخرى
+            var layer = document.getElementById('global-click-layer');
+            layer.style.display = 'none';
+            setTimeout(function(){ layer.style.display = 'block'; }, 5000); 
         }
     </script>
 
