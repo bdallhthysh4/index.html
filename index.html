@@ -19,40 +19,38 @@
             justify-content: center;
             overflow: hidden;
         }
-        .timer { font-size: 20px; margin: 20px; color: #e74c3c; border: 1px solid #e74c3c; padding: 10px; border-radius: 5px; }
+        .timer { font-size: 18px; margin: 20px; color: #e74c3c; border: 1px solid #e74c3c; padding: 15px; border-radius: 5px; background: rgba(231, 76, 60, 0.1); }
         .btn { 
-            background: #e74c3c; color: white; border: none; padding: 15px; 
-            width: 100%; font-size: 18px; border-radius: 5px; display: none; cursor: pointer; 
+            background: #e74c3c; color: white; border: none; padding: 18px; 
+            width: 100%; font-size: 20px; font-weight: bold; border-radius: 8px; display: none; cursor: pointer; 
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
         }
-        img { max-width: 100%; height: auto; }
-        .ad-label { font-size: 10px; color: #555; margin-bottom: 5px; }
+        .ad-label { font-size: 11px; color: #666; margin-bottom: 8px; margin-top: 5px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>حكايتنا - انتظر ثواني</h2>
+    <h2 style="margin-bottom: 5px;">حكايتنا</h2>
+    <p style="color: #888; font-size: 13px;">جاري تجهيز سيرفرات المشاهدة...</p>
     
     <div class="ad-box">
         <span class="ad-label">إعلان مروج</span>
-        <a href="https://al5sm.com/tag.min.js?zone=10943622" target="_blank">
-            <img src="https://placehold.co/300x250/222/white?text=اضغط+هنا+للمشاهدة" alt="Ad">
-        </a>
+        <script async data-cfasync="false" src="//al5sm.com/tag.min.js?zone=10943622"></script>
+        <div id="container-10943622"></div>
     </div>
 
-    <div id="timer" class="timer">جاري تجهيز السيرفر: <span id="sec">15</span> ثانية</div>
-    <button id="btn" class="btn" onclick="location.href='https://www.hikaytna.my/'">انقر هنا للمشاهدة</button>
+    <div id="timer" class="timer">انتظر <span id="sec">15</span> ثانية لظهور زر المشاهدة</div>
+    <button id="btn" class="btn" onclick="location.href='https://www.hikaytna.my/'">اضغط هنا للمشاهدة الآن</button>
 
     <div class="ad-box">
         <span class="ad-label">إعلان مروج</span>
-        <a href="https://al5sm.com/tag.min.js?zone=10943622" target="_blank">
-            <img src="https://placehold.co/300x250/222/white?text=اعلان+احتياطي" alt="Ad">
-        </a>
+        <script async data-cfasync="false" src="//al5sm.com/tag.min.js?zone=10943622"></script>
     </div>
 </div>
 
 <script>
-    // 1. تشغيل العداد
+    // العداد
     let s = 15;
     let timer = setInterval(() => {
         s--;
@@ -64,7 +62,7 @@
         }
     }, 1000);
 
-    // 2. سكريبت الإعلان المنبثق (al5sm) يفتح مرة واحدة عند أول لمسة
+    // سكريبت الإعلان المنبثق عند أول لمسة (Pop-under)
     document.addEventListener('click', function fire() {
         var script = document.createElement('script');
         script.src = 'https://al5sm.com/tag.min.js';
