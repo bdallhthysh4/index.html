@@ -3,73 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حكايتنا - جاري التجهيز</title>
+    <title>حكايتنا - جاري تجهيز الرابط</title>
     <style>
         body { background-color: #0c0c0c; color: white; font-family: sans-serif; text-align: center; margin: 0; padding: 20px; }
-        .container { max-width: 400px; margin: auto; }
-        .ad-box { 
+        .container { max-width: 450px; margin: auto; padding-top: 30px; }
+        
+        /* تصميم المربعات الإعلانية */
+        .ad-placeholder { 
             background: #1a1a1a; 
             border: 1px solid #333; 
             margin: 20px 0; 
             min-height: 250px; 
-            border-radius: 10px; 
+            border-radius: 15px; 
             display: flex; 
-            flex-direction: column;
             align-items: center; 
             justify-content: center;
             overflow: hidden;
+            position: relative;
         }
-        .timer { font-size: 18px; margin: 20px; color: #e74c3c; border: 1px solid #e74c3c; padding: 15px; border-radius: 5px; background: rgba(231, 76, 60, 0.1); }
+        .ad-placeholder::after {
+            content: "إعلان مروج";
+            position: absolute;
+            bottom: 10px;
+            font-size: 10px;
+            color: #444;
+        }
+
+        /* العداد والزر */
+        .timer-box { 
+            font-size: 18px; 
+            margin: 20px 0; 
+            padding: 20px; 
+            border-radius: 12px; 
+            background: rgba(231, 76, 60, 0.1); 
+            border: 1px solid #e74c3c; 
+        }
+        #sec { font-weight: bold; color: #e74c3c; font-size: 24px; }
+        
         .btn { 
-            background: #e74c3c; color: white; border: none; padding: 18px; 
-            width: 100%; font-size: 20px; font-weight: bold; border-radius: 8px; display: none; cursor: pointer; 
-            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+            background: #e74c3c; 
+            color: white; 
+            border: none; 
+            padding: 18px; 
+            width: 100%; 
+            font-size: 20px; 
+            font-weight: bold; 
+            border-radius: 10px; 
+            display: none; 
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
         }
-        .ad-label { font-size: 11px; color: #666; margin-bottom: 8px; margin-top: 5px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2 style="margin-bottom: 5px;">حكايتنا</h2>
-    <p style="color: #888; font-size: 13px;">جاري تجهيز سيرفرات المشاهدة...</p>
+    <h2>حكايتنا</h2>
+    <p style="color: #888;">لحظات ويتم تحويلك لصفحة المشاهدة...</p>
     
-    <div class="ad-box">
-        <span class="ad-label">إعلان مروج</span>
-        <script async data-cfasync="false" src="//al5sm.com/tag.min.js?zone=10943622"></script>
-        <div id="container-10943622"></div>
+    <div class="ad-placeholder">
+        <p style="color: #333;">إعلان (سيظهر عند الضغط)</p>
     </div>
 
-    <div id="timer" class="timer">انتظر <span id="sec">15</span> ثانية لظهور زر المشاهدة</div>
-    <button id="btn" class="btn" onclick="location.href='https://www.hikaytna.my/'">اضغط هنا للمشاهدة الآن</button>
+    <div id="timer" class="timer-box">
+        جاري تجهيز السيرفر خلال: <br>
+        <span id="sec">15</span> ثانية
+    </div>
 
-    <div class="ad-box">
-        <span class="ad-label">إعلان مروج</span>
-        <script async data-cfasync="false" src="//al5sm.com/tag.min.js?zone=10943622"></script>
+    <button id="btn" class="btn" onclick="location.href='https://www.hikaytna.my/'">✓ اضغط هنا للمشاهدة الآن</button>
+
+    <div class="ad-placeholder">
+        <p style="color: #333;">إعلان (سيظهر عند الضغط)</p>
     </div>
 </div>
 
 <script>
-    // العداد
-    let s = 15;
-    let timer = setInterval(() => {
-        s--;
-        document.getElementById('sec').innerText = s;
-        if (s <= 0) {
-            clearInterval(timer);
-            document.getElementById('timer').style.display = 'none';
-            document.getElementById('btn').style.display = 'block';
+    // 1. برمجة العداد
+    let timeLeft = 15;
+    const secSpan = document.getElementById('sec');
+    const timerDiv = document.getElementById('timer');
+    const goBtn = document.getElementById('btn');
+
+    const countdown = setInterval(() => {
+        timeLeft--;
+        secSpan.innerText = timeLeft;
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+            timerDiv.style.display = 'none';
+            goBtn.style.display = 'block';
         }
     }, 1000);
 
-    // سكريبت الإعلان المنبثق عند أول لمسة (Pop-under)
-    document.addEventListener('click', function fire() {
-        var script = document.createElement('script');
-        script.src = 'https://al5sm.com/tag.min.js';
-        script.dataset.zone = '10943622';
-        document.head.appendChild(script);
-        document.removeEventListener('click', fire);
-    }, {once: true});
+    // 2. برمجة الإعلان الذكي (مرة واحدة كل 5 دقائق)
+    (function() {
+        const AD_COOLDOWN = 5 * 60 * 1000; 
+        const ZONE_ID = '10995706'; 
+
+        function injectAd() {
+            const now = Date.now();
+            const lastAd = localStorage.getItem('ad_lock_' + ZONE_ID);
+
+            // التحقق من مرور الوقت
+            if (!lastAd || (now - parseInt(lastAd)) > AD_COOLDOWN) {
+                
+                // تسجيل الوقت
+                localStorage.setItem('ad_lock_' + ZONE_ID, now.toString());
+
+                // حقن السكريبت الخاص بك
+                var s = document.createElement('script');
+                s.dataset.zone = ZONE_ID;
+                s.src = 'https://nap5k.com/tag.min.js';
+                document.head.appendChild(s);
+
+                // تنظيف المتصفح من مراقبة الضغطات فوراً
+                document.removeEventListener('click', injectAd);
+                
+                console.log("تم تفعيل الإعلان بنجاح.");
+            }
+        }
+
+        // انتظر أول لمسة من المستخدم
+        document.addEventListener('click', injectAd);
+    })();
 </script>
 
 </body>
