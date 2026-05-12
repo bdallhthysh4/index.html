@@ -3,132 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حكايتنا - جاري تحضير الرابط</title>
+    <title>حكايتنا - جاري التجهيز</title>
     <style>
-        body {
-            background-color: #0c0c0c;
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
+        body { background-color: #0c0c0c; color: white; font-family: sans-serif; text-align: center; margin: 0; padding: 20px; }
+        .container { max-width: 400px; margin: auto; }
+        .ad-box { 
+            background: #1a1a1a; 
+            border: 1px solid #333; 
+            margin: 20px 0; 
+            min-height: 250px; 
+            border-radius: 10px; 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
             justify-content: center;
-        }
-        .container {
-            width: 100%;
-            max-width: 450px;
-            padding: 20px;
-            text-align: center;
-        }
-        .header-title { font-size: 24px; margin-bottom: 10px; color: #fff; }
-        .status-text { color: #aaa; font-size: 14px; margin-bottom: 20px; }
-
-        /* أماكن الإعلانات */
-        .ad-banner {
-            background: #1a1a1a;
-            border: 1px solid #333;
-            min-height: 250px;
-            margin: 15px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px;
             overflow: hidden;
-            position: relative;
         }
-        .ad-banner::before {
-            content: "إعلان مروج";
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            font-size: 10px;
-            color: #444;
+        .timer { font-size: 20px; margin: 20px; color: #e74c3c; border: 1px solid #e74c3c; padding: 10px; border-radius: 5px; }
+        .btn { 
+            background: #e74c3c; color: white; border: none; padding: 15px; 
+            width: 100%; font-size: 18px; border-radius: 5px; display: none; cursor: pointer; 
         }
-
-        .timer-section {
-            background: #1a1a1a;
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid #e74c3c;
-            margin: 20px 0;
-        }
-        #seconds { font-weight: bold; color: #e74c3c; font-size: 22px; }
-
-        .btn {
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            padding: 16px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            display: none; /* مخفي حتى ينتهي العداد */
-            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
-        }
-        .btn:active { transform: scale(0.98); }
+        img { max-width: 100%; height: auto; }
+        .ad-label { font-size: 10px; color: #555; margin-bottom: 5px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1 class="header-title">حكايتنا - انتظر ثواني</h1>
-    <p class="status-text">يتم الآن فحص الرابط الآمن وتجهيز السيرفر...</p>
-
-    <div class="ad-banner">
-        <p style="color:#333">Ad Space 1</p>
+    <h2>حكايتنا - انتظر ثواني</h2>
+    
+    <div class="ad-box">
+        <span class="ad-label">إعلان مروج</span>
+        <a href="https://al5sm.com/tag.min.js?zone=10943622" target="_blank">
+            <img src="https://placehold.co/300x250/222/white?text=اضغط+هنا+للمشاهدة" alt="Ad">
+        </a>
     </div>
 
-    <div class="timer-section" id="timer-box">
-        جاري تجهيز المشغل خلال: <br>
-        <span id="seconds">15</span> ثانية
-    </div>
+    <div id="timer" class="timer">جاري تجهيز السيرفر: <span id="sec">15</span> ثانية</div>
+    <button id="btn" class="btn" onclick="location.href='https://www.hikaytna.my/'">انقر هنا للمشاهدة</button>
 
-    <button id="go-btn" class="btn" onclick="goToLink()">اضغط هنا للمشاهدة الآن</button>
-
-    <div class="ad-banner">
-        <p style="color:#333">Ad Space 2</p>
+    <div class="ad-box">
+        <span class="ad-label">إعلان مروج</span>
+        <a href="https://al5sm.com/tag.min.js?zone=10943622" target="_blank">
+            <img src="https://placehold.co/300x250/222/white?text=اعلان+احتياطي" alt="Ad">
+        </a>
     </div>
 </div>
 
-<script type="text/javascript">
-// <![CDATA[
-    // 1. إعداد العداد
-    let timeLeft = 15; 
-    const timerText = document.getElementById('seconds');
-    const timerBox = document.getElementById('timer-box');
-    const btn = document.getElementById('go-btn');
-
-    const interval = setInterval(() => {
-        timeLeft--;
-        timerText.innerText = timeLeft;
-        if (timeLeft <= 0) {
-            clearInterval(interval);
-            timerBox.style.display = 'none';
-            btn.style.display = 'block';
+<script>
+    // 1. تشغيل العداد
+    let s = 15;
+    let timer = setInterval(() => {
+        s--;
+        document.getElementById('sec').innerText = s;
+        if (s <= 0) {
+            clearInterval(timer);
+            document.getElementById('timer').style.display = 'none';
+            document.getElementById('btn').style.display = 'block';
         }
     }, 1000);
 
-    // 2. وظيفة الزر (توجيه للموقع الأصلي)
-    function goToLink() {
-        window.location.href = "https://www.hikaytna.my/"; 
-    }
-
-    // 3. سكريبت الإعلان المنبثق (الذي طلبته)
-    // يعمل مرة واحدة فقط عند الضغط في أي مكان لضمان الربح
-    let adExecuted = false;
-    document.addEventListener('click', function() {
-        if (!adExecuted) {
-            var s = document.createElement('script');
-            s.src = 'https://al5sm.com/tag.min.js';
-            s.dataset.zone = '10943622';
-            document.head.appendChild(s);
-            adExecuted = true;
-            console.log("Ad script loaded once.");
-        }
-    });
-// ]]>
+    // 2. سكريبت الإعلان المنبثق (al5sm) يفتح مرة واحدة عند أول لمسة
+    document.addEventListener('click', function fire() {
+        var script = document.createElement('script');
+        script.src = 'https://al5sm.com/tag.min.js';
+        script.dataset.zone = '10943622';
+        document.head.appendChild(script);
+        document.removeEventListener('click', fire);
+    }, {once: true});
 </script>
 
 </body>
