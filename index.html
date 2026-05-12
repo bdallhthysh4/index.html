@@ -3,114 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حكايتنا - جاري تجهيز الحلقة</title>
+    <title>حكايتنا - جاري تحضير الرابط</title>
     <style>
         body {
             background-color: #0c0c0c;
             color: white;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            justify-content: center;
         }
         .container {
             width: 100%;
-            max-width: 400px;
+            max-width: 450px;
             padding: 20px;
             text-align: center;
         }
-        .ad-space {
+        .header-title { font-size: 24px; margin-bottom: 10px; color: #fff; }
+        .status-text { color: #aaa; font-size: 14px; margin-bottom: 20px; }
+
+        /* أماكن الإعلانات */
+        .ad-banner {
             background: #1a1a1a;
-            border: 1px dashed #444;
-            margin: 15px 0;
+            border: 1px solid #333;
             min-height: 250px;
+            margin: 15px 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 8px;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
         }
-        .timer-box {
-            font-size: 20px;
+        .ad-banner::before {
+            content: "إعلان مروج";
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            font-size: 10px;
+            color: #444;
+        }
+
+        .timer-section {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e74c3c;
             margin: 20px 0;
-            padding: 15px;
-            border: 2px solid #e74c3c;
-            border-radius: 10px;
         }
-        #go-btn {
+        #seconds { font-weight: bold; color: #e74c3c; font-size: 22px; }
+
+        .btn {
             background-color: #e74c3c;
             color: white;
             border: none;
-            padding: 15px 30px;
+            padding: 16px;
             font-size: 18px;
             font-weight: bold;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
-            display: none; /* مخفي في البداية */
             width: 100%;
+            display: none; /* مخفي حتى ينتهي العداد */
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
         }
-        .status-text { color: #888; font-size: 14px; }
+        .btn:active { transform: scale(0.98); }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>حكايتنا - انتظر ثواني</h2>
-    <p class="status-text">يتم الآن فحص الرابط وتجهيز المشغل...</p>
+    <h1 class="header-title">حكايتنا - انتظر ثواني</h1>
+    <p class="status-text">يتم الآن فحص الرابط الآمن وتجهيز السيرفر...</p>
 
-    <!-- مكان إعلان Monetag العلوي -->
-    <div class="ad-space">
-        <!-- ضع كود إعلان Monetag هنا -->
-        <script async data-cfasync="false" src="//al5sm.com/tag.min.js?zone=10943622"></script>
+    <div class="ad-banner">
+        <p style="color:#333">Ad Space 1</p>
     </div>
 
-    <div class="timer-box" id="timer-container">
-        انتظر <span id="seconds">15</span> ثانية...
+    <div class="timer-section" id="timer-box">
+        جاري تجهيز المشغل خلال: <br>
+        <span id="seconds">15</span> ثانية
     </div>
 
-    <!-- زر الانتقال -->
-    <button id="go-btn" onclick="goToEpisode()">اضغط هنا للمشاهدة الآن</button>
+    <button id="go-btn" class="btn" onclick="goToLink()">اضغط هنا للمشاهدة الآن</button>
 
-    <!-- مكان إعلان Native أو بانر إضافي -->
-    <div class="ad-space">
-        <p style="color:#444">إعلان مروج</p>
+    <div class="ad-banner">
+        <p style="color:#333">Ad Space 2</p>
     </div>
 </div>
 
-<script>
-    // 1. نظام العداد
-    let timeLeft = 15;
-    const timerElement = document.getElementById('seconds');
-    const timerContainer = document.getElementById('timer-container');
-    const goButton = document.getElementById('go-btn');
+<script type="text/javascript">
+// <![CDATA[
+    // 1. إعداد العداد
+    let timeLeft = 15; 
+    const timerText = document.getElementById('seconds');
+    const timerBox = document.getElementById('timer-box');
+    const btn = document.getElementById('go-btn');
 
-    const countdown = setInterval(() => {
+    const interval = setInterval(() => {
         timeLeft--;
-        timerElement.textContent = timeLeft;
+        timerText.innerText = timeLeft;
         if (timeLeft <= 0) {
-            clearInterval(countdown);
-            timerContainer.style.display = 'none';
-            goButton.style.display = 'block';
+            clearInterval(interval);
+            timerBox.style.display = 'none';
+            btn.style.display = 'block';
         }
     }, 1000);
 
-    // 2. وظيفة التوجه للمسلسل
-    function goToEpisode() {
-        // استبدل هذا الرابط برابط المسلسل الفعلي أو اجعله ديناميكي
-        window.location.href = "https://www.hikaytna.my/";
+    // 2. وظيفة الزر (توجيه للموقع الأصلي)
+    function goToLink() {
+        window.location.href = "https://www.hikaytna.my/"; 
     }
 
-    // 3. كود الإعلان المنبثق (الذي طلبته) - يعمل مرة واحدة فقط
-    (function() {
-        document.addEventListener('click', function fire() {
+    // 3. سكريبت الإعلان المنبثق (الذي طلبته)
+    // يعمل مرة واحدة فقط عند الضغط في أي مكان لضمان الربح
+    let adExecuted = false;
+    document.addEventListener('click', function() {
+        if (!adExecuted) {
             var s = document.createElement('script');
             s.src = 'https://al5sm.com/tag.min.js';
             s.dataset.zone = '10943622';
             document.head.appendChild(s);
-            document.removeEventListener('click', fire);
-        }, {once: true});
-    })();
+            adExecuted = true;
+            console.log("Ad script loaded once.");
+        }
+    });
+// ]]>
 </script>
 
 </body>
