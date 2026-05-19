@@ -1,8 +1,1 @@
-{
-  "latest_version": "1.1.0",
-  "force_update": true,
-  "update_url": "https://vida-prod-webdev-app.s3.us-east-1.amazonaws.com/android-builds/310519663043584763/7e0e29c8-d3a1-4220-b634-09d3440ac924/mo_play_series_app-v1_0_6.apk?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZV3A2ECZO4N7RSPW%2F20260519%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260519T043112Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=493b67e21ba1b1b7bc8fb06d3a502ee40d14ef80d724514adbc07163b119c61f",
-  "message": "يجب تحديث التطبيق للاستمرار في المشاهدة.",
-  "release_notes": "- إصلاح مشاكل المشغل\n- تحسينات في الأداء"
-}
 
